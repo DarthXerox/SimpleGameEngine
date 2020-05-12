@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-
 namespace OpenGL_in_CSharp.Utils
 {
     class Texture2D
@@ -35,22 +30,21 @@ namespace OpenGL_in_CSharp.Utils
         {
             ID = GL.GenTexture();
 
+            Data = new Bitmap(fileName);
+            Data.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-
-            /*Data = new Bitmap(fileName);
-            //GL.TexImage2D(TextureTarget3d.ProxyTexture2DArray, )
-
+            GL.BindTexture(TextureTarget.Texture2D, ID);
 
             BitmapData bitmapData = Data.LockBits(new Rectangle(0, 0, Data.Width, Data.Height), ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-            GL.TextureStorage2D(ID, (int) Math.Log(Width, 2), SizedInternalFormat.Rgba8, Width, Height);
+            GL.TextureStorage2D(ID, (int) Math.Log(Data.Width, 2), SizedInternalFormat.Rgba8, Data.Width, Data.Height);
             GL.TextureSubImage2D(ID, 0, 0, 0, Data.Width, Data.Height, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,
                 PixelType.UnsignedByte, bitmapData.Scan0);
             GL.GenerateTextureMipmap(ID);
 
             Data.UnlockBits(bitmapData);
-            */
+
             GL.TextureParameter(ID, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TextureParameter(ID, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 

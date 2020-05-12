@@ -17,11 +17,15 @@ namespace GameNamespace
         public static readonly string Prefix = $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}";
         public static readonly string VertexShaderPath = Prefix + "VertexShader.vert";
         public static readonly string FragmentShaderPath = Prefix + "FragmentShader.frag";
-        public static readonly string TexturePath = Prefix + "img.jpg";
+        public static readonly string TexturePath = Prefix + "lelouch.jpg";
+
+        private int frameCount = 0;
 
         public int ProgramID { private set; get; } // ID of the program
         private int vaoMain;
         private Texture2D texture1;
+        private Texture2D texture2;
+
 
         private int vboPosition;
         private int vboTexCoors;
@@ -72,6 +76,7 @@ namespace GameNamespace
             GL.ClearColor(Color4.CornflowerBlue);
             ProgramID = CreateProgram(VertexShaderPath, FragmentShaderPath);
             texture1 = new Texture2D(TexturePath);
+            texture2 = new Texture2D(Prefix + "img.jpg");
 /*
             float[] vertices =
             {
@@ -173,7 +178,20 @@ namespace GameNamespace
             GL.UseProgram(ProgramID);
             GL.BindVertexArray(vaoMain);
             GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matViewData[0]);
-            texture1.Use(shaderUniformTextureSampler);
+
+            frameCount++;
+            if (frameCount < 60 )
+            {
+                texture2.Use(shaderUniformTextureSampler);
+            } 
+            else if (frameCount < 120)
+            {
+                texture1.Use(shaderUniformTextureSampler);
+            }
+            else 
+            {
+                frameCount = 0;
+            }
 
             //GL.EnableVertexAttribArray(shaderAttribPosition);
             //GL.EnableVertexAttribArray(shaderAttribColor);
