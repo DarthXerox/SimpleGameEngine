@@ -14,7 +14,6 @@ namespace OpenGL_in_CSharp.Utils
     public class Animator : IDisposable
     {
         public Scene Scene { private set; get; }
-
         public Animator(string filename)
         {
             Scene?.Clear();
