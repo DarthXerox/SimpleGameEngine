@@ -1,2 +1,3 @@
 #Hide Your Way Out  
-Before actuall creating the game, I'm gonna revise some OpenGL basics
+Before actually creating the game,   
+I'm gonna revise how some OpenGL basics are done in C#

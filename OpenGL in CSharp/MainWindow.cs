@@ -35,6 +35,8 @@ namespace GameNamespace
         private int shaderAttribTexCoors = 1;
         private int shaderUniformMatView = 2;
         private int shaderUniformTextureSampler = 3;
+        private int shaderUniformTextureSampler2 = 4;
+
 
         private Vector3[] vertData;
         private Vector3[] colData;
@@ -179,14 +181,19 @@ namespace GameNamespace
             GL.BindVertexArray(vaoMain);
             GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matViewData[0]);
 
+            
+
+            
             frameCount++;
             if (frameCount < 60 )
             {
-                texture2.Use(shaderUniformTextureSampler);
-            } 
+                texture1.Use(shaderUniformTextureSampler);
+                texture2.Use(shaderUniformTextureSampler2);
+            }
             else if (frameCount < 120)
             {
-                texture1.Use(shaderUniformTextureSampler);
+                texture2.Use(shaderUniformTextureSampler);
+                texture1.Use(shaderUniformTextureSampler2);
             }
             else 
             {
