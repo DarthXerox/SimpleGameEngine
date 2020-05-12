@@ -9,6 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+
 namespace OpenGL_in_CSharp.Utils
 {
     class Texture2D
@@ -29,8 +34,13 @@ namespace OpenGL_in_CSharp.Utils
         public Texture2D(string fileName)
         {
             ID = GL.GenTexture();
-            Data = new Bitmap(fileName);
+
+
+
+            /*Data = new Bitmap(fileName);
             //GL.TexImage2D(TextureTarget3d.ProxyTexture2DArray, )
+
+
             BitmapData bitmapData = Data.LockBits(new Rectangle(0, 0, Data.Width, Data.Height), ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
@@ -40,7 +50,7 @@ namespace OpenGL_in_CSharp.Utils
             GL.GenerateTextureMipmap(ID);
 
             Data.UnlockBits(bitmapData);
-
+            */
             GL.TextureParameter(ID, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TextureParameter(ID, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
