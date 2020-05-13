@@ -11,14 +11,12 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 namespace OpenGL_in_CSharp.Utils
 {
-    class Texture2D
+    class Texture2D : IDisposable
     {
         public int ID { get; }
         public Bitmap Data { private set; get; }
-
         public int Width { get { return Data.Width; } }
         public int Height { get { return Data.Height; } }
-
 
         public Texture2D(int id, Bitmap data)
         {
@@ -44,6 +42,7 @@ namespace OpenGL_in_CSharp.Utils
             GL.GenerateTextureMipmap(ID);
 
             Data.UnlockBits(bitmapData);
+            Data.Dispose();
 
             GL.TextureParameter(ID, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TextureParameter(ID, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -61,6 +60,13 @@ namespace OpenGL_in_CSharp.Utils
         public void Use(int shaderLocation)
         {
             GL.BindTextureUnit(shaderLocation, ID);
+        }
+
+        public void Dispose()
+        {
+            GL.DeleteTexture(ID);
+            Data.Dispose();
+            //Dispose(true);
         }
     }
 }

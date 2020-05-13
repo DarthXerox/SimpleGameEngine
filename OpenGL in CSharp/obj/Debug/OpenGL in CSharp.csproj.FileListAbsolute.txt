@@ -19,7 +19,6 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Memory.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Numerics.Vectors.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.ValueTuple.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.Core.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.ImageSharp.xml
@@ -28,3 +27,6 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Numerics.Vectors.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.ValueTuple.xml
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\CjClutter.ObjLoader.Loader.dll
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Diagnostics.DiagnosticSource.dll
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Diagnostics.DiagnosticSource.xml

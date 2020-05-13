@@ -7,6 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGL in CSharp", "OpenGL 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D86EC065-7BA1-45D3-B6E0-5F30E20417F3}"
 	ProjectSection(SolutionItems) = preProject
+		GameObject.cs = GameObject.cs
 		OpenGL in CSharp\lelouch.png = OpenGL in CSharp\lelouch.png
 	EndProjectSection
 EndProject
