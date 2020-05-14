@@ -11,7 +11,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 namespace OpenGL_in_CSharp.Utils
 {
-    class Texture2D : IDisposable
+    public class Texture2D : IDisposable
     {
         public int ID { get; }
         public Bitmap Data { private set; get; }

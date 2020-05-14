@@ -34,6 +34,9 @@ namespace GameNamespace
         // These must correspond to the given loacations in shaders
         private int shaderAttribPosition = 0;
         private int shaderAttribTexCoors = 1;
+        private int shaderAttribNormals = 2;
+        private int shaderUniformMatTrans = 1;
+
         private int shaderUniformMatView = 2;
         private int shaderUniformTextureSampler = 3;
         private int shaderUniformTextureSampler2 = 4;
@@ -44,6 +47,9 @@ namespace GameNamespace
         private Matrix4[] matViewData;
         private float[] vertices;
 
+        private GameObject objectToDraw;
+
+        Matrix4 x = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(45.0f));
 
         //
         /// <summary>
@@ -55,8 +61,8 @@ namespace GameNamespace
         //
 
 
-        public MainWindow()
-           : base(1280, // initial width
+        public MainWindow() //1280:720
+           : base(720, // initial width
             720, // initial height
             GraphicsMode.Default,
             "Slenderman??",  // initial title
@@ -67,7 +73,6 @@ namespace GameNamespace
             GraphicsContextFlags.ForwardCompatible)
         {
             Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
-            //OnLoad();
         }
 
 
@@ -78,6 +83,7 @@ namespace GameNamespace
             GL.Viewport(0, 0, Width, Height);
             GL.ClearColor(Color4.CornflowerBlue);
             ProgramID = CreateProgram(VertexShaderPath, FragmentShaderPath);
+            /*
             texture1 = new Texture2D(TexturePath);
             texture2 = new Texture2D(Prefix + "img.jpg");
 
@@ -103,14 +109,21 @@ namespace GameNamespace
             GL.VertexArrayVertexBuffer(vaoMain, shaderAttribTexCoors, vboPosition, IntPtr.Zero, sizeof(float) * 5);
             GL.VertexArrayAttribFormat(vaoMain, shaderAttribTexCoors, 2, VertexAttribType.Float, false, (sizeof(float) * 3));
             GL.VertexArrayAttribBinding(vaoMain, shaderAttribTexCoors, shaderAttribTexCoors);
-
+            */
 
             matViewData = new Matrix4[]{
                 //Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY),
                 Matrix4.Identity
             };
+             
+            objectToDraw = new GameObject(Prefix + "test.obj", TexturePath, 
+                shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals);
+            
+            GL.Enable(EnableCap.DepthTest);
 
-            new GameObject("test.obj");
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
+            
         }
 
 
@@ -122,10 +135,15 @@ namespace GameNamespace
             GL.Enable(EnableCap.DepthTest);
 
             GL.UseProgram(ProgramID);
-            GL.BindVertexArray(vaoMain);
+            //GL.BindVertexArray(vaoMain);
             GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matViewData[0]);
-
             
+            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatTrans, false, ref x);
+
+
+            objectToDraw.Texture.Use(shaderUniformTextureSampler);
+            objectToDraw.Draw();
+            /*
             frameCount++;
             if (frameCount < 60 )
             {
@@ -147,6 +165,7 @@ namespace GameNamespace
             GL.DrawArrays(PrimitiveType.TriangleFan, 0, 4);
             //GL.DisableVertexAttribArray(shaderAttribPosition);
             //GL.DisableVertexAttribArray(shaderAttribColor);
+            */
 
             SwapBuffers();
         }
