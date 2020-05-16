@@ -150,8 +150,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="2D Plane.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameObject.cs" />
+    <Compile Include="Light.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="Utils\FilePaths.cs" />
     <Compile Include="Utils\ObjParser.cs" />

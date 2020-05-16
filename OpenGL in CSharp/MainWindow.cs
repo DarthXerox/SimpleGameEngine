@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OpenGL_in_CSharp;
 using OpenGL_in_CSharp.Utils;
@@ -16,7 +18,7 @@ namespace GameNamespace
 {
     // More interesting tutorials
     // http://neokabuto.blogspot.com/p/tutorials.html
-    class MainWindow : GameWindow
+    public class MainWindow : GameWindow
     {
         public int ProgramID { private set; get; } // ID of the program
 
@@ -25,24 +27,32 @@ namespace GameNamespace
         private int shaderAttribTexCoors = 1;
         private int shaderAttribNormals = 2;
 
-        private int shaderUniformMatView = 0;
-        private int shaderUniformMatTrans = 1;
+        private int shaderUniformMatModel = 0;
+        private int shaderUniformMatView = 1;
+        private int shaderUniformMatProjection = 2;
+        private int shaderUnifromLigthPos = 3;
+        private int shaderUniformLightCol = 4;
 
         private int shaderUniformTextureSampler = 0;
         private int shaderUniformTextureSampler2 = 1;
 
-        private Matrix4[] matViewData = new Matrix4[] 
-        {
-                //Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY),
-                Matrix4.Identity
-        };
+        public Vector3 WorldOrigin { private set; get; } = new Vector3(0.0f);
+
+
+        private Matrix4 matModel = Matrix4.Identity; 
+        private Matrix4 matView;
+        private Matrix4 matProjection;
+        
+        public Camera Camera { private set; get; }
+
 
         private GameObject objectToDraw;
 
-        private Matrix4 transform = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30.0f)) *
-            Matrix4.CreateRotationY(MathHelper.DegreesToRadians(45.0f));
+        private Matrix4 matTransform = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30.0f)) *
+            Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20.0f)) *
+            Matrix4.CreateTranslation(0.0f, -3.0f, 0.0f);
 
-
+        private Light light;
 
         public MainWindow() //1280:720
            : base(720, // initial width
@@ -62,12 +72,12 @@ namespace GameNamespace
         {
             base.OnLoad(e);
             GL.Viewport(0, 0, Width, Height);
-            GL.ClearColor(Color4.RosyBrown);
+            GL.ClearColor(Color4.CornflowerBlue);
             ProgramID = CreateProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
-
+            light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
              
-            objectToDraw = new GameObject(FilePaths.ObjCube, FilePaths.TexturePath, 
+            objectToDraw = new GameObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
             
             GL.Enable(EnableCap.DepthTest);
@@ -83,9 +93,23 @@ namespace GameNamespace
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
+            matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 100.0f);
+            Camera = new Camera(
+                new Vector3(0.0f, 2.0f, 20.0f),
+                WorldOrigin,
+                new Vector3(0.0f, 1.0f, 0.0f)
+                );
+            var matView = Camera.GetViewMatrix();
+            //matModel *= transform;
+
             GL.UseProgram(ProgramID);
-            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matViewData[0]);
-            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatTrans, false, ref transform);
+
+            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatProjection, false, ref matProjection);
+            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matView);
+            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatModel, false, ref matTransform);
+
+            GL.ProgramUniform4(ProgramID, shaderUnifromLigthPos, light.Position);
+            GL.ProgramUniform3(ProgramID, shaderUniformLightCol, light.Color);
 
             objectToDraw.Draw();
 
