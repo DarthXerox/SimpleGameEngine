@@ -20,8 +20,8 @@ namespace GameNamespace
     // http://neokabuto.blogspot.com/p/tutorials.html
     public class MainWindow : GameWindow
     {
-        public int ProgramID { private set; get; } // ID of the program
-
+        public ShaderProgram Program { private set; get; } // ID of the program
+        
         // These must correspond to the given loacations in shaders
         private int shaderAttribPosition = 0;
         private int shaderAttribTexCoors = 1;
@@ -47,12 +47,15 @@ namespace GameNamespace
 
 
         private GameObject objectToDraw;
+        private Material objectMaterial;
 
         private Matrix4 matTransform = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30.0f)) *
             Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20.0f)) *
             Matrix4.CreateTranslation(0.0f, -3.0f, 0.0f);
 
         private Light light;
+
+        private float counter = 0.0f;
 
         public MainWindow() //1280:720
            : base(720, // initial width
@@ -73,13 +76,15 @@ namespace GameNamespace
             base.OnLoad(e);
             GL.Viewport(0, 0, Width, Height);
             GL.ClearColor(Color4.CornflowerBlue);
-            ProgramID = CreateProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
+            Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
              
             objectToDraw = new GameObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
-            
+
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold).First();
+
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
@@ -93,6 +98,19 @@ namespace GameNamespace
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
+            /*counter += 0.025f;
+            float radius = 20.0f;
+            float camX = (float)Math.Sin(counter) * radius;
+            float camZ = (float)Math.Cos(counter) * radius;
+            Camera = new Camera(
+                new Vector3(camX, 2.0f, camZ),
+                WorldOrigin,
+                new Vector3(0.0f, 1.0f, 0.0f)
+                );
+                */
+
+
+
             matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 100.0f);
             Camera = new Camera(
                 new Vector3(0.0f, 2.0f, 20.0f),
@@ -102,14 +120,20 @@ namespace GameNamespace
             var matView = Camera.GetViewMatrix();
             //matModel *= transform;
 
-            GL.UseProgram(ProgramID);
+            Program.Use();
 
-            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatProjection, false, ref matProjection);
-            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatView, false, ref matView);
-            GL.ProgramUniformMatrix4(ProgramID, shaderUniformMatModel, false, ref matTransform);
+            GL.ProgramUniform3(Program.ID, 5, Camera.Position);
+            GL.ProgramUniform3(Program.ID, 8, objectMaterial.Ambient);
+            GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
+            GL.ProgramUniform3(Program.ID, 10, objectMaterial.Specular);
+            GL.ProgramUniform1(Program.ID, 11, objectMaterial.Shininess);
 
-            GL.ProgramUniform4(ProgramID, shaderUnifromLigthPos, light.Position);
-            GL.ProgramUniform3(ProgramID, shaderUniformLightCol, light.Color);
+            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatProjection, false, ref matProjection);
+            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatView, false, ref matView);
+            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatModel, false, ref matTransform);
+
+            GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
+            GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
             objectToDraw.Draw();
 
@@ -132,7 +156,7 @@ namespace GameNamespace
         /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            GL.DeleteProgram(ProgramID);
+            //GL.DeleteProgram(Program);
             Exit();
         }
 
@@ -175,7 +199,7 @@ namespace GameNamespace
             GL.Viewport(0, 0, Width, Height);
         }
 
-
+        /*
         private int CreateProgram(string vertexShaderPath, string fragShaderPath)
         {
             int programId = GL.CreateProgram();
@@ -205,5 +229,6 @@ namespace GameNamespace
 
             return shaderId;
         }
+        */
     }
 }

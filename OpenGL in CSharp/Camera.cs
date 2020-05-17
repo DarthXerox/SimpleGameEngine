@@ -12,6 +12,8 @@ namespace OpenGL_in_CSharp
         public Vector3 Up { private set; get; }
         public Vector3 Right { private set; get; }
 
+        public Vector3 Front { get { return -1 * Direction; } }
+
         /// <summary>
         /// This is REVERSED camera direction (its being reverse is useful for calculations
         /// </summary>

@@ -1,30 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-
+﻿using System.IO;
 
 namespace OpenGL_in_CSharp.Utils
 {
     public static class FilePaths
     {
         public static readonly string Prefix = $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}";
-        public static readonly string VertexShaderPath = Prefix + "VertexShader.vert";
-        public static readonly string FragmentShaderPath = Prefix + "FragmentShader.frag";
+        public static readonly string TextureFolder = $"{Prefix}Textures{Path.DirectorySeparatorChar}";
+        public static readonly string ShadersFolder = $"{Prefix}Shaders{Path.DirectorySeparatorChar}";
+        public static readonly string ObjectsFolder = $"{Prefix}Objects{Path.DirectorySeparatorChar}";
+        public static readonly string MaterialsFolder = $"{Prefix}Materials{Path.DirectorySeparatorChar}";
 
-        public static readonly string TexturePath = Prefix + "Lelouch.jpg";
-        public static readonly string TexturePath2 = Prefix + "img.jpg";
-        public static readonly string TexturePathWood = Prefix + "wood.jpg";
-        public static readonly string TexturePathRocks = Prefix + "rocks.jpg";
-        public static readonly string TexturePathRed = Prefix + "red_square.jpg";
+        public static readonly string VertexShaderPath = ShadersFolder + "VertexShader.vert";
+        public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
 
+        public static readonly string TexturePath = TextureFolder + "Lelouch.jpg";
+        public static readonly string TexturePath2 = TextureFolder + "img.jpg";
+        public static readonly string TexturePathWood = TextureFolder + "wood.jpg";
+        public static readonly string TexturePathRocks = TextureFolder + "rocks.jpg";
+        public static readonly string TexturePathRed = TextureFolder + "red_square.jpg";
+        public static readonly string TexturePathSampleMan = TextureFolder + "diffuse.png";
 
-        public static readonly string ObjCube = Prefix + "test.obj";
-        public static readonly string ObjCubeBlender = Prefix + "cubeBlender.obj";
-        public static readonly string ObjDragon = Prefix + "dragon.obj";
+        public static readonly string ObjCube = ObjectsFolder + "test.obj";
+        public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
+        public static readonly string ObjDragon = ObjectsFolder + "dragon.obj";
+        public static readonly string ObjSampleMan = ObjectsFolder + "custom.obj";
 
+        public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
+        public static readonly string MtlTest = MaterialsFolder + "test.mtl";
+        public static readonly string MtlGold = MaterialsFolder + "gold.mtl";
 
     }
 }

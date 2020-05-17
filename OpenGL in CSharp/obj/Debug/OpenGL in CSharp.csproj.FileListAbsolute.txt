@@ -1,9 +1,7 @@
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenGL in CSharp.exe.config
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenGL in CSharp.exe
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenGL in CSharp.pdb
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.dll
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.pdb
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csprojAssemblyReference.cache
@@ -11,17 +9,11 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL 
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csproj.CopyComplete
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.exe
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.pdb
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\GlmSharp.dll
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\GlmSharp.xml
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.Core.dll
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.ImageSharp.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Buffers.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Memory.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Numerics.Vectors.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.ValueTuple.dll
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.Core.xml
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SixLabors.ImageSharp.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Buffers.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Memory.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.Numerics.Vectors.xml

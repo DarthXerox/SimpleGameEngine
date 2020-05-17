@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Assimp;
 using OpenGL_in_CSharp.Utils;
 
 namespace GameNamespace
