@@ -20,6 +20,9 @@ out vec4 finalColor;
 
 void main(void)
 {
+	//if (texture(texture0, texCoors).a < 0.5) {
+		//discard;
+	//}
     vec3 toLightVec = lightPosition.xyz - position * lightPosition.w;
     vec3 N = normalize(normals);
 
@@ -33,18 +36,14 @@ void main(void)
 
 	float distance_ = lightPosition.w == 1.0 ? pow(length(toLightVec), 2) : 1.0;
 
-    //float brightness = max(dot(normalsVec, toLightVec), 0.0);
-    //vec3 diffuse = brightness * lightColor;
-
-    //final_color =  vec4(diffuse, 1.0) * texture(texture0, texCoors);
-
 	vec3 diffuse = materialDiffuseColor * lightColor * texture(texture0, texCoors).xyz;
 
 	vec3 specular = materialSpecularColor;
 
-	vec3 color = materialAmbientColor
-		+ NdotL * diffuse 
-		+ pow(NdotH, materialShininess) * specular;
+	//materialAmbientColor +
+	vec3 color = texture(texture0, texCoors).xyz +
+		NdotL * diffuse +
+		pow(NdotH, materialShininess) * specular;
 
 
 	finalColor = vec4(color / distance_, 1.0);

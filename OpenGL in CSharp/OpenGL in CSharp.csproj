@@ -144,11 +144,13 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="ShaderProgram.cs" />
     <Compile Include="Utils\FilePaths.cs" />
+    <Compile Include="Utils\TerrainGenerator.cs" />
     <Compile Include="Utils\MtlParser.cs" />
     <Compile Include="Utils\ObjParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Texture2D.cs" />
+    <Compile Include="Utils\VertexNormalCalculator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

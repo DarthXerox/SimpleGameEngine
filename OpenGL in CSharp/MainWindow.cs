@@ -49,6 +49,8 @@ namespace GameNamespace
         private GameObject objectToDraw;
         private Material objectMaterial;
 
+        private GameObject[] animation = new GameObject[25];
+
         private Matrix4 matTransform = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30.0f)) *
             Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20.0f)) *
             Matrix4.CreateTranslation(0.0f, -3.0f, 0.0f);
@@ -56,6 +58,8 @@ namespace GameNamespace
         private Light light;
 
         private float counter = 0.0f;
+        private int framecounter = 0;
+        private int step = 2;
 
         public MainWindow() //1280:720
            : base(720, // initial width
@@ -83,7 +87,14 @@ namespace GameNamespace
             objectToDraw = new GameObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
 
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold).First();
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
+
+            for (int i = 0; i < 25; i++)
+            {
+                animation[i] = new GameObject(FilePaths.Prefix + $"Animation{Path.DirectorySeparatorChar}anim ({i + 1}).obj"
+                    , FilePaths.TexturePathSampleMan,
+                shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
+            }
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -128,14 +139,22 @@ namespace GameNamespace
             GL.ProgramUniform3(Program.ID, 10, objectMaterial.Specular);
             GL.ProgramUniform1(Program.ID, 11, objectMaterial.Shininess);
 
+            GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
+            GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
+
             GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatProjection, false, ref matProjection);
             GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatView, false, ref matView);
             GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatModel, false, ref matTransform);
 
-            GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
-            GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
-            objectToDraw.Draw();
+
+            //Console.WriteLine(framecounter / step);
+            animation[framecounter / step].Draw();
+            framecounter++;
+            if (framecounter >= step * 21)
+            {
+                framecounter = 0;
+            }
 
             SwapBuffers();
         }
