@@ -39,21 +39,17 @@ namespace GameNamespace
         public Vector3 WorldOrigin { private set; get; } = new Vector3(0.0f);
 
 
-        private Matrix4 matModel = Matrix4.Identity; 
+        //private Matrix4 matModel = Matrix4.Identity; 
         private Matrix4 matView;
         private Matrix4 matProjection;
         
         public Camera Camera { private set; get; }
 
 
-        private GameObject objectToDraw;
+        private SceneObject objectToDraw;
         private Material objectMaterial;
 
-        private GameObject[] animation = new GameObject[25];
-
-        private Matrix4 matTransform = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(30.0f)) *
-            Matrix4.CreateRotationY(MathHelper.DegreesToRadians(20.0f)) *
-            Matrix4.CreateTranslation(0.0f, -3.0f, 0.0f);
+        private SceneObject[] animation = new SceneObject[25];
 
         private Light light;
 
@@ -83,27 +79,40 @@ namespace GameNamespace
             Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
-             
-            objectToDraw = new GameObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
+
+            /*objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
 
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
+            */
+            objectToDraw = new Terrain(100, 100, FilePaths.TexturePathGrass);
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
 
             for (int i = 0; i < 25; i++)
             {
-                animation[i] = new GameObject(FilePaths.Prefix + $"Animation{Path.DirectorySeparatorChar}anim ({i + 1}).obj"
+                animation[i] = new SceneObject(FilePaths.Prefix + $"Animation{Path.DirectorySeparatorChar}anim ({i + 1}).obj"
                     , FilePaths.TexturePathSampleMan,
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
             }
+            animation[0].RotX = 30.0f;
+            animation[0].RotY = 20.0f;
+            animation[0].Translation = new Vector3(0.0f, -3.0f, 0.0f);
+            
+            Camera = new Camera(
+                new Vector3(0.0f, 2.0f, 20.0f),
+                WorldOrigin,
+                new Vector3(0.0f, 1.0f, 0.0f)
+                );
 
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.DepthTest);
+            //GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
         }
 
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            Camera.Move();
             base.OnRenderFrame(e);
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -123,16 +132,15 @@ namespace GameNamespace
 
 
             matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 100.0f);
-            Camera = new Camera(
+            /*Camera = new Camera(
                 new Vector3(0.0f, 2.0f, 20.0f),
                 WorldOrigin,
                 new Vector3(0.0f, 1.0f, 0.0f)
-                );
-            var matView = Camera.GetViewMatrix();
-            //matModel *= transform;
+                );*/
+            matView = Camera.GetViewMatrix();
 
+            
             Program.Use();
-
             GL.ProgramUniform3(Program.ID, 5, Camera.Position);
             GL.ProgramUniform3(Program.ID, 8, objectMaterial.Ambient);
             GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
@@ -142,19 +150,19 @@ namespace GameNamespace
             GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
             GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
-            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatProjection, false, ref matProjection);
-            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatView, false, ref matView);
-            GL.ProgramUniformMatrix4(Program.ID, shaderUniformMatModel, false, ref matTransform);
+            //Program.AttachModelMatrix(animation[0].GetModelMatrix());
+            Program.AttachModelMatrix(Matrix4.Identity);
+            Program.AttachViewMatrix(matView);
+            Program.AttachProjectionMatrix(matProjection);
 
-
-
+            objectToDraw.Draw();
             //Console.WriteLine(framecounter / step);
-            animation[framecounter / step].Draw();
+            /*animation[framecounter / step].Draw();
             framecounter++;
             if (framecounter >= step * 21)
             {
                 framecounter = 0;
-            }
+            }*/
 
             SwapBuffers();
         }
@@ -192,6 +200,7 @@ namespace GameNamespace
         }
         private void HandleKeyboard()
         {
+            
             var keyState = Keyboard.GetState();
 
             if (keyState.IsKeyDown(Key.Escape))

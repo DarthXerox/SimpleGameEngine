@@ -19,6 +19,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TexturePathRocks = TextureFolder + "rocks.jpg";
         public static readonly string TexturePathRed = TextureFolder + "red_square.jpg";
         public static readonly string TexturePathSampleMan = TextureFolder + "diffuse.png";
+        public static readonly string TexturePathGrass = TextureFolder + "grass_texture.jpg";
+
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,6 +70,26 @@ namespace OpenGL_in_CSharp
         public void Use()
         {
             GL.UseProgram(ID);
+        }
+
+        public void AttachModelMatrix(Matrix4 matrix)
+        {
+            AttachUnifromMatrix4(matrix, "model");
+        }
+
+        public void AttachViewMatrix(Matrix4 matrix)
+        {
+            AttachUnifromMatrix4(matrix, "view");
+        }
+
+        public void AttachProjectionMatrix(Matrix4 matrix)
+        {
+            AttachUnifromMatrix4(matrix, "projection");
+        }
+
+        private void AttachUnifromMatrix4(Matrix4 matrix, string shaderAttribName)
+        {
+            GL.ProgramUniformMatrix4(ID, GL.GetUniformLocation(ID, shaderAttribName), false, ref matrix);
         }
 
 
