@@ -13,6 +13,8 @@ namespace OpenGL_in_CSharp.Utils
     {
         public static void PrintList<T>(List<T> lst)
         {
+            Console.WriteLine("Printing list, length: " + lst.Count);
+
             foreach (T el in lst)
             {
                 Console.Write(el.ToString());

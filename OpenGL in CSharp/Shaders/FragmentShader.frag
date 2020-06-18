@@ -41,7 +41,8 @@ void main(void)
 	vec3 specular = materialSpecularColor;
 
 	//materialAmbientColor +
-	vec3 color = texture(texture0, texCoors).xyz +
+	//lightColor * texture(texture0, texCoors).xyz
+	vec3 color = lightColor * texture(texture0, texCoors).xyz +
 		NdotL * diffuse +
 		pow(NdotH, materialShininess) * specular;
 

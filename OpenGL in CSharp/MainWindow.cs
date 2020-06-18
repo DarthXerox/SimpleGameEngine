@@ -47,6 +47,9 @@ namespace GameNamespace
 
 
         private SceneObject objectToDraw;
+        private SceneObject objectToDraw2;
+        private Map map;
+
         private Material objectMaterial;
 
         private SceneObject[] animation = new SceneObject[25];
@@ -85,9 +88,17 @@ namespace GameNamespace
 
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
             */
-            objectToDraw = new Terrain(100, 100, FilePaths.TexturePathGrass);
+            objectToDraw = new Terrain(FilePaths.TexturePath);
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
+            objectToDraw.RotX = 30.0f;
+            objectToDraw.RotY = 20.0f;
+            objectToDraw.Translation = new Vector3(0.0f, -3.0f, 0.0f);
 
+            objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
+            objectToDraw2.ScalingFactor = 0.5f;
+
+            map = new Map(3, 3, FilePaths.TexturePath, FilePaths.HeightMapPath);
+            /*
             for (int i = 0; i < 25; i++)
             {
                 animation[i] = new SceneObject(FilePaths.Prefix + $"Animation{Path.DirectorySeparatorChar}anim ({i + 1}).obj"
@@ -97,22 +108,25 @@ namespace GameNamespace
             animation[0].RotX = 30.0f;
             animation[0].RotY = 20.0f;
             animation[0].Translation = new Vector3(0.0f, -3.0f, 0.0f);
-            
+            */
             Camera = new Camera(
-                new Vector3(0.0f, 2.0f, 20.0f),
+                new Vector3(0.0f, 20.0f, 20.0f),
                 WorldOrigin,
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );
+            /*
+            Camera = Camera.GenerateOmnipotentCamera(Vector3.Zero);*/
+            CursorVisible = false;
 
-            //GL.Enable(EnableCap.DepthTest);
-            //GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest);
+            
+            GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
         }
 
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            Camera.Move();
             base.OnRenderFrame(e);
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -131,14 +145,13 @@ namespace GameNamespace
 
 
 
-            matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 100.0f);
+            matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 1000.0f);
             /*Camera = new Camera(
                 new Vector3(0.0f, 2.0f, 20.0f),
                 WorldOrigin,
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );*/
-            matView = Camera.GetViewMatrix();
-
+            matView = Camera.GetViewMAtrix();
             
             Program.Use();
             GL.ProgramUniform3(Program.ID, 5, Camera.Position);
@@ -151,11 +164,17 @@ namespace GameNamespace
             GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
-            Program.AttachModelMatrix(Matrix4.Identity);
+
             Program.AttachViewMatrix(matView);
             Program.AttachProjectionMatrix(matProjection);
-
+            map.DrawMap(Program);
+            /*
+            Program.AttachModelMatrix(Matrix4.Identity);
             objectToDraw.Draw();
+            */
+            Program.AttachModelMatrix(objectToDraw2.GetModelMatrix());
+            objectToDraw2.Draw();
+
             //Console.WriteLine(framecounter / step);
             /*animation[framecounter / step].Draw();
             framecounter++;
@@ -196,6 +215,7 @@ namespace GameNamespace
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            Camera.Move(Mouse.GetState());
             HandleKeyboard();
         }
         private void HandleKeyboard()
@@ -220,6 +240,16 @@ namespace GameNamespace
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 GL.PointSize(10);
             }
+        }
+
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            if (Focused) // check to see if the window is focused  
+            {
+                Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
+            }
+
+            base.OnMouseMove(e);
         }
 
         protected override void OnResize(EventArgs e)

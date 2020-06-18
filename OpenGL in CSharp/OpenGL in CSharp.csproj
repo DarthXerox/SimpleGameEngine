@@ -139,6 +139,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Map.cs" />
     <Compile Include="SceneObject.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MainWindow.cs" />
