@@ -21,6 +21,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TexturePathSampleMan = TextureFolder + "diffuse.png";
         public static readonly string TexturePathGrass = TextureFolder + "grass_texture.jpg";
         public static readonly string TexturePathGrass2 = TextureFolder + "grass2.png";
+        public static readonly string TextureTreeTrunk = TextureFolder + "tree_trunk.jpg";
+        public static readonly string TextureTreeLeaves = TextureFolder + "tree_leaves.jpg";
 
 
         public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
@@ -29,10 +31,13 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
         public static readonly string ObjDragon = ObjectsFolder + "dragon.obj";
         public static readonly string ObjSampleMan = ObjectsFolder + "custom.obj";
+        public static readonly string ObjTreeTrunk = ObjectsFolder + "tree_trunk.obj";
+        public static readonly string ObjTreeLeaves = ObjectsFolder + "tree_leaves.obj";
 
         public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
         public static readonly string MtlTest = MaterialsFolder + "test.mtl";
         public static readonly string MtlGold = MaterialsFolder + "gold.mtl";
-
+        public static readonly string MtlTreeTrunk = MaterialsFolder + "tree_trunk.mtl";
+        public static readonly string MtlTreeLeaves = MaterialsFolder + "tree_leaves.mtl";
     }
 }

@@ -18,7 +18,7 @@ namespace OpenGL_in_CSharp.Utils
         */
         public readonly float MaxHeight = 15f;
 
-        public readonly int TexturesPerSide = 1;
+        public readonly int TexturesPerSide = 8;
 
         public int WidthX { get; set; }
         public int WidthZ { get; set; }
@@ -91,18 +91,18 @@ namespace OpenGL_in_CSharp.Utils
             return ret;
         }
 
-        /*
-        private float GetInterpolatedNoise(float x, float z)
+        
+        public float GetInterpolatedHeight(float x, float z)
         {
             int intX = (int)x;
             int intZ = (int)z;
             float fracX = x - intX;
             float fracZ = z - intZ;
 
-            float v1 = GetSmoothNoise(intX, intZ);
-            float v2 = GetSmoothNoise(intX + 1, intZ);
-            float v3 = GetSmoothNoise(intX, intZ + 1);
-            float v4 = GetSmoothNoise(intX + 1, intZ + 1);
+            float v1 = GetHeight(intX, intZ);
+            float v2 = GetHeight(intX + 1, intZ);
+            float v3 = GetHeight(intX, intZ + 1);
+            float v4 = GetHeight(intX + 1, intZ + 1);
             float i1 = Interpolate(v1, v2, fracX);
             float i2 = Interpolate(v3, v4, fracX);
             return Interpolate(i1, i2, fracZ);
@@ -113,7 +113,7 @@ namespace OpenGL_in_CSharp.Utils
             double theta = blend * Math.PI;
             float f = (float)(1f - Math.Cos(theta)) * 0.5f;
             return a * (1f - f) + b * f;
-        }*/
+        }
 
         /*
         private ObjModel CalculateMesh()

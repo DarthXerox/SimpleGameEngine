@@ -8,11 +8,11 @@ namespace OpenGL_in_CSharp
 {
     public class Camera
     {
-        public Vector3 Position { private set; get; }
+        public Vector3 Position { protected set; get; }
         public Vector3 Target { private set; get; }
         public Vector3 Up { private set; get; }
         public Vector3 Right { private set; get; }
-        public Vector3 Front { get; private set; }
+        public Vector3 Front { get; protected set; }
         public bool FirstMove { set; get; } = true;
         public Vector2 LastMousePos { private set; get; }
 
@@ -42,6 +42,13 @@ namespace OpenGL_in_CSharp
             Up = new Vector3(0,1,0);
             Front = new Vector3(0,0,-1);
         }
+
+        public Camera(Vector3 pos)
+        {
+            Position = pos;
+            Up = new Vector3(0, 1, 0);
+            Front = new Vector3(0, 0, -1);
+        }
         /*
         public static Camera GenerateOmnipotentCamera(Vector3 firstTargetPosition)
         {
@@ -66,15 +73,24 @@ namespace OpenGL_in_CSharp
             return Matrix4.LookAt(Position, Target, Up);
         }
 
-        public Matrix4 GetViewMAtrix()
+        public virtual Matrix4 GetViewMatrix()
         {
             return Matrix4.LookAt(Position, Position + Front, Up);
         }
 
 
+        public virtual void Move(MouseState mouse)
+        {
+            UpdateAngles(mouse);
+            Front = Vector3.Normalize(new Vector3(
+                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)),
+                (float)Math.Sin(MathHelper.DegreesToRadians(Pitch)),
+                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(Yaw))
+                ));
+            Move();
+        }
 
-
-        public void Move()
+        public virtual void Move()
         {
             var keyState = Keyboard.GetState();
             if  (keyState.IsKeyDown(Key.W))
@@ -114,8 +130,7 @@ namespace OpenGL_in_CSharp
             */
         }
 
-
-        public void Move(MouseState mouse) 
+        public virtual void UpdateAngles(MouseState mouse) 
         {
             if (FirstMove)
             {
@@ -129,6 +144,8 @@ namespace OpenGL_in_CSharp
                 LastMousePos = new Vector2(mouse.X, mouse.Y);
 
                 Yaw += deltaX * Sensitivity;
+                Pitch += deltaY * Sensitivity;
+
                 if (Pitch > 89.0f)
                 {
                     Pitch = 89.0f;
@@ -137,19 +154,17 @@ namespace OpenGL_in_CSharp
                 {
                     Pitch = -89.0f;
                 }
-                else
-                {
-                    Pitch += deltaY * Sensitivity;
-                }
             }
+        }
 
-            Front = Vector3.Normalize(new Vector3(
-                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)),
-                (float)Math.Sin(MathHelper.DegreesToRadians(Pitch)),
-                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(Yaw))
-                ));
+        public static float ComputeX(float pitch, float yaw)
+        {
+            return (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(yaw));
+        }
 
-            Move();
+        public static float ComputeZ(float pitch, float yaw)
+        {
+            return (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(yaw));
         }
     }
 }

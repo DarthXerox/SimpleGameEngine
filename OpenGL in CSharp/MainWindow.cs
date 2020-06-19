@@ -44,7 +44,7 @@ namespace GameNamespace
         private Matrix4 matProjection;
         
         public Camera Camera { private set; get; }
-
+        private Player player;
 
         private SceneObject objectToDraw;
         private SceneObject objectToDraw2;
@@ -55,6 +55,8 @@ namespace GameNamespace
         private SceneObject[] animation = new SceneObject[25];
 
         private Light light;
+
+        public bool IsPlayerMoving { private set; get; } = true;
 
         private float counter = 0.0f;
         private int framecounter = 0;
@@ -89,15 +91,16 @@ namespace GameNamespace
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
             */
             objectToDraw = new Terrain(FilePaths.TexturePath);
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlTreeLeaves)[0];
             objectToDraw.RotX = 30.0f;
             objectToDraw.RotY = 20.0f;
-            objectToDraw.Translation = new Vector3(0.0f, -3.0f, 0.0f);
+            objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
 
             objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
             objectToDraw2.ScalingFactor = 0.5f;
 
-            map = new Map(3, 3, FilePaths.TexturePath, FilePaths.HeightMapPath);
+            map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
+            player = new Player(new Vector3(1, 0, 1), map);
             /*
             for (int i = 0; i < 25; i++)
             {
@@ -151,7 +154,7 @@ namespace GameNamespace
                 WorldOrigin,
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );*/
-            matView = Camera.GetViewMAtrix();
+            matView = IsPlayerMoving ? player.GetViewMatrix() : Camera.GetViewMatrix();
             
             Program.Use();
             GL.ProgramUniform3(Program.ID, 5, Camera.Position);
@@ -215,8 +218,15 @@ namespace GameNamespace
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            Camera.Move(Mouse.GetState());
             HandleKeyboard();
+            if (IsPlayerMoving)
+            {
+                player.Move(Mouse.GetState());
+            } else
+            {
+                Camera.Move(Mouse.GetState());
+            }
+
         }
         private void HandleKeyboard()
         {
@@ -239,7 +249,11 @@ namespace GameNamespace
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 GL.PointSize(10);
-            }
+            } 
+            /*else if (keyState.IsKeyDown(Key.X))
+            {
+                IsPlayerMoving = !IsPlayerMoving;
+            }*/
         }
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
