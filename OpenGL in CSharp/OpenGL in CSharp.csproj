@@ -138,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="CollisionArgs.cs" />
+    <Compile Include="CollisionManager.cs" />
+    <Compile Include="ICollidable.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Player.cs" />
@@ -147,6 +150,7 @@
     <Compile Include="ShaderProgram.cs" />
     <Compile Include="Utils\FilePaths.cs" />
     <Compile Include="Utils\HelpPrinter.cs" />
+    <Compile Include="Utils\MathOperations.cs" />
     <Compile Include="Utils\Mesh.cs" />
     <Compile Include="Utils\TerrainGenerator.cs" />
     <Compile Include="Utils\MtlParser.cs" />

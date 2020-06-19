@@ -1,15 +1,21 @@
 ﻿using System;
+using OpenGL_in_CSharp.Utils;
 using OpenTK;
 using OpenTK.Input;
 
 namespace OpenGL_in_CSharp
 {
-    public class Player : Camera
+    public class Player : Camera, ICollidable
     {
         public Map AssociatedMap { private set; get; }
-        public float PlayerHeight { private set; get; } = 10f;
+        public float Height { private set; get; } = 10f;
 
         public SceneObject Arms { private set; get; }
+        
+        
+  
+        public Vector3 LowerCentre{ get => Position - new Vector3(0, Height, 0); }
+        public float Radius { private set; get; } = 3f;
 
         public Player(Vector3 position, Map map) : base(position)
         {
@@ -29,7 +35,7 @@ namespace OpenGL_in_CSharp
             base.Move();
 
             var pos = Position;
-            pos.Y = AssociatedMap.GetHeight(pos.X, pos.Z) + PlayerHeight;
+            pos.Y = AssociatedMap.GetHeight(pos.X, pos.Z) + Height;
             Position = pos;
         }
 
@@ -42,6 +48,41 @@ namespace OpenGL_in_CSharp
                 ));
             return Matrix4.LookAt(Position, Position + temp, Up);
 
+        }
+
+        public bool IsColliding(ICollidable other)
+        {
+            if (LowerCentre.Y > other.LowerCentre.Y)
+            {
+                if (LowerCentre.Y <= other.LowerCentre.Y + other.Height)
+                {
+                    return LowerCentre.IsWithinDistanceInPlane(other.LowerCentre, Radius + other.Radius);
+                } 
+            }
+            else
+            {
+                if (other.LowerCentre.Y <= LowerCentre.Y + Height)
+                {
+                    return LowerCentre.IsWithinDistanceInPlane(other.LowerCentre, Radius + other.Radius);
+                }
+            }
+
+            return false;
+        }
+
+        public void OnCollisionCheck(object source, CollisionArgs args)
+        {
+            if (IsColliding(args.PointOfCollision))
+            {
+                args.PointOfCollision.MoveOutOfCollision(this);
+            }
+        }
+
+        public void MoveOutOfCollision(ICollidable other)
+        {
+            var temp = Position;
+            temp.MoveFromInPlane(other.Position, Radius + other.Radius + 0.01f);
+            Position = temp;
         }
     }
 }
