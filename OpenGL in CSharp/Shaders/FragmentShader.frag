@@ -42,7 +42,7 @@ void main(void)
 
 	//materialAmbientColor +
 	//lightColor * texture(texture0, texCoors).xyz
-	vec3 color = lightColor * texture(texture0, texCoors).xyz +
+	vec3 color = materialAmbientColor +
 		NdotL * diffuse +
 		pow(NdotH, materialShininess) * specular;
 

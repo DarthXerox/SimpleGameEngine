@@ -138,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Collidable.cs" />
     <Compile Include="CollisionArgs.cs" />
     <Compile Include="CollisionManager.cs" />
     <Compile Include="ICollidable.cs" />

@@ -56,6 +56,8 @@ namespace GameNamespace
 
         private Light light;
 
+        public CollisionManager CollisionManager { set; get; }
+
         public bool IsPlayerMoving { private set; get; } = true;
 
         private float counter = 0.0f;
@@ -91,7 +93,7 @@ namespace GameNamespace
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
             */
             objectToDraw = new Terrain(FilePaths.TexturePath);
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlTreeLeaves)[0];
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
             objectToDraw.RotX = 30.0f;
             objectToDraw.RotY = 20.0f;
             objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
@@ -121,8 +123,11 @@ namespace GameNamespace
             Camera = Camera.GenerateOmnipotentCamera(Vector3.Zero);*/
             CursorVisible = false;
 
+
+            CollisionManager = new CollisionManager(player);
+            CollisionManager.CollisionChecking += map.Tree.OnCollisionCheck;
+
             GL.Enable(EnableCap.DepthTest);
-            
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
         }
@@ -175,9 +180,10 @@ namespace GameNamespace
             Program.AttachModelMatrix(Matrix4.Identity);
             objectToDraw.Draw();
             */
+            /*
             Program.AttachModelMatrix(objectToDraw2.GetModelMatrix());
             objectToDraw2.Draw();
-
+            */
             //Console.WriteLine(framecounter / step);
             /*animation[framecounter / step].Draw();
             framecounter++;
@@ -222,6 +228,7 @@ namespace GameNamespace
             if (IsPlayerMoving)
             {
                 player.Move(Mouse.GetState());
+                CollisionManager.OnCollisionChecking();
             } else
             {
                 Camera.Move(Mouse.GetState());

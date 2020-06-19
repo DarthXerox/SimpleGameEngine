@@ -12,6 +12,15 @@ namespace OpenGL_in_CSharp
         public List<Vector2> TextureCoordinates = new List<Vector2>();
         public List<Vector3> Normals = new List<Vector3>();
 
+        public float MaxX { set; get; }
+        public float MaxY { set; get; }
+        public float MaxZ { set; get; }
+
+
+        public float MinX { set; get; }
+        public float MinY { set; get; }
+        public float MinZ { set; get; }
+
         public List<int> Indices = new List<int>();
 
         public float[] VerticesFloat;
@@ -33,6 +42,32 @@ namespace OpenGL_in_CSharp
                 {
                     case "v":
                         ParseVector3(ref result.Vertices, ref parts);
+                        
+                        if (result.Vertices.Last().X > result.MaxX)
+                        {
+                                result.MaxX = result.Vertices.Last().X;
+                        }
+                        if ( result.Vertices.Last().Y > result.MaxY)
+                        {
+                            result.MaxY = result.Vertices.Last().Y;
+                        }
+                        if ( result.Vertices.Last().Z > result.MaxZ)
+                        {
+                            result.MaxZ = result.Vertices.Last().Z;
+                        }
+                        ///
+                        if ( result.Vertices.Last().X < result.MinX)
+                        {
+                            result.MinX = result.Vertices.Last().X;
+                        }
+                        if (result.Vertices.Last().Y < result.MinY)
+                        {
+                            result.MinY = result.Vertices.Last().Y;
+                        }
+                        if ( result.Vertices.Last().Z < result.MinZ)
+                        {
+                            result.MinZ = result.Vertices.Last().Z;
+                        }
                         break;
                     case "vt":
                         ParseTextureCoords(result, ref parts);

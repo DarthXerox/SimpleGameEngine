@@ -13,7 +13,7 @@ namespace OpenGL_in_CSharp
     {
         public List<Terrain> Terrains { set; get; } = new List<Terrain>();
 
-        public SceneObject Tree { set; get; }
+        public Collidable Tree { set; get; }
         public SceneObject TreeLeaves { set; get; }
 
         public int Width { get; }
@@ -38,7 +38,7 @@ namespace OpenGL_in_CSharp
                 }
             }
 
-            Tree = new SceneObject(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
+            Tree = new Collidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
             Tree.Position = new Vector3(20, GetHeight(20, 20), 20);
 
             TreeLeaves = new SceneObject(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves);

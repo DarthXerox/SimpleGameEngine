@@ -19,6 +19,11 @@ namespace UnitTests
             vec1.MoveFromInPlane(vec2, 30f);
             Assert.IsTrue(vec1.IsWithinDistanceInPlane(vec2, 30.011f));
             Assert.IsFalse(vec1.IsWithinDistanceInPlane(vec2, 30.0f));
+        }
+
+        [TestMethod]
+        public void CollisionTest()
+        {
 
         }
     }

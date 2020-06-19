@@ -8,14 +8,13 @@ namespace OpenGL_in_CSharp
     public class Player : Camera, ICollidable
     {
         public Map AssociatedMap { private set; get; }
-        public float Height { private set; get; } = 10f;
+        public float Height { private set; get; } = 5f;
 
         public SceneObject Arms { private set; get; }
         
         
-  
         public Vector3 LowerCentre{ get => Position - new Vector3(0, Height, 0); }
-        public float Radius { private set; get; } = 3f;
+        public float Radius { private set; get; } = 5f;
 
         public Player(Vector3 position, Map map) : base(position)
         {

@@ -16,7 +16,7 @@ namespace OpenGL_in_CSharp
         //public List<ICollidable> Collidables { private set; get; }
         public ICollidable PointOfCollision { private set; get; }
 
-        public delegate void CollisionCheckingEventHandler(object sauce, EventArgs args);
+        public delegate void CollisionCheckingEventHandler(object sauce, CollisionArgs args);
 
         public event CollisionCheckingEventHandler CollisionChecking;
 
@@ -29,9 +29,9 @@ namespace OpenGL_in_CSharp
         }
 
         
-        protected virtual void OnCollisionChecking()
+        public virtual void OnCollisionChecking()
         {
-            CollisionChecking?.Invoke(this, EventArgs.Empty);
+            CollisionChecking?.Invoke(this, new CollisionArgs(PointOfCollision));
         }
 
     }
