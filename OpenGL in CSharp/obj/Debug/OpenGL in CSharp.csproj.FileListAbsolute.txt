@@ -4,7 +4,6 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenGL 
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.pdb
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\OpenTK.xml
-C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csprojAssemblyReference.cache
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csproj.CoreCompileInputs.cache
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csproj.CopyComplete
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.exe

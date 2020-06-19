@@ -12,16 +12,17 @@ namespace OpenGL_in_CSharp.Utils
         public static bool IsWithinDistanceInPlane(this Vector3 vec, Vector3 other, float distance)
         {
             return (distance * distance) >= ((vec.X - other.X) * (vec.X - other.X) +
-                (vec.Y - other.Y) * (vec.Y - other.Y));
+                (vec.Z - other.Z) * (vec.Z - other.Z));
         }
 
         public static void MoveFromInPlane(ref this Vector3 vec, Vector3 other, float distance)
         {
             float acutalDistance = (float) Math.Sqrt((double) (vec.X - other.X) * (vec.X - other.X) +
-                (vec.Y - other.Y) * (vec.Y - other.Y));
+                (vec.Z - other.Z) * (vec.Z - other.Z));
             float difference = distance - acutalDistance;
             var unitMovementVector = vec - other;
             unitMovementVector.Y = vec.Y;
+            unitMovementVector.Normalize();
 
             vec += unitMovementVector * difference;
         }
