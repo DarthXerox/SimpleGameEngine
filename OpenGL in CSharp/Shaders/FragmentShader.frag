@@ -49,19 +49,7 @@ void main(void) {
 
     vec3 toLightVec = light.position.xyz - position * light.position.w;
     vec3 L = normalize(toLightVec);
-
-//	float theta     = dot(L, normalize(-light.direction));
-//	float epsilon   = light.cutOff - light.outerCutOff;
-//	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);  
-//	if (theta > light.cutOff) {
-//        finalColor = vec4(1,0, 0, 1);
-//	} else {
-//        finalColor = vec4(0,1, 0, 1);
-//        }
-
-
     vec3 N = normalize(normals);
-
 	vec3 E = normalize(camPosition - position); 
 	vec3 H = normalize(L + E); 
 	float NdotL = max(dot(N, L), 0.0);
@@ -76,8 +64,8 @@ void main(void) {
 	vec3 diffuse = materialDiffuseColor.rgb * light.diffuse.rgb * texture(texture0, texCoors).xyz;
 	vec3 specular = materialSpecularColor.rgb * light.specular.rgb;
 
-	float theta     = dot(L, normalize(-light.direction));
-	float epsilon   = light.cutOff - light.outerCutOff;
+	float theta = dot(L, normalize(-light.direction));
+	float epsilon = light.cutOff - light.outerCutOff;
 	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);  
 
 	ambient *= attenuation;

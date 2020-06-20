@@ -167,7 +167,8 @@ namespace GameNamespace
             matView = IsPlayerMoving ? player.GetViewMatrix() : Camera.GetViewMatrix();
             
             Program.Use();
-            GL.ProgramUniform3(Program.ID, 5, Camera.Position);
+            Vector3 camPosition = IsPlayerMoving ? player.Position : Camera.Position;
+            GL.ProgramUniform3(Program.ID, 5, camPosition);
             GL.ProgramUniform3(Program.ID, 8, objectMaterial.Ambient);
             GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
             GL.ProgramUniform3(Program.ID, 10, objectMaterial.Specular);
