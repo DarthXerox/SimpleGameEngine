@@ -20,7 +20,7 @@ void main(void) {
     //out_texCoors = texCoors;
     //out_normals = ( transform * vec4(normals, 1.0)).xyz;
 
-    out_position = position;
+    out_position = (model * vec4(position, 1)).xyz;
 	out_normals = transpose(inverse(mat3(model))) * normals;
 	out_texCoors = texCoors;
 

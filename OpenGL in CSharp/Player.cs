@@ -8,17 +8,16 @@ namespace OpenGL_in_CSharp
     public class Player : Camera, ICollidable
     {
         public Map AssociatedMap { private set; get; }
-        public float Height { private set; get; } = 5f;
+        public ConeLight Flashlight { set; get; }
 
-        public SceneObject Arms { private set; get; }
-        
-        
+        public float Height { private set; get; } = 5f;
         public Vector3 LowerCentre{ get => Position - new Vector3(0, Height, 0); }
         public float Radius { private set; get; } = 5f;
 
         public Player(Vector3 position, Map map) : base(position)
         {
             AssociatedMap = map;
+            Flashlight = new ConeLight(Position, Front, 1f, 0.09f, 0.032f, 12.5f, 17.5f);
         }
 
         public override void Move(MouseState mouse)
@@ -36,16 +35,28 @@ namespace OpenGL_in_CSharp
             var pos = Position;
             pos.Y = AssociatedMap.GetHeight(pos.X, pos.Z) + Height;
             Position = pos;
+
+            Flashlight.Position = new Vector4(Position, 1);
+            Flashlight.Direction = GetEyeFront();
         }
 
-        public override Matrix4 GetViewMatrix()
+        public Vector3 GetEyeFront()
         {
-            var temp = Vector3.Normalize(new Vector3(
+            return Vector3.Normalize(new Vector3(
                 (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)),
                 (float)Math.Sin(MathHelper.DegreesToRadians(Pitch)),
                 (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(Yaw))
                 ));
-            return Matrix4.LookAt(Position, Position + temp, Up);
+        }
+
+        public override Matrix4 GetViewMatrix()
+        {
+            /*var temp = Vector3.Normalize(new Vector3(
+                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)),
+                (float)Math.Sin(MathHelper.DegreesToRadians(Pitch)),
+                (float)Math.Cos(MathHelper.DegreesToRadians(Pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(Yaw))
+                ));*/
+            return Matrix4.LookAt(Position, Position + GetEyeFront(), Up);
 
         }
 

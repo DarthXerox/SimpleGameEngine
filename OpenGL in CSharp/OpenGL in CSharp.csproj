@@ -172,6 +172,7 @@
     <None Include="Objects\test2.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <None Include="Shaders\ConeLight.frag" />
     <None Include="Shaders\FragmentShader.frag" />
     <None Include="Shaders\VertexShader.vert" />
   </ItemGroup>

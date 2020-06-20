@@ -277,6 +277,7 @@ namespace OpenGL_in_CSharp.Utils
             {
                 return 0.0f;
             }
+            //return Math.Abs(GetColorGreyScale(HeightMap.GetPixel(x, z)) - 1f) * 2f - 1f;
             return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
         }
 

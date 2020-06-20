@@ -92,6 +92,51 @@ namespace OpenGL_in_CSharp
             GL.ProgramUniformMatrix4(ID, GL.GetUniformLocation(ID, shaderAttribName), false, ref matrix);
         }
 
+        private void AttachUniformFloat(float val, string shaderAttribName)
+        {
+            GL.ProgramUniform1(ID, GL.GetUniformLocation(ID, shaderAttribName), val);
+        }
+
+        private void AttachUniformVector3(Vector3 vec, string shaderAttribName)
+        {
+            GL.ProgramUniform3(ID, GL.GetUniformLocation(ID, shaderAttribName), vec);
+        }
+
+        private void AttachUniformVector4(Vector4 vec, string shaderAttribName)
+        {
+            GL.ProgramUniform4(ID, GL.GetUniformLocation(ID, shaderAttribName), vec);
+        }
+
+        public void AttachDirectionalLight(Light light)
+        {
+            AttachUniformVector4(light.Position, "light.position");
+            AttachUniformVector3(light.Color, "light.ambient");
+            AttachUniformVector3(light.Color, "light.diffuse");
+            AttachUniformVector3(light.Color, "light.specular");
+        }
+
+        public void AttachPointLight(PointLight light)
+        {
+            AttachDirectionalLight(light);
+            AttachUniformVector3(light.Direction, "light.direction");
+            AttachUniformFloat(light.ConstantAtt, "light.constant");
+            AttachUniformFloat(light.LinearAtt, "light.linear");
+            AttachUniformFloat(light.QuadraticAtt, "light.quadratic");
+
+            // pointlight == conelight with 180 degree cutoff
+            AttachUniformFloat(-1, "light.cutOff");
+            AttachUniformFloat(-1, "light.outerCutOff");
+        }
+
+        public void AttachConeLight(ConeLight light)
+        {
+            AttachPointLight(light);
+
+            // two more uniform assignments dont matter too much, it is a very cheap operation
+            AttachUniformFloat(light.CutOff, "light.cutOff");
+            AttachUniformFloat(light.OuterCutOff, "light.outerCutOff");
+        }
+
 
         public void Dispose()
         {

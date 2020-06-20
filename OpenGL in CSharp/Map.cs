@@ -16,6 +16,9 @@ namespace OpenGL_in_CSharp
         public Collidable Tree { set; get; }
         public SceneObject TreeLeaves { set; get; }
 
+        public SceneObject TallGrass { set; get; }
+
+
         public int Width { get; }
         public int Height { get; }
         public Bitmap HeightMap { private set; get; }
@@ -41,8 +44,11 @@ namespace OpenGL_in_CSharp
             Tree = new Collidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
             Tree.Position = new Vector3(20, GetHeight(20, 20), 20);
 
-            TreeLeaves = new SceneObject(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves);
+            TreeLeaves = new SceneObject(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3);
             TreeLeaves.Position = Tree.Position;
+
+            TallGrass = new SceneObject(FilePaths.ObjTallGrass, FilePaths.TextureTallGrass);
+            TallGrass.Position = new Vector3(30, GetHeight(30, 35), 35);
         }
 
         public float GetHeight(float x, float z)
@@ -69,6 +75,8 @@ namespace OpenGL_in_CSharp
                 Tree.Draw();
                 program.AttachModelMatrix(TreeLeaves.GetModelMatrix() * t.GetModelMatrix());
                 TreeLeaves.Draw();
+                program.AttachModelMatrix(TallGrass.GetModelMatrix() * t.GetModelMatrix());
+                TallGrass.Draw();
             }
         }
     }

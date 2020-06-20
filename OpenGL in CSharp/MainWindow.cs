@@ -55,6 +55,7 @@ namespace GameNamespace
         private SceneObject[] animation = new SceneObject[25];
 
         private Light light;
+        //private readonly ConeLight coneLight = new ConeLight(new Vector4(5f, 5f, 5f, 1), new Vector3(1, 1, 1), new Vector3(0, -1, 0), 10);
 
         public CollisionManager CollisionManager { set; get; }
 
@@ -87,7 +88,8 @@ namespace GameNamespace
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
 
-            /*objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
+            /*
+            objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
 
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
@@ -103,6 +105,9 @@ namespace GameNamespace
 
             map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
             player = new Player(new Vector3(1, 0, 1), map);
+            // = new ConeLight(new Vector4(5f, 5f, 5f, 1), new Vector3(1, 1, 1), new Vector3(0, -1, 0), 10); 
+            //coneLight = new ConeLight(new Vector4(player.Position, 1), new Vector3(1, 1, 1), player.Front, 10);
+
             /*
             for (int i = 0; i < 25; i++)
             {
@@ -171,6 +176,16 @@ namespace GameNamespace
             GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
             GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
+            /*
+            GL.ProgramUniform4(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.position"), new Vector4( player.Position, 1));
+            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.direction"), player.GetEyeFront());
+            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.ambient"), coneLight.Color);
+            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.diffuse"), coneLight.Color);
+            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.specular"), coneLight.Color);
+            GL.ProgramUniform1(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.cutOff"), coneLight.CutOff);
+            */
+            Program.AttachConeLight(player.Flashlight);
+
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
 
             Program.AttachViewMatrix(matView);
@@ -229,6 +244,8 @@ namespace GameNamespace
             {
                 player.Move(Mouse.GetState());
                 CollisionManager.OnCollisionChecking();
+                //coneLight.Position = new Vector4(player.Position, 1f);
+                //coneLight.Direction = player.Front;
             } else
             {
                 Camera.Move(Mouse.GetState());
@@ -277,37 +294,5 @@ namespace GameNamespace
         {
             GL.Viewport(0, 0, Width, Height);
         }
-
-        /*
-        private int CreateProgram(string vertexShaderPath, string fragShaderPath)
-        {
-            int programId = GL.CreateProgram();
-            int vertexShaderId = CompileShader(vertexShaderPath, ShaderType.VertexShader);
-            int fragmentShaderId = CompileShader(fragShaderPath, ShaderType.FragmentShader);
-
-            GL.AttachShader(programId, vertexShaderId);
-            GL.AttachShader(programId, fragmentShaderId);
-            GL.LinkProgram(programId);
-
-            GL.DeleteShader(vertexShaderId);
-            GL.DeleteShader(fragmentShaderId);
-
-            GL.DetachShader(programId, vertexShaderId);
-            GL.DetachShader(programId, fragmentShaderId);
-            Console.WriteLine(GL.GetProgramInfoLog(programId));
-
-            return programId;
-        }
-
-        private int CompileShader(string path, ShaderType shaderType)
-        {
-            var shaderId = GL.CreateShader(shaderType);
-            GL.ShaderSource(shaderId, File.ReadAllText(path));
-            GL.CompileShader(shaderId);
-            Console.WriteLine(GL.GetShaderInfoLog(shaderId));
-
-            return shaderId;
-        }
-        */
     }
 }

@@ -13,6 +13,7 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string VertexShaderPath = ShadersFolder + "VertexShader.vert";
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
 
+        public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
         public static readonly string TexturePath = TextureFolder + "Lelouch.jpg";
         public static readonly string TexturePath2 = TextureFolder + "img.jpg";
         public static readonly string TexturePathWood = TextureFolder + "wood.jpg";
@@ -23,9 +24,9 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TexturePathGrass2 = TextureFolder + "grass2.png";
         public static readonly string TextureTreeTrunk = TextureFolder + "tree_trunk.jpg";
         public static readonly string TextureTreeLeaves = TextureFolder + "tree_leaves.jpg";
-
-
-        public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
+        public static readonly string TextureTreeLeaves2 = TextureFolder + "tree_leaves2.png";
+        public static readonly string TextureTreeLeaves3 = TextureFolder + "tree_leaves3.png";
+        public static readonly string TextureTallGrass = TextureFolder + "tall_grass.png";
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
@@ -33,6 +34,7 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjSampleMan = ObjectsFolder + "custom.obj";
         public static readonly string ObjTreeTrunk = ObjectsFolder + "tree_trunk.obj";
         public static readonly string ObjTreeLeaves = ObjectsFolder + "tree_leaves.obj";
+        public static readonly string ObjTallGrass = ObjectsFolder + "tall_grass.obj";
 
         public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
         public static readonly string MtlTest = MaterialsFolder + "test.mtl";
