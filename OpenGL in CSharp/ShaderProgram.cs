@@ -137,6 +137,12 @@ namespace OpenGL_in_CSharp
             AttachUniformFloat(light.OuterCutOff, "light.outerCutOff");
         }
 
+        public void AttachFog(Fog fog)
+        {
+            AttachUniformFloat(fog.Denstity, "fog.density");
+            AttachUniformVector3(fog.Color, "fog.color");
+        }
+
 
         public void Dispose()
         {

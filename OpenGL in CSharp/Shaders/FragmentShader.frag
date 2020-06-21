@@ -15,6 +15,11 @@ struct Light {
     float quadratic;
 };
 
+struct Fog {
+	vec3 color;
+	float density;
+};
+
 layout (location = 3) uniform vec4 lightPosition;
 layout (location = 4) uniform vec3 lightColor;
 layout (location = 5) uniform vec3 camPosition;
@@ -25,6 +30,8 @@ layout (location = 10) uniform vec3 materialSpecularColor;
 layout (location = 11) uniform float materialShininess;
 
 layout (location = 12) uniform Light light;
+uniform Light moon;
+uniform Fog fog;
 
 uniform layout (binding = 0) sampler2D texture0;
 //uniform layout (binding = 1) sampler2D texture1;
@@ -33,21 +40,13 @@ layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoors;
 layout (location = 2) in vec3 normals;
 
+layout (location = 3) in float fogFactor;
+
 out vec4 finalColor;
 
 
-vec3 calculateDiffuse() {
-	return vec3(0,0,0);
-}
- 
-
-void main(void) {
-	if (texture(texture0, texCoors).a < 0.5) {
-		discard;
-	}
-
-
-    vec3 toLightVec = light.position.xyz - position * light.position.w;
+vec4 calculateColorSpotlight(in Light light) {
+	vec3 toLightVec = light.position.xyz - position * light.position.w;
     vec3 L = normalize(toLightVec);
     vec3 N = normalize(normals);
 	vec3 E = normalize(camPosition - position); 
@@ -77,7 +76,17 @@ void main(void) {
 		pow(NdotH, materialShininess) * specular.rgb;
 	color /= distance_;
 
-	finalColor = vec4(color , 1.0);
+	return vec4(mix(fog.color, color, fogFactor), 1.0);
+}
+ 
+
+
+void main(void) {
+	if (texture(texture0, texCoors).a < 0.5) {
+		discard;
+	}
+
+	finalColor = calculateColorSpotlight(light);
 
 
 //    vec3 toLightVec = lightPosition.xyz - position * lightPosition.w;
@@ -104,40 +113,4 @@ void main(void) {
 //
 //
 //		finalColor = vec4(color / distance_, 1.0);
-//
-
-
-//	vec3 toLightVec = coneLight.position.xyz - position; //* coneLight.position.w;
-//    vec3 L = normalize(toLightVec);
-//	float theta = dot(L, normalize(-coneLight.direction));
-//
-//	if (theta > coneLight.cutOff) {
-//		vec3 N = normalize(normals);
-//
-//		// Normal vector of the current fragment	
-//		vec3 E = normalize(camPosition - position); // Direction from the current fragment to the camera	
-//		vec3 H = normalize(L + E); // Half vector between (E)ye and L
-//		float NdotL = max(dot(N, L), 0.0);
-//		float NdotH = max(dot(N, H), 0.0);
-//
-//		float distance_ = coneLight.position.w == 1.0 ? pow(length(toLightVec), 2) : 1.0;
-//
-//		vec3 diffuse = materialDiffuseColor * coneLight.diffuse * texture(texture0, texCoors).xyz;
-//
-//		vec3 specular = materialSpecularColor * coneLight.specular;
-//
-//		//materialAmbientColor +
-//		//lightColor * texture(texture0, texCoors).xyz
-//		vec3 color = coneLight.ambient * texture(texture0, texCoors).xyz +
-//			NdotL * diffuse +
-//			pow(NdotH, materialShininess) * specular;
-//
-//
-//		finalColor = vec4(color / distance_, 1.0);
-//		//finalColor = vec4(0,1, 0, 1);
-//	} else {
-//		finalColor = vec4(lightColor * texture(texture0, texCoors).xyz, 1.0);
-//	}
-
-	
 }

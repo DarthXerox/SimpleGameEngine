@@ -71,10 +71,31 @@ namespace OpenGL_in_CSharp
             {
                 program.AttachModelMatrix(t.GetModelMatrix());
                 t.Draw();
+                var init = Tree.Position;
+
                 program.AttachModelMatrix(Tree.GetModelMatrix() * t.GetModelMatrix());
                 Tree.Draw();
                 program.AttachModelMatrix(TreeLeaves.GetModelMatrix() * t.GetModelMatrix());
                 TreeLeaves.Draw();
+
+                float x = 15;
+                
+                while (Tree.Position.X  + x < HeightMap.Width)
+                {
+                    var nextPos = new Vector3(Tree.Position.X + x, GetHeight(Tree.Position.X + x, Tree.Position.Z + x), Tree.Position.Z + x);
+                    Tree.Position = nextPos;
+                    program.AttachModelMatrix(Tree.GetModelMatrix() * t.GetModelMatrix());
+                    Tree.Draw();
+
+                    TreeLeaves.Position = nextPos;
+                    program.AttachModelMatrix(TreeLeaves.GetModelMatrix() * t.GetModelMatrix());
+                    TreeLeaves.Draw();
+
+                    x += 15;
+                }
+                Tree.Position = init;
+                TreeLeaves.Position = init;
+
                 program.AttachModelMatrix(TallGrass.GetModelMatrix() * t.GetModelMatrix());
                 TallGrass.Draw();
             }

@@ -49,6 +49,7 @@ namespace GameNamespace
         private SceneObject objectToDraw;
         private SceneObject objectToDraw2;
         private Map map;
+        public Fog WorldFog;
 
         private Material objectMaterial;
 
@@ -83,7 +84,7 @@ namespace GameNamespace
         {
             base.OnLoad(e);
             GL.Viewport(0, 0, Width, Height);
-            GL.ClearColor(Color4.CornflowerBlue);
+            GL.ClearColor(Color4.Gray);
             Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
@@ -105,6 +106,8 @@ namespace GameNamespace
 
             map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
             player = new Player(new Vector3(1, 0, 1), map);
+
+            WorldFog = new Fog(0.01f);
             // = new ConeLight(new Vector4(5f, 5f, 5f, 1), new Vector3(1, 1, 1), new Vector3(0, -1, 0), 10); 
             //coneLight = new ConeLight(new Vector4(player.Position, 1), new Vector3(1, 1, 1), player.Front, 10);
 
@@ -185,8 +188,9 @@ namespace GameNamespace
             GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.specular"), coneLight.Color);
             GL.ProgramUniform1(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.cutOff"), coneLight.CutOff);
             */
+            //Program.AttachDirectionalLight(light);
             Program.AttachConeLight(player.Flashlight);
-
+            Program.AttachFog(WorldFog);
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
 
             Program.AttachViewMatrix(matView);

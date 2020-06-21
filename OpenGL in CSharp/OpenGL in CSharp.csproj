@@ -141,6 +141,7 @@
     <Compile Include="Collidable.cs" />
     <Compile Include="CollisionArgs.cs" />
     <Compile Include="CollisionManager.cs" />
+    <Compile Include="Fog.cs" />
     <Compile Include="ICollidable.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Map.cs" />
