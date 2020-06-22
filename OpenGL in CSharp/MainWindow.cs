@@ -50,6 +50,7 @@ namespace GameNamespace
 
         private SceneObject objectToDraw;
         private SceneObject objectToDraw2;
+        private AssimpMesh AssMesh;
         private Map map;
         public Texture2D BricksNormal { set;  get; }
         public Fog WorldFog;
@@ -92,8 +93,8 @@ namespace GameNamespace
 
             //GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             GL.ClearColor(Color4.AliceBlue);
-            Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
-            NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
+            Program = new ShaderProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
+            //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
             light.Color = new Vector3(1f, 1f, 1f);
 
@@ -104,7 +105,7 @@ namespace GameNamespace
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
             */
             objectToDraw = new Terrain(FilePaths.TexturePath);
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlTreeTrunk)[0];
             objectToDraw.RotX = 30.0f;
             objectToDraw.RotY = 20.0f;
             objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
@@ -145,6 +146,9 @@ namespace GameNamespace
             map.SignUpForCollisionChecking(CollisionManager);
             //CollisionManager.CollisionChecking += map.Tree.OnCollisionCheck;
             //CollisionManager.CollisionChecking += map.TallGrass.OnCollisionCheck;
+
+            //new AssimpMesh(FilePaths.ObjCube);
+            AssMesh = new AssimpMesh(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk, FilePaths.BumpTexTrunk);
 
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.DepthTest);
@@ -221,10 +225,13 @@ namespace GameNamespace
             Program.AttachFog(WorldFog);
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
 
-            BricksNormal.Use(1);
+            //BricksNormal.Use(1);
             Program.AttachViewMatrix(matView);
             Program.AttachProjectionMatrix(matProjection);
             map.DrawMap(Program, NormalMappingProgram);
+
+            Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
+            AssMesh.Draw();
             /*
             Program.AttachModelMatrix(Matrix4.Identity);
             objectToDraw.Draw();

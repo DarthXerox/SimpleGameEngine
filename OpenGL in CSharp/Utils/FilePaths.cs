@@ -12,7 +12,9 @@ namespace OpenGL_in_CSharp.Utils
 
         public static readonly string VertexShaderPath = ShadersFolder + "VertexShader.vert";
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
-        public static readonly string NormalMappingPath = ShadersFolder + "NormalMapping.frag";
+        public static readonly string NormalMappingFrag = ShadersFolder + "NormalMapping.frag";
+        public static readonly string NormalMappingVert = ShadersFolder + "NormalMapping.vert";
+
 
 
         public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
@@ -34,7 +36,7 @@ namespace OpenGL_in_CSharp.Utils
 
         public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";
-
+        public static readonly string BumpTexTrunk = TextureFolder + "tree_trunk_normal.png";
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";

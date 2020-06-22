@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
+      <HintPath>..\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
+    </Reference>
     <Reference Include="CjClutter.ObjLoader.Loader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\CjClutter.ObjLoader.1.0.0\lib\netstandard1.4\CjClutter.ObjLoader.Loader.dll</HintPath>
     </Reference>
@@ -183,6 +186,7 @@
     <None Include="Shaders\InstancedDrawing.vert" />
     <None Include="Shaders\NormalMapping.frag" />
     <None Include="Shaders\FragmentShader.frag" />
+    <None Include="Shaders\NormalMapping.vert" />
     <None Include="Shaders\VertexShader.vert" />
   </ItemGroup>
   <ItemGroup>

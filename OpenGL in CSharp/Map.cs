@@ -122,12 +122,14 @@ namespace OpenGL_in_CSharp
 
         public void DrawMap(ShaderProgram program, ShaderProgram normalMapping)
         {
+            TerrainInstanced.Draw(program);
+            /*
             Trees.Draw(program);
             TreeLeaves.Draw(program);
-            TerrainInstanced.Draw(program);
             //program.AttachModelMatrix(Wall.GetModelMatrix());
             //Wall.Draw();
             Borders.Draw(program);
+            */
             /*
             program.AttachModelMatrix(Terrains.First().GetModelMatrix());
             Terrains.First().Draw();

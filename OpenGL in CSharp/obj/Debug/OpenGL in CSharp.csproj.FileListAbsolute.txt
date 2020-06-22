@@ -24,3 +24,5 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\System.
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\obj\Debug\OpenGL in CSharp.csprojAssemblyReference.cache
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\RangeTree.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\RangeTree.xml
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.dll
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.xml

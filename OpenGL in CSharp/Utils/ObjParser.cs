@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
+//using Assimp;
 
 namespace OpenGL_in_CSharp
 {
@@ -26,6 +28,8 @@ namespace OpenGL_in_CSharp
         public float[] TextureCoordinatesFloat;
         public float[] NormalsFloat;
         public float[] Tangents;
+        public float[] BiTangents;
+
     }
 
     public static class ObjParser
@@ -190,8 +194,26 @@ namespace OpenGL_in_CSharp
 
 
         }
+        /*
+        public static void RecreateForDrawArrays(ObjModel model)
+        {
+            // foreach face
+            List<int> newVertices = new List<int>();
+            List<int> newTexCoors = new List<int>();
+            List<int> newNormals = new List<int>();
+            List<int> tangents = new List<int>();
+            for (int i = 0; i < model.Indices.Count - 2; ++i)
+            {
+                int index = model.Indices[i];
+                newVertices.Add(model.VerticesFloat[index + 1]);
+                newVertices.Add(model.Vertices)
+            }
+        }
+        */
+
     }
 
-    
+
+
 }
  
