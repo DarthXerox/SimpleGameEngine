@@ -16,7 +16,6 @@ namespace OpenGL_in_CSharp
         public float MaxY { set; get; }
         public float MaxZ { set; get; }
 
-
         public float MinX { set; get; }
         public float MinY { set; get; }
         public float MinZ { set; get; }
@@ -26,11 +25,12 @@ namespace OpenGL_in_CSharp
         public float[] VerticesFloat;
         public float[] TextureCoordinatesFloat;
         public float[] NormalsFloat;
+        public float[] Tangents;
     }
 
     public static class ObjParser
     {
-        public static ObjModel ParseObjFile(string path)
+        public static ObjModel ParseObjFile(string path, bool calculateTangents = false)
         {
             bool parsedAllCoords = false;
             ObjModel result = new ObjModel();
@@ -187,7 +187,11 @@ namespace OpenGL_in_CSharp
                 model.NormalsFloat[vertIndex * 3 + 1] = model.Normals[normalIndex].Y;
                 model.NormalsFloat[vertIndex * 3 + 2] = model.Normals[normalIndex].Z;
             }
+
+
         }
     }
+
+    
 }
  

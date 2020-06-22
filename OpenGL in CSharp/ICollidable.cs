@@ -13,18 +13,11 @@ namespace OpenGL_in_CSharp
     public interface ICollidable
     {
         Vector3 Position { get; }
-
         Vector3 LowerCentre { get; }
-
         float Height { get; }
-
         float Radius { get; }
-
         bool IsColliding(ICollidable other);
-
         void OnCollisionCheck(object source, CollisionArgs args);
-
-        void MoveOutOfCollision(ICollidable other);
-
+        void ReactToCollision(ICollidable other);
     }
 }

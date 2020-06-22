@@ -36,7 +36,7 @@ void main(void) {
 
     out_position = (model * vec4(position, 1)).xyz;
 
-    vec3 relativeToCam = (view * model * vec4(position, 1)).xyz;
+    //vec3 relativeToCam = (view * model * vec4(position, 1)).xyz;
     float fogLen = length(camPosition - out_position);
 	fogFactor = exp2(-fog.density * fog.density * fogLen * fogLen * LOG2);
 	fogFactor = clamp(fogFactor, 0.0, 1.0);

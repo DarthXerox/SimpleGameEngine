@@ -56,6 +56,7 @@ namespace OpenGL_in_CSharp.Utils
                         case "Ns":
                             Console.WriteLine(parts[1]);
                             currentMat.Shininess = float.Parse(parts[1]);
+                            //currentMat.Shininess /= 1000;
                             break;
                         case "d":
                             currentMat.Transparecny = 1.0f - float.Parse(parts[1]);

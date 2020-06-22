@@ -12,6 +12,8 @@ namespace OpenGL_in_CSharp.Utils
 
         public static readonly string VertexShaderPath = ShadersFolder + "VertexShader.vert";
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
+        public static readonly string NormalMappingPath = ShadersFolder + "NormalMapping.frag";
+
 
         public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
         public static readonly string TexturePath = TextureFolder + "Lelouch.jpg";
@@ -27,6 +29,12 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TextureTreeLeaves2 = TextureFolder + "tree_leaves2.png";
         public static readonly string TextureTreeLeaves3 = TextureFolder + "tree_leaves3.png";
         public static readonly string TextureTallGrass = TextureFolder + "tall_grass.png";
+        public static readonly string TextureMossyRock = TextureFolder + "Colormap.jpg";
+        public static readonly string TextureBrickWall = TextureFolder + "brickwall.jpg";
+
+        public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
+        public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";
+
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
@@ -35,11 +43,20 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjTreeTrunk = ObjectsFolder + "tree_trunk.obj";
         public static readonly string ObjTreeLeaves = ObjectsFolder + "tree_leaves.obj";
         public static readonly string ObjTallGrass = ObjectsFolder + "tall_grass.obj";
+        public static readonly string ObjMossyRock1 = ObjectsFolder + "Mossy Rock 1.obj";
+        public static readonly string ObjMossyRock2 = ObjectsFolder + "Mossy Rock 2.obj";
+        public static readonly string ObjMossyRock3 = ObjectsFolder + "Mossy Rock 3.obj";
+
+
 
         public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
         public static readonly string MtlTest = MaterialsFolder + "test.mtl";
         public static readonly string MtlGold = MaterialsFolder + "gold.mtl";
         public static readonly string MtlTreeTrunk = MaterialsFolder + "tree_trunk.mtl";
         public static readonly string MtlTreeLeaves = MaterialsFolder + "tree_leaves.mtl";
+        public static readonly string MtlMossyRock1 = MaterialsFolder + "Mossy Rock 1.mtl";
+        public static readonly string MtlMossyRock2 = MaterialsFolder + "Mossy Rock 2.mtl";
+        public static readonly string MtlMossyRock3 = MaterialsFolder + "Mossy Rock 3.mtl";
+
     }
 }

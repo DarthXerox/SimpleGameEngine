@@ -13,26 +13,23 @@ namespace OpenGL_in_CSharp
     /// </summary>
     public class CollisionManager
     {
-        //public List<ICollidable> Collidables { private set; get; }
         public ICollidable PointOfCollision { private set; get; }
-
         public delegate void CollisionCheckingEventHandler(object sauce, CollisionArgs args);
-
         public event CollisionCheckingEventHandler CollisionChecking;
 
         public CollisionManager(ICollidable point)
         {
-            //Collidables = lst;
             PointOfCollision = point;
-
-            //Collidables.ForEach(col => CollisionDetected += col.OnCollisionDetected);
         }
 
-        
-        public virtual void OnCollisionChecking()
+        public void CheckCollisions()
+        {
+            OnCollisionChecking();
+        }
+
+        protected virtual void OnCollisionChecking()
         {
             CollisionChecking?.Invoke(this, new CollisionArgs(PointOfCollision));
         }
-
     }
 }

@@ -96,9 +96,7 @@ namespace OpenGL_in_CSharp.Utils
 
 			GL.GenBuffers(1, out eboIndices);
 			//GL.BindBuffer(BufferTarget.ElementArrayBuffer, eboIndices);
-
 			GL.NamedBufferStorage(eboIndices, Model.Indices.Count * sizeof(int), Model.Indices.ToArray(), 0);
-
 			GL.VertexArrayElementBuffer(vaoMesh, eboIndices);
 		}
 

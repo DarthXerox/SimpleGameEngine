@@ -13,6 +13,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
+using RangeTree;
 
 namespace GameNamespace
 {
@@ -21,6 +22,7 @@ namespace GameNamespace
     public class MainWindow : GameWindow
     {
         public ShaderProgram Program { private set; get; } // ID of the program
+        public ShaderProgram NormalMappingProgram { private set; get; }
         
         // These must correspond to the given loacations in shaders
         private int shaderAttribPosition = 0;
@@ -49,6 +51,7 @@ namespace GameNamespace
         private SceneObject objectToDraw;
         private SceneObject objectToDraw2;
         private Map map;
+        public Texture2D BricksNormal { set;  get; }
         public Fog WorldFog;
 
         private Material objectMaterial;
@@ -84,10 +87,15 @@ namespace GameNamespace
         {
             base.OnLoad(e);
             GL.Viewport(0, 0, Width, Height);
-            GL.ClearColor(Color4.Gray);
-            Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
-            light = new Light(new Vector3(10.0f, 10.0f, 5.0f), true); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
 
+            WorldFog = new Fog(0.03f, new Vector3(0.5f, 0.5f, 0.5f));
+
+            //GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
+            GL.ClearColor(Color4.AliceBlue);
+            Program = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
+            NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
+            light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
+            light.Color = new Vector3(1f, 1f, 1f);
 
             /*
             objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
@@ -105,9 +113,10 @@ namespace GameNamespace
             objectToDraw2.ScalingFactor = 0.5f;
 
             map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
+            //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
+            BricksNormal = new Texture2D(FilePaths.BumpTexBrickWall);
             player = new Player(new Vector3(1, 0, 1), map);
 
-            WorldFog = new Fog(0.01f);
             // = new ConeLight(new Vector4(5f, 5f, 5f, 1), new Vector3(1, 1, 1), new Vector3(0, -1, 0), 10); 
             //coneLight = new ConeLight(new Vector4(player.Position, 1), new Vector3(1, 1, 1), player.Front, 10);
 
@@ -133,8 +142,11 @@ namespace GameNamespace
 
 
             CollisionManager = new CollisionManager(player);
-            CollisionManager.CollisionChecking += map.Tree.OnCollisionCheck;
+            map.SignUpForCollisionChecking(CollisionManager);
+            //CollisionManager.CollisionChecking += map.Tree.OnCollisionCheck;
+            //CollisionManager.CollisionChecking += map.TallGrass.OnCollisionCheck;
 
+            GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
@@ -180,6 +192,15 @@ namespace GameNamespace
             GL.ProgramUniform4(Program.ID, shaderUnifromLigthPos, light.Position);
             GL.ProgramUniform3(Program.ID, shaderUniformLightCol, light.Color);
 
+            framecounter = (framecounter + 1) % 360;
+            int val = 0;
+            if (framecounter < 180)
+            {
+                val = 1;
+            }
+            
+            GL.ProgramUniform1(Program.ID, 12, val);
+
             /*
             GL.ProgramUniform4(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.position"), new Vector4( player.Position, 1));
             GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.direction"), player.GetEyeFront());
@@ -189,13 +210,21 @@ namespace GameNamespace
             GL.ProgramUniform1(Program.ID, GL.GetUniformLocation(Program.ID, "coneLight.cutOff"), coneLight.CutOff);
             */
             //Program.AttachDirectionalLight(light);
-            Program.AttachConeLight(player.Flashlight);
+            int lightIndex = 0;
+            Program.AttachLight(player.Flashlight, lightIndex);
+            lightIndex++;
+            Program.AttachLight(light, lightIndex);
+            lightIndex++;
+
+
+
             Program.AttachFog(WorldFog);
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
 
+            BricksNormal.Use(1);
             Program.AttachViewMatrix(matView);
             Program.AttachProjectionMatrix(matProjection);
-            map.DrawMap(Program);
+            map.DrawMap(Program, NormalMappingProgram);
             /*
             Program.AttachModelMatrix(Matrix4.Identity);
             objectToDraw.Draw();
@@ -248,7 +277,7 @@ namespace GameNamespace
             if (IsPlayerMoving)
             {
                 player.Move(Mouse.GetState());
-                CollisionManager.OnCollisionChecking();
+                CollisionManager.CheckCollisions();
                 //coneLight.Position = new Vector4(player.Position, 1f);
                 //coneLight.Direction = player.Front;
             } else

@@ -53,6 +53,7 @@ namespace OpenGL_in_CSharp.Utils
         public float GetHeight(int x, int z)
         {
             return GetHeightFromMap(x, z) * MaxHeight;
+            //return 0;
         }
         /*
         public float GetHeight(int x, int z)
@@ -114,95 +115,8 @@ namespace OpenGL_in_CSharp.Utils
             float f = (float)(1f - Math.Cos(theta)) * 0.5f;
             return a * (1f - f) + b * f;
         }
-
-        /*
-        private ObjModel CalculateMesh()
-        {
-            ObjModel model = new ObjModel();
-            for (int i = 0; i < WidthX; ++i)
-            {
-                for (int j = 0; j < WidthZ; ++j)
-                {
-                    model.Vertices.Add(new Vector3(i, GetHeight(i, j), j));
-                }
-            }
-
-            for (int i = 0; i < WidthX - 1; i++)
-            {
-                for (int j = 1; j < WidthZ; j++)
-                {
-                    // 1 square created from 2 triangles
-                    model.Indices.Add(j + i * WidthZ);
-                    model.Indices.Add(j + i * WidthZ - 1);
-                    model.Indices.Add(j + (1 + i) * WidthZ - 1);
-
-                    model.Indices.Add(j + i * WidthZ);
-                    model.Indices.Add(j + (1 + i) * WidthZ - 1);
-                    model.Indices.Add(j + (1 + i) * WidthZ);
-                    // tex coords for each triangle
-                   
-                    // not the most correct way but the fastest 
-                    // https://www.youtube.com/watch?v=O9v6olrHPwI&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=21
-                }
-            }
-
-            for (int x = 0; x < WidthX; x++)
-            {
-                for (int z = 0; z < WidthZ; z++)
-                {
-                    model.Normals.Add(CalculateNormal(x, z));
-                    if (x % 2 == 0)
-                    {
-                        if (z % 2 == 0)
-                        {
-                            model.TextureCoordinates.Add(new Vector2(0, 1));
-                        } else
-                        {
-                            model.TextureCoordinates.Add(new Vector2(0, 0));
-                        }
-
-                    } else
-                    {
-                        if (z % 2 == 0)
-                        {
-                            model.TextureCoordinates.Add(new Vector2(1, 1));
-                        }
-                        else
-                        {
-                            model.TextureCoordinates.Add(new Vector2(1, 0));
-                        }
-                    }
-                    //model.TextureCoordinates.Last() *= 40;
-                }
-            }
-
-            model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 flaots for each
-            model.TextureCoordinatesFloat = new float[model.Vertices.Count * 2]; // 2 floats for each
-            model.NormalsFloat = new float[model.Vertices.Count * 3]; //3 for each
-            
-            
-            for (int i = 0; i < model.TextureCoordinates.Count; i++) 
-            {
-                model.TextureCoordinatesFloat[2 * i] = model.TextureCoordinates[i].X;
-                model.TextureCoordinatesFloat[2 * i + 1] = model.TextureCoordinates[i].Y;
-            }
-
-            for (int i = 0; i < model.Vertices.Count; i++)
-            {
-                model.VerticesFloat[3 * i] = model.Vertices[i].X;
-                model.VerticesFloat[3 * i + 1] = model.Vertices[i].Y;
-                model.VerticesFloat[3 * i + 2] = model.Vertices[i].Z;
-            }
-
-            for (int i = 0; i < model.Normals.Count; i++)
-            {
-                model.NormalsFloat[3 * i] = model.Normals[i].X;
-                model.NormalsFloat[3 * i + 1] = model.Normals[i].Y;
-                model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
-            }
-            return model;
-        }
-        */
+        
+        // https://www.youtube.com/watch?v=O9v6olrHPwI&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=21
 
         private ObjModel CalculateMesh()
         {

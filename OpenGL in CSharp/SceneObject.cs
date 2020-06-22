@@ -9,17 +9,20 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace OpenGL_in_CSharp
 {
-	public class SceneObject 
+	public class SceneObject : ModelTransformations
 	{
 		/// <summary>
 		/// The idea is that many objects might share the same mesh but only have different position
 		/// Rotations are in degrees
 		/// </summary>
+		/// 
+		/*
 		public float RotX { set; get; } = 0.0f;
 		public float RotY { set; get; } = 0.0f;
 		public float RotZ { set; get; } = 0.0f;
 		public float ScalingFactor { set; get; } = 1.0f;
 		public Vector3 Position { set; get; } = new Vector3(1.0f);
+		*/
 		public Mesh RawMesh { protected set; get; }
 
 		public SceneObject(string objFileName, string textureFileName, int shaderAttribVertices,
@@ -36,6 +39,11 @@ namespace OpenGL_in_CSharp
 
 		public SceneObject() { }
 
+		public SceneObject(Mesh mesh)
+		{
+			RawMesh = mesh;
+		}
+
 		public void GenerateMesh(string objFileName, string textureFileName, int shaderAttribVertices,
 			int shaderAttribTexCoords, int shaderAttribNormals, int shaderTextureSampler)
 		{
@@ -43,6 +51,7 @@ namespace OpenGL_in_CSharp
 				shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler);
 		}
 
+		/*
 		public Matrix4 GetModelMatrix()
 		{
 			//https://www.youtube.com/watch?v=oc8Yl4ZruCA&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=7
@@ -55,6 +64,7 @@ namespace OpenGL_in_CSharp
 
 			return model;
 		}
+		*/
 
 		public void Draw()
 		{

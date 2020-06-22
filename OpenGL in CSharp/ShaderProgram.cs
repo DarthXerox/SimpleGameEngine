@@ -21,6 +21,8 @@ namespace OpenGL_in_CSharp
         };
         public int ID { get; }
 
+        public int LightsAmnt { private set; get; } = 0;
+
         /// <summary>
         /// Each shader's type corresponds to type in <param>AvailableShaders</param> on the same index
         /// Not every program needs to have exactly 4 shaders, it usually is 2
@@ -107,39 +109,68 @@ namespace OpenGL_in_CSharp
             GL.ProgramUniform4(ID, GL.GetUniformLocation(ID, shaderAttribName), vec);
         }
 
-        public void AttachDirectionalLight(Light light)
+
+        /*
+        public void AttachDirectionalLight(Light light, int index = 0)
         {
-            AttachUniformVector4(light.Position, "light.position");
-            AttachUniformVector3(light.Color, "light.ambient");
-            AttachUniformVector3(light.Color, "light.diffuse");
-            AttachUniformVector3(light.Color, "light.specular");
+            AttachUniformVector4(light.Position, $"lights[{index}].position");
+            AttachUniformVector3(light.Color, $"lights[{index}].ambient");
+            AttachUniformVector3(light.Color, $"lights[{index}].diffuse");
+            AttachUniformVector3(light.Color, $"lights[{index}].specular");
+           
         }
 
-        public void AttachPointLight(PointLight light)
+        public void AttachPointLight(PointLight light, int index = 0)
         {
-            AttachDirectionalLight(light);
-            AttachUniformVector3(light.Direction, "light.direction");
-            AttachUniformFloat(light.ConstantAtt, "light.constant");
-            AttachUniformFloat(light.LinearAtt, "light.linear");
-            AttachUniformFloat(light.QuadraticAtt, "light.quadratic");
+            AttachDirectionalLight(light, index);
+            AttachUniformVector3(light.Direction, $"lights[{index}].direction");
+            AttachUniformFloat(light.ConstantAtt, $"lights[{index}].constant");
+            AttachUniformFloat(light.LinearAtt, $"lights[{index}].linear");
+            AttachUniformFloat(light.QuadraticAtt, $"lights[{index}].quadratic");
 
             // pointlight == conelight with 180 degree cutoff
-            AttachUniformFloat(-1, "light.cutOff");
-            AttachUniformFloat(-1, "light.outerCutOff");
+            AttachUniformFloat(-1, $"lights[{index}].cutOff");
+            AttachUniformFloat(-1, $"lights[{index}].outerCutOff");
         }
 
-        public void AttachConeLight(ConeLight light)
+        public void AttachConeLight(ConeLight light, int index = 0)
         {
-            AttachPointLight(light);
+            //AttachPointLight(light, index);
+            
+            AttachUniformVector4(light.Position, $"lights[{index}].position");
+            AttachUniformVector3(light.Color, $"lights[{index}].ambient");
+            AttachUniformVector3(light.Color, $"lights[{index}].diffuse");
+            AttachUniformVector3(light.Color, $"lights[{index}].specular");
 
+            AttachUniformVector3(light.Direction, $"lights[{index}].direction");
+            AttachUniformFloat(light.ConstantAtt, $"lights[{index}].constant");
+            AttachUniformFloat(light.LinearAtt, $"lights[{index}].linear");
+            AttachUniformFloat(light.QuadraticAtt, $"lights[{index}].quadratic");
+            
             // two more uniform assignments dont matter too much, it is a very cheap operation
-            AttachUniformFloat(light.CutOff, "light.cutOff");
-            AttachUniformFloat(light.OuterCutOff, "light.outerCutOff");
+            AttachUniformFloat(light.CutOff, $"lights[{index}].cutOff");
+            AttachUniformFloat(light.OuterCutOff, $"lights[{index}].outerCutOff");
+        }
+        */
+        public void AttachLight(Light light, int index = 0)
+        {
+            AttachUniformVector4(light.Position, $"lights[{index}].position");
+            AttachUniformVector3(light.Color, $"lights[{index}].ambient");
+            AttachUniformVector3(light.Color, $"lights[{index}].diffuse");
+            AttachUniformVector3(light.Color, $"lights[{index}].specular");
+
+            AttachUniformVector3(light.Direction, $"lights[{index}].direction");
+            AttachUniformFloat(light.ConstantAtt, $"lights[{index}].constant");
+            AttachUniformFloat(light.LinearAtt, $"lights[{index}].linear");
+            AttachUniformFloat(light.QuadraticAtt, $"lights[{index}].quadratic");
+
+            AttachUniformFloat(light.CutOff, $"lights[{index}].cutOff");
+            AttachUniformFloat(light.OuterCutOff, $"lights[{index}].outerCutOff");
         }
 
         public void AttachFog(Fog fog)
         {
-            AttachUniformFloat(fog.Denstity, "fog.density");
+            AttachUniformFloat(fog.Density, "fog.density");
             AttachUniformVector3(fog.Color, "fog.color");
         }
 

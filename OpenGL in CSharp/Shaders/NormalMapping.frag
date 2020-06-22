@@ -1,4 +1,4 @@
-﻿#version 440
+#version 440
 
 struct Light {
     vec4  position;
@@ -31,14 +31,16 @@ layout (location = 8) uniform vec3 materialAmbientColor;
 layout (location = 9) uniform vec3 materialDiffuseColor;
 layout (location = 10) uniform vec3 materialSpecularColor;
 layout (location = 11) uniform float materialShininess;
+layout (location = 12) uniform bool isNormalTex;
+
 
 //layout (location = 12) uniform Light light;
 //uniform Light moon;
-layout (location = 12) uniform Light lights[LIGHTS_AMNT];
+layout (location = 13) uniform Light lights[LIGHTS_AMNT];
 uniform Fog fog;
 
 uniform layout (binding = 0) sampler2D texture0;
-//uniform layout (binding = 1) sampler2D texture1;
+uniform layout (binding = 1) sampler2D texNormal;
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoors;
@@ -57,13 +59,24 @@ float calcualteCutOffIntensity(in Light light_, in vec3 L) {
 vec3 calculateColor(Light light_) {
 	vec3 toLightVec = light_.position.xyz - position * light_.position.w;
     vec3 L = normalize(toLightVec);
-    vec3 N = normalize(normals);
+
+	// obtain normal from normal map in range [0,1]
+    vec3 normal = texture(texNormal, texCoors).rgb;
+    // transform normal vector to range [-1,1]
+	vec3 N;
+	//if (isNormalTex) {
+		N = normalize(normal * 2.0 - 1.0);   
+	 //} else {
+		//N = normalize(normals);
+	//}
+
 	vec3 E = normalize(camPosition - position); 
 	vec3 H = normalize(L + E); 
 	float NdotL = max(dot(N, L), 0.0);
 	float NdotH = max(dot(N, H), 0.0);
 
 	vec3 ambient = texture(texture0, texCoors).xyz * light_.ambient.rgb;
+	//ambient += 0.5;
 	//vec3 ambient = materialAmbientColor.rgb * light_.ambient.rgb;
 	vec3 diffuse = materialDiffuseColor.rgb * light_.diffuse.rgb * texture(texture0, texCoors).xyz;
 	vec3 specular = materialSpecularColor.rgb * light_.specular.rgb;
@@ -104,28 +117,4 @@ void main(void) {
 	}
 	finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
 
-//    vec3 toLightVec = lightPosition.xyz - position * lightPosition.w;
-//    vec3 N = normalize(normals);
-//
-//    vec3 L = normalize(toLightVec);
-//	// Normal vector of the current fragment	
-//	vec3 E = normalize(camPosition - position); // Direction from the current fragment to the camera	
-//	vec3 H = normalize(L + E); // Half vector between (E)ye and L
-//	float NdotL = max(dot(N, L), 0.0);
-//		float NdotH = max(dot(N, H), 0.0);
-//
-//		float distance_ = lightPosition.w == 1.0 ? pow(length(toLightVec), 2) : 1.0;
-//
-//		vec3 diffuse = materialDiffuseColor * lightColor * texture(texture0, texCoors).xyz;
-//
-//		vec3 specular = materialSpecularColor;
-//
-//		//materialAmbientColor +
-//		//lightColor * texture(texture0, texCoors).xyz
-//		vec3 color = lightColor * texture(texture0, texCoors).xyz +
-//			NdotL * diffuse +
-//			pow(NdotH, materialShininess) * specular;
-//
-//
-//		finalColor = vec4(color / distance_, 1.0);
 }

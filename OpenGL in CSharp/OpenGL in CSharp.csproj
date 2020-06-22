@@ -46,6 +46,9 @@
     <Reference Include="OpenTK, Version=3.2.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.2\lib\net20\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="RangeTree, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RangeTree.2.0.1\lib\net45\RangeTree.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
@@ -144,16 +147,19 @@
     <Compile Include="Fog.cs" />
     <Compile Include="ICollidable.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="InstancedDrawing\InstancedSceneObject.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="SceneObject.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="ShaderProgram.cs" />
+    <Compile Include="Utils\CollisionsCollection.cs" />
     <Compile Include="Utils\FilePaths.cs" />
     <Compile Include="Utils\HelpPrinter.cs" />
     <Compile Include="Utils\MathOperations.cs" />
     <Compile Include="Utils\Mesh.cs" />
+    <Compile Include="Utils\ModelTransformations.cs" />
     <Compile Include="Utils\TerrainGenerator.cs" />
     <Compile Include="Utils\MtlParser.cs" />
     <Compile Include="Utils\ObjParser.cs" />
@@ -173,7 +179,9 @@
     <None Include="Objects\test2.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="Shaders\ConeLight.frag" />
+    <None Include="Shaders\InstancedDrawing.frag" />
+    <None Include="Shaders\InstancedDrawing.vert" />
+    <None Include="Shaders\NormalMapping.frag" />
     <None Include="Shaders\FragmentShader.frag" />
     <None Include="Shaders\VertexShader.vert" />
   </ItemGroup>

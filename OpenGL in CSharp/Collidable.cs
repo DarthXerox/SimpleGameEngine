@@ -23,7 +23,12 @@ namespace OpenGL_in_CSharp
         }
 
         public Collidable(string objFileName, string textureFileName) : base(objFileName, textureFileName) 
-        { 
+        {
+        }
+
+        public Collidable(Mesh mesh)
+        {
+            RawMesh = mesh;
         }
 
         public bool IsColliding(ICollidable other)
@@ -46,7 +51,7 @@ namespace OpenGL_in_CSharp
             return false;
         }
 
-        public void MoveOutOfCollision(ICollidable other)
+        public void ReactToCollision(ICollidable other)
         {
             throw new NotImplementedException();
         }
@@ -55,7 +60,7 @@ namespace OpenGL_in_CSharp
         {
             if (IsColliding(args.PointOfCollision))
             {
-                args.PointOfCollision.MoveOutOfCollision(this);
+                args.PointOfCollision.ReactToCollision(this);
             }
         }
     }
