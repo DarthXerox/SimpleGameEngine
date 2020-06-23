@@ -168,7 +168,7 @@ namespace OpenGL_in_CSharp.Utils
 		{
 			AssimpContext Importer = new AssimpContext();
 			Scene = Importer.ImportFile(objFile, PostProcessSteps.CalculateTangentSpace | PostProcessSteps.GenerateSmoothNormals
-				| PostProcessSteps.FlipUVs
+				//| PostProcessSteps.FlipUVs
 				);
 
 			if (!Scene.HasMeshes)
@@ -195,6 +195,7 @@ namespace OpenGL_in_CSharp.Utils
 			HelpPrinter.PrintList(Scene.Meshes[0].Faces);
 			*/
 
+			//HelpPrinter.PrintList(Scene.Meshes[0].Tangents);
 
 			TextureColor = new Texture2D(texCol);
 			TextureNormal = new Texture2D(texNormal);

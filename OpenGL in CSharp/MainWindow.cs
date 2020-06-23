@@ -51,6 +51,7 @@ namespace GameNamespace
         private SceneObject objectToDraw;
         private SceneObject objectToDraw2;
         private AssimpMesh AssMesh;
+        private AssimpMesh TreeLeaves;
         private Map map;
         public Texture2D BricksNormal { set;  get; }
         public Fog WorldFog;
@@ -64,7 +65,7 @@ namespace GameNamespace
 
         public CollisionManager CollisionManager { set; get; }
 
-        public bool IsPlayerMoving { private set; get; } = true;
+        public bool IsPlayerMoving { private set; get; } = false;
 
         private float counter = 0.0f;
         private int framecounter = 0;
@@ -105,7 +106,7 @@ namespace GameNamespace
             objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
             */
             objectToDraw = new Terrain(FilePaths.TexturePath);
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlTreeTrunk)[0];
+            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
             objectToDraw.RotX = 30.0f;
             objectToDraw.RotY = 20.0f;
             objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
@@ -149,6 +150,7 @@ namespace GameNamespace
 
             //new AssimpMesh(FilePaths.ObjCube);
             AssMesh = new AssimpMesh(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk, FilePaths.BumpTexTrunk);
+            TreeLeaves = new AssimpMesh(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3, FilePaths.BumpTexTreeLeaves);
 
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.DepthTest);
@@ -232,6 +234,9 @@ namespace GameNamespace
 
             Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
             AssMesh.Draw();
+            //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
+
+            TreeLeaves.Draw();
             /*
             Program.AttachModelMatrix(Matrix4.Identity);
             objectToDraw.Draw();

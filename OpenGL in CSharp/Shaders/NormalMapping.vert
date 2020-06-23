@@ -39,16 +39,13 @@ void main(void) {
 	fogFactor = exp2(-fog.density * fog.density * fogLen * fogLen * LOG2);
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-	out_normals = transpose(inverse(mat3(model))) * normals;
-	out_texCoors = texCoors;
-
-    gl_Position = projection * view * model * vec4(position, 1.0);
-
-
-	vec3 T = normalize(vec3(model * vec4(tangent,   0.0)));
-    vec3 B = normalize(vec3(model * vec4(biTangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(normals,    0.0)));
+	mat3 normalMatrix = transpose(inverse(mat3(model)));
+	out_normals = normalMatrix * normals;
+	vec3 T = normalize(vec3(normalMatrix * tangent));
+    vec3 B = normalize(vec3(normalMatrix * biTangent));
+    vec3 N = normalize(vec3(normalMatrix * normals));
     TBN = mat3(T, B, N);
 
-	
+	out_texCoors = texCoors;
+    gl_Position = projection * view * model * vec4(position, 1.0);
 }

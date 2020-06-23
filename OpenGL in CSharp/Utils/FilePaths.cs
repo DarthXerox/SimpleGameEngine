@@ -15,8 +15,6 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string NormalMappingFrag = ShadersFolder + "NormalMapping.frag";
         public static readonly string NormalMappingVert = ShadersFolder + "NormalMapping.vert";
 
-
-
         public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
         public static readonly string TexturePath = TextureFolder + "Lelouch.jpg";
         public static readonly string TexturePath2 = TextureFolder + "img.jpg";
@@ -37,6 +35,7 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";
         public static readonly string BumpTexTrunk = TextureFolder + "tree_trunk_normal.png";
+        public static readonly string BumpTexTreeLeaves = TextureFolder + "tree_leaves_normal.png";
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
@@ -49,8 +48,6 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjMossyRock2 = ObjectsFolder + "Mossy Rock 2.obj";
         public static readonly string ObjMossyRock3 = ObjectsFolder + "Mossy Rock 3.obj";
 
-
-
         public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
         public static readonly string MtlTest = MaterialsFolder + "test.mtl";
         public static readonly string MtlGold = MaterialsFolder + "gold.mtl";
@@ -59,6 +56,5 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string MtlMossyRock1 = MaterialsFolder + "Mossy Rock 1.mtl";
         public static readonly string MtlMossyRock2 = MaterialsFolder + "Mossy Rock 2.mtl";
         public static readonly string MtlMossyRock3 = MaterialsFolder + "Mossy Rock 3.mtl";
-
     }
 }

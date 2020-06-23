@@ -20,7 +20,7 @@ struct Fog {
 	float density;
 };
 
-#define LIGHTS_AMNT 1
+#define LIGHTS_AMNT 2
 
 
 layout (location = 3) uniform vec4 lightPosition;
@@ -65,23 +65,21 @@ vec3 calculateColor(Light light_) {
     vec3 normal = texture(texNormal, texCoors).rgb;
     // transform normal vector to range [-1,1]
 	vec3 N;
-	//if (isNormalTex) {
-	if (TBN == mat3(0)) {
-	discard;
-	}
+	if (isNormalTex) {
+
 		N = normalize(TBN * (normal * 2.0 - 1.0));   
-	 //} else {
+	 } else {
 		N = normalize(normals);
-	//}
+	}
 
 	vec3 E = normalize(camPosition - position); 
 	vec3 H = normalize(L + E); 
 	float NdotL = max(dot(N, L), 0.0);
 	float NdotH = max(dot(N, H), 0.0);
 
-	//vec3 ambient = texture(texture0, texCoors).xyz * light_.ambient.rgb;
+	vec3 ambient = texture(texture0, texCoors).xyz * light_.ambient.rgb;
 	//ambient += 0.5;
-	vec3 ambient = materialAmbientColor.rgb * light_.ambient.rgb;
+	//vec3 ambient = materialAmbientColor.rgb * light_.ambient.rgb;
 	vec3 diffuse = materialDiffuseColor.rgb * light_.diffuse.rgb * texture(texture0, texCoors).xyz;
 	vec3 specular = materialSpecularColor.rgb * light_.specular.rgb;
 
