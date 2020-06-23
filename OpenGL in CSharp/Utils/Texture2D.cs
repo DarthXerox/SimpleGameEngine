@@ -62,7 +62,6 @@ namespace OpenGL_in_CSharp.Utils
         {
             GL.DeleteTexture(ID);
             Data.Dispose();
-            //Dispose(true);
         }
     }
 }

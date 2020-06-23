@@ -16,7 +16,7 @@ namespace OpenGL_in_CSharp.Utils
 
         public readonly float MaxColor = 256f * 256f * 256f;
         */
-        public readonly float MaxHeight = 15f;
+        public readonly float MaxHeight = 10f;
 
         public readonly int TexturesPerSide = 8;
 
@@ -39,7 +39,7 @@ namespace OpenGL_in_CSharp.Utils
             HeightMap = new Bitmap(FilePaths.HeightMapPath);
             WidthX = HeightMap.Width;
             WidthZ = HeightMap.Height;
-            RawMesh = new Mesh(CalculateMesh(), new Texture2D(texture));
+            RawMesh = new Mesh(CalculateMesh(), texture);
         }
 
         public Terrain(string texture, Bitmap heightMap)
@@ -47,7 +47,7 @@ namespace OpenGL_in_CSharp.Utils
             HeightMap = heightMap;
             WidthX = HeightMap.Width;
             WidthZ = HeightMap.Height;
-            RawMesh = new Mesh(CalculateMesh(), new Texture2D(texture));
+            RawMesh = new Mesh(CalculateMesh(), texture);
         }
 
         public float GetHeight(int x, int z)

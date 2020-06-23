@@ -26,3 +26,7 @@ C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\RangeTr
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\RangeTree.xml
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.dll
 C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\AssimpNet.xml
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SharpFont.dll.config
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\freetype6.dll
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SharpFont.dll
+C:\Users\Martin\source\repos\OpenGL in CSharp\OpenGL in CSharp\bin\Debug\SharpFont.xml

@@ -14,6 +14,11 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
         public static readonly string NormalMappingFrag = ShadersFolder + "NormalMapping.frag";
         public static readonly string NormalMappingVert = ShadersFolder + "NormalMapping.vert";
+        public static readonly string TextVertex = ShadersFolder + "Text.vert";
+        public static readonly string TextFrag = ShadersFolder + "Text.frag";
+        public static readonly string PostprocessVert = ShadersFolder + "postprocess.vert";
+        public static readonly string PostprocessFrag = ShadersFolder + "postprocess.frag";
+
 
         public static readonly string HeightMapPath = TextureFolder + "heightmap.png";
         public static readonly string TexturePath = TextureFolder + "Lelouch.jpg";
@@ -31,6 +36,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TextureTallGrass = TextureFolder + "tall_grass.png";
         public static readonly string TextureMossyRock = TextureFolder + "Colormap.jpg";
         public static readonly string TextureBrickWall = TextureFolder + "brickwall.jpg";
+
+        public static readonly string SansFont = TextureFolder + "FreeSans.ttf";
 
         public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";

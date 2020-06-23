@@ -30,7 +30,7 @@ namespace OpenGL_in_CSharp.InstancedDrawing
 
        
 
-        public void Draw(ShaderProgram program)
+        public void Draw(SimpleProgram program)
         {
             foreach (var sceneObject in ModelTransformations) 
             {
@@ -55,6 +55,12 @@ namespace OpenGL_in_CSharp.InstancedDrawing
                 CommonMesh = new Mesh(objFileName, textureFileName);
             }
 
+            public InstancedCollidable(string objFileName, string textureFileName, string texNormalFileName)
+            {
+                CommonMesh = new NormalMappingMesh(objFileName, texNormalFileName, texNormalFileName);
+            }
+
+
             public void AddPosition(Vector3 pos)
             {
                 var temp = new Collidable(CommonMesh)
@@ -65,7 +71,7 @@ namespace OpenGL_in_CSharp.InstancedDrawing
             }
 
 
-            public void Draw(ShaderProgram program)
+            public void Draw(SimpleProgram program)
             {
                 foreach (var coll in Collidables)
                 {

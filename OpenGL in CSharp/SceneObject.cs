@@ -9,20 +9,11 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace OpenGL_in_CSharp
 {
+	/// <summary>
+	/// Defines a package or connection between a mesh/model and a position in world (or transformation)
+	/// </summary>
 	public class SceneObject : ModelTransformations
 	{
-		/// <summary>
-		/// The idea is that many objects might share the same mesh but only have different position
-		/// Rotations are in degrees
-		/// </summary>
-		/// 
-		/*
-		public float RotX { set; get; } = 0.0f;
-		public float RotY { set; get; } = 0.0f;
-		public float RotZ { set; get; } = 0.0f;
-		public float ScalingFactor { set; get; } = 1.0f;
-		public Vector3 Position { set; get; } = new Vector3(1.0f);
-		*/
 		public Mesh RawMesh { protected set; get; }
 
 		public SceneObject(string objFileName, string textureFileName, int shaderAttribVertices,
@@ -35,6 +26,11 @@ namespace OpenGL_in_CSharp
 		public SceneObject(string objFileName, string textureFileName)
 		{
 			RawMesh = new Mesh(objFileName, textureFileName);
+		}
+
+		public SceneObject(string objFileName, string textureFileName, string texNormalFileName)
+		{
+			RawMesh = new NormalMappingMesh(objFileName, textureFileName, texNormalFileName);
 		}
 
 		public SceneObject() { }
@@ -50,21 +46,6 @@ namespace OpenGL_in_CSharp
 			RawMesh = new Mesh(objFileName, textureFileName, shaderAttribVertices,
 				shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler);
 		}
-
-		/*
-		public Matrix4 GetModelMatrix()
-		{
-			//https://www.youtube.com/watch?v=oc8Yl4ZruCA&list=PLRIWtICgwaX0u7Rf9zkZhLoLuZVfUksDP&index=7
-			Matrix4 model = Matrix4.Identity;
-			model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(RotX));
-			model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(RotY));
-			model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(RotZ));
-			model *= Matrix4.CreateScale(ScalingFactor);
-			model *= Matrix4.CreateTranslation(Position);
-
-			return model;
-		}
-		*/
 
 		public void Draw()
 		{

@@ -26,6 +26,11 @@ namespace OpenGL_in_CSharp
         {
         }
 
+        public Collidable(string objFileName, string textureFileName, string texNormalFileName) 
+            : base(objFileName, textureFileName, texNormalFileName)
+        {
+        }
+
         public Collidable(Mesh mesh)
         {
             RawMesh = mesh;

@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SharpFont.4.0.1\build\SharpFont.props" Condition="Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" />
+  <Import Project="..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props" Condition="Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -51,6 +53,9 @@
     </Reference>
     <Reference Include="RangeTree, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RangeTree.2.0.1\lib\net45\RangeTree.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpFont, Version=4.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpFont.4.0.1\lib\net45\SharpFont.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -156,10 +161,11 @@
     <Compile Include="SceneObject.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MainWindow.cs" />
-    <Compile Include="ShaderProgram.cs" />
+    <Compile Include="SimpleProgram.cs" />
+    <Compile Include="TextRendering\FreeTypeFont.cs" />
     <Compile Include="Utils\CollisionsCollection.cs" />
     <Compile Include="Utils\FilePaths.cs" />
-    <Compile Include="Utils\HelpPrinter.cs" />
+    <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\MathOperations.cs" />
     <Compile Include="Utils\Mesh.cs" />
     <Compile Include="Utils\ModelTransformations.cs" />
@@ -187,6 +193,10 @@
     <None Include="Shaders\NormalMapping.frag" />
     <None Include="Shaders\FragmentShader.frag" />
     <None Include="Shaders\NormalMapping.vert" />
+    <None Include="Shaders\postprocess.frag" />
+    <None Include="Shaders\postprocess.vert" />
+    <None Include="Shaders\Text.frag" />
+    <None Include="Shaders\Text.vert" />
     <None Include="Shaders\VertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
@@ -207,5 +217,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\AssimpNet.4.1.0\build\AssimpNet.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
   </Target>
 </Project>

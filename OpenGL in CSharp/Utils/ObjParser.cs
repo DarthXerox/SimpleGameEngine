@@ -29,7 +29,6 @@ namespace OpenGL_in_CSharp
         public float[] NormalsFloat;
         public float[] Tangents;
         public float[] BiTangents;
-
     }
 
     public static class ObjParser

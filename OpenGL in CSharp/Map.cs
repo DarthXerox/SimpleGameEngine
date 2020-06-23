@@ -120,16 +120,16 @@ namespace OpenGL_in_CSharp
             }
         }
 
-        public void DrawMap(ShaderProgram program, ShaderProgram normalMapping)
+        public void DrawMap(SimpleProgram program, SimpleProgram normalMapping)
         {
             TerrainInstanced.Draw(program);
-            /*
+            
             Trees.Draw(program);
             TreeLeaves.Draw(program);
             //program.AttachModelMatrix(Wall.GetModelMatrix());
             //Wall.Draw();
             Borders.Draw(program);
-            */
+            
             /*
             program.AttachModelMatrix(Terrains.First().GetModelMatrix());
             Terrains.First().Draw();
@@ -252,7 +252,7 @@ namespace OpenGL_in_CSharp
 
 
             //Wall = new SceneObject(new Mesh(model, new Texture2D(FilePaths.TextureBrickWall)));
-            Borders = new InstancedSceneObject(new Mesh(model, new Texture2D(FilePaths.TextureBrickWall)));
+            Borders = new InstancedSceneObject(new Mesh(model, FilePaths.TextureBrickWall));
         }
     }
 }

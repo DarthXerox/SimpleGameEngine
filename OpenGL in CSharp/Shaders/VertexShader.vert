@@ -10,7 +10,7 @@ uniform layout (location = 0) mat4 model;
 uniform layout (location = 1) mat4 view;
 uniform layout (location = 2) mat4 projection;
 layout (location = 5) uniform vec3 camPosition;
-uniform Fog fog;
+uniform  layout (location = 50) Fog fog;
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoors;

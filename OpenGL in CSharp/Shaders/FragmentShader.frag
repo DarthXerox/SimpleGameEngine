@@ -20,6 +20,7 @@ struct Fog {
 	float density;
 };
 
+
 #define LIGHTS_AMNT 2
 
 
@@ -35,7 +36,7 @@ layout (location = 11) uniform float materialShininess;
 //layout (location = 12) uniform Light light;
 //uniform Light moon;
 layout (location = 12) uniform Light lights[LIGHTS_AMNT];
-uniform Fog fog;
+uniform layout (location = 50) Fog fog;
 
 uniform layout (binding = 0) sampler2D texture0;
 //uniform layout (binding = 1) sampler2D texture1;
