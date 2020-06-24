@@ -13,7 +13,7 @@ namespace OpenGL_in_CSharp.Utils
         public Vector3 Diffuse { set; get; }
         public Vector3 Specular { set; get; }
         public float Shininess { set; get; }
-        public float? Transparecny { set; get; }
+        public float? Transparency { set; get; }
     }
 
     public static class MtlParser
@@ -59,10 +59,10 @@ namespace OpenGL_in_CSharp.Utils
                             //currentMat.Shininess /= 1000;
                             break;
                         case "d":
-                            currentMat.Transparecny = 1.0f - float.Parse(parts[1]);
+                            currentMat.Transparency = 1.0f - float.Parse(parts[1]);
                             break;
                         case "Tr":
-                            currentMat.Transparecny = float.Parse(parts[1]);
+                            currentMat.Transparency = float.Parse(parts[1]);
                             break;
                     }
                 }

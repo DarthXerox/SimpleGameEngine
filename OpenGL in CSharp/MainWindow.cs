@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using OpenGL_in_CSharp;
 using OpenGL_in_CSharp.Utils;
 using OpenTK;
@@ -15,32 +7,30 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using OpenGL_in_CSharp.TextRendering;
-using RangeTree;
 
 namespace GameNamespace
 {
-    public enum WindowStates
+    public enum GameStates
     {
         PlayingGame,
         MainMenu,
         QuitMenu,
         QuitGame,
-        GameOver,
+        YouWin,
         None // nothing changes
     }
-    // More interesting tutorials
-    // http://neokabuto.blogspot.com/p/tutorials.html
+
+    
     public class MainWindow : GameWindow
     {
 
-        public WindowStates GameState = WindowStates.PlayingGame; 
-        public SimpleProgram Program { private set; get; } // ID of the program
-        public SimpleProgram NormalMappingProgram { private set; get; }
+        public GameStates GameState = GameStates.MainMenu; 
+        public LightsProgram Program { private set; get; } // ID of the program
+        public LightsProgram NormalMappingProgram { private set; get; }
 
-        public BaseProgram TextProgram { set; get; }
+        public ShaderProgram TextProgram { set; get; }
 
-        public SimpleProgram PostprocessProgram { set; get; }
-        public Texture2D Background { set; get; }
+        public LightsProgram PostprocessProgram { set; get; }
         public FreeTypeFont Font { set; get; }
         
         // These must correspond to the given loacations in shaders
@@ -96,7 +86,9 @@ namespace GameNamespace
         public int framebuffer_color = 0;
         public int framebuffer_depth = 0;
 
-
+        public GUI QuitMenuGUI { set; get; }
+        public GUI MainMenuGUI { set; get; }
+        public GUI YouWinGUI { set; get; }
 
         public readonly float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
         public readonly float[] clear_depth = { 1.0f };
@@ -124,15 +116,14 @@ namespace GameNamespace
 
             //GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             GL.ClearColor(Color4.Aqua);
-            Program = new SimpleProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
+            Program = new LightsProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
             //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
             light.Color = new Vector3(1f, 1f, 1f);
 
-            TextProgram = new BaseProgram(FilePaths.TextVertex, FilePaths.TextFrag);
-            PostprocessProgram = new SimpleProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
-            Background = new Texture2D(FilePaths.TextureBrickWall);
-            Font = new FreeTypeFont(48);
+            TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
+            PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
+            Font = new FreeTypeFont(48, FilePaths.MonoFont);
             /*
             objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
                 shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
@@ -151,7 +142,7 @@ namespace GameNamespace
             map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
             //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
             BricksNormal = new Texture2D(FilePaths.BumpTexBrickWall);
-            player = new Player(new Vector3(1, 0, 1), map);
+            player = new Player(new Vector3(1, 5, 1), map);
 
            
             Camera = new Camera(
@@ -178,37 +169,23 @@ namespace GameNamespace
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
 
-
+            InitGUI();
 
             GL.CreateFramebuffers(1, out framebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-
-            // Initialize color output texture with GL_RGBA32F format (glCreateTextures, glTextureStorage2D)
-            // ...
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
-            //glBindTexture(GL_TEXTURE_2D, framebuffer_color);GL_RGBA32F
-
             GL.TextureStorage2D(framebuffer_color, 1, SizedInternalFormat.Rgba32f, Width, Height);
 
-            // Initialize depth output texture with GL_DEPTH_COMPONENT32F format
-            // ...
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_depth);
-            //glBindTexture(GL_TEXTURE_2D, framebuffer_depth);GL_DEPTH_COMPONENT32F
             GL.BindTexture(TextureTarget.Texture2D, framebuffer_depth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            //GL.TextureStorage2D(framebuffer_depth, 1, SizedInternalFormat.R32f, Width, Height);
-
-
 
             // Set output 0 to GL_COLOR_ATTACHMENT0 (glNamedFramebufferDrawBuffers)
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
-            // ...
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
-            // Associate color and depth `attachments`(GL_COLOR_ATTACHMENT0,GL_DEPTH_ATTACHMENT)
-            // with (framebuffer_)color and (framebuffer_)depth `textures` (glNamedFramebufferTexture)
             GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebuffer_color, 0);
             GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebuffer_depth, 0);
 
@@ -260,8 +237,6 @@ namespace GameNamespace
             Program.AttachLight(light, lightIndex);
             lightIndex++;
 
-
-
             Program.AttachFog(WorldFog);
             //Program.AttachModelMatrix(animation[0].GetModelMatrix());
 
@@ -275,35 +250,14 @@ namespace GameNamespace
             //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
         }
 
+
         protected override void OnRenderFrame(FrameEventArgs e)
         { 
             //base.OnRenderFrame(e);
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            ///GL.Disable(EnableCap.Blend);
-            //GL.UseProgram(PostprocessProgram.)
-            //PostprocessProgram.Use();
-            //GL.BindTexture(TextureTarget.Texture2D0, Background.ID);
-            //Background.Use(0);
-            //objectToDraw2.Draw();
-            //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
-            
-            
-            /*if (IsPause && !FirstPauseFrame)
-            {
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, clear_color);
-
-                GL.Disable(EnableCap.DepthTest);
-                GL.Disable(EnableCap.Blend);
-                GL.Disable(EnableCap.CullFace);
-
-                PostprocessProgram.Use();
-                GL.BindTexture(TextureTarget.Texture2D, Background.ID);
-                GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            }
-            else*/ if (GameState == WindowStates.QuitMenu)
+            if (GameState != GameStates.PlayingGame)
             {
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
                 //Console.WriteLine(GL.GetError());
@@ -325,8 +279,10 @@ namespace GameNamespace
                 GL.BindTexture(TextureTarget.Texture2D, framebuffer_color);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
+
+
                 Matrix4 projectionM = Matrix4.CreateScale(new Vector3(1f / this.Width, 1f / this.Height, 1.0f));
-                //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, this.Width, Height, 0.0f,  -1.0f, 1.0f);
+                //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, Width, 0.0f, Height,  -1.0f, 1.0f);
                 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
 
                 GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -340,20 +296,37 @@ namespace GameNamespace
                 TextProgram.Use();
                 GL.UniformMatrix4(1, false, ref projectionM);
 
+                if (GameState == GameStates.MainMenu)
+                {
+                    MainMenuGUI.Draw(GetMousePositionRelativeToWindowMiddle());
+                } 
+                else if (GameState == GameStates.YouWin)
+                {
+                    YouWinGUI.Draw(GetMousePositionRelativeToWindowMiddle());
+                } 
+                else
+                {
+                    QuitMenuGUI.Draw(GetMousePositionRelativeToWindowMiddle());
+                }
+
                 //GL.Uniform3(2, new Vector3(0.5f, 0.8f, 0.2f));
-                Font.RenderText("This is a sample text", 0f, 0f, 1f, new Vector3(0.5f, 0.8f, 0.2f));
+                //Font.RenderText("This is a sample text", 0f, 0f, 1f, new Vector3(0,0,0));
 
                 //GL.Uniform3(2, new Vector3(0.3f, 0.7f, 0.9f));
-                Font.RenderText("(C) LearnOpenGL.com", 50.0f, 200.0f, 0.9f, new Vector3(0.5f, 0.8f, 0.2f));
+                //Font.RenderText("(C) LearnOpenGL.com", 50.0f, 200.0f, 0.9f, new Vector3(1,1,0));
 
-                /*
-                Font.RenderText("Loooooooooooool", new ModelTransformations()
-                {
-                    Position = new Vector3(100, 80, 0)
-                });
-                */
+                //Console.Write("Mouse: " + GetMousePositionRelativeToWindowMiddle() + " ");
+                //TextBox.Draw(GetMousePositionRelativeToWindowMiddle());
+                //YesText.Draw(GetMousePositionRelativeToWindowMiddle());
+                //NoText.Draw(GetMousePositionRelativeToWindowMiddle());
+                //Console.Write($"Window origin X = {this.X}, and Y = {this.Y}  ");
+
+                //Mouse.GetCursorState(). = 5;
+                // Console.WriteLine("Mouse: " + GetMousePositionRelativeToWindoWMiddle());
+                //Console.WriteLine("Relative to window middle: " + GetMousePositionRelativeToWindoWMiddle());
+
             }
-            else if (GameState == WindowStates.PlayingGame)
+            else if (GameState == GameStates.PlayingGame)
             {
                 RenderGame();
             }
@@ -407,48 +380,77 @@ namespace GameNamespace
             Exit();
         }
 
-
+        /// <summary>
+        /// Pauses the game when the window is put in the background
+        /// </summary>
         protected override void OnFocusedChanged(EventArgs e)
         {
-            //pause the game
+            if (GameState == GameStates.PlayingGame)
+            {
+                GameState = GameStates.QuitMenu;
+            }
+            base.OnFocusedChanged(e);
         }
 
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            if (Mouse.GetState().IsAnyButtonDown) 
+            {
+                Vector2 mousePosMiddle = GetMousePositionRelativeToWindowMiddle();
+                GameStates newState = GameStates.None;
+                switch (GameState)
+                {
+                    case GameStates.MainMenu:
+                        newState = MainMenuGUI.OnMouseClick(mousePosMiddle);
+                        break;
+                    case GameStates.QuitMenu:
+                        newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
+                        break;
+                    case GameStates.YouWin:
+                        newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
+                        break;
+                }
+                if (newState != GameStates.None)
+                {
+                    GameState = newState;
+                }
+            }
+            CollisionManager.CheckCollisions();
+
             HandleKeyboard();
-            if (GameState == WindowStates.PlayingGame)
+            if (GameState == GameStates.PlayingGame)
             {
                 CursorVisible = false;
-                
                 if (IsPlayerMoving)
                 {
                     player.Move(Mouse.GetState());
                     CollisionManager.CheckCollisions();
-                    //coneLight.Position = new Vector4(player.Position, 1f);
-                    //coneLight.Direction = player.Front;
                 }
                 else
                 {
                     Camera.Move(Mouse.GetState());
                 }
-            } else
-            {
-                CursorVisible = true;
-            }
-            
-
-        }
-        private void HandleKeyboard()
-        {
-            
-            var keyState = Keyboard.GetState();
-
-            if (keyState.IsKeyDown(Key.Escape))
+            } 
+            else if (GameState == GameStates.QuitGame)
             {
                 Exit();
             } 
-            else if (keyState.IsKeyDown(Key.F))
+            else
+            {
+                CursorVisible = true;
+            }
+            base.OnRenderFrame(e);
+        }
+
+        private void HandleKeyboard()
+        {
+            var keyState = Keyboard.GetState();
+            /*if (keyState.IsKeyDown(Key.Escape))
+            {
+                Exit();
+            } */
+            if (keyState.IsKeyDown(Key.F))
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             }
@@ -461,14 +463,15 @@ namespace GameNamespace
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
                 GL.PointSize(10);
             } 
-            else if (keyState.IsKeyDown(Key.M))
+            else if (keyState.IsKeyDown(Key.Escape))
             {
-                GameState = WindowStates.QuitMenu;
+                GameState = GameStates.QuitMenu;
             }
+            /*
             else if (keyState.IsKeyDown(Key.N))
             {
                 GameState = WindowStates.PlayingGame;
-            }
+            }*/
             /*else if (keyState.IsKeyDown(Key.X))
             {
                 IsPlayerMoving = !IsPlayerMoving;
@@ -477,7 +480,7 @@ namespace GameNamespace
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            if (Focused && GameState == WindowStates.PlayingGame) // check to see if the window is focused  
+            if (Focused && GameState == GameStates.PlayingGame) // check to see if the window is focused  
             {
                 Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
             }
@@ -487,7 +490,77 @@ namespace GameNamespace
 
         protected override void OnResize(EventArgs e)
         {
+            base.OnResize(e);
             GL.Viewport(0, 0, Width, Height);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
+            GL.TextureStorage2D(framebuffer_color, 1, SizedInternalFormat.Rgba32f, Width, Height);
+
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_depth);
+            GL.BindTexture(TextureTarget.Texture2D, framebuffer_depth);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
+                PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            // Set output 0 to GL_COLOR_ATTACHMENT0 (glNamedFramebufferDrawBuffers)
+            DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
+            GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
+
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebuffer_color, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebuffer_depth, 0);
+
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+                Console.WriteLine(GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer));
+            }
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
+
+        public Vector2 GetMousePositionRelativeToWindowMiddle()
+        {
+            var mouse = Mouse.GetCursorState();
+            return new Vector2()
+            {
+                X = mouse.X - (this.X + Width / 2),
+                Y =  - (mouse.Y - (this.Y + Height / 2))
+            };
+        }
+        public Vector2 GetMousePositionRelativeToWindowOrigin()
+        {
+            var mouse = Mouse.GetCursorState();
+            return new Vector2()
+            {
+                X = mouse.X - this.X,
+                Y = mouse.Y - this.Y
+            };
+        }
+
+        public void InitGUI()
+        {
+            MainMenuGUI = new GUI(new Dictionary<TextBox, GameStates>()
+            {
+                // Rendering a slightly bigger text behind a smaller creates a nice little "shadowy effect"
+                { new TextBox(0, 200, "FOREST", 2.2f, new Vector3(0f, 00f, 0f), Font, false), GameStates.None },
+                { new TextBox(0, 200, "FOREST", 2.0f, new Vector3(0f, 0.5f, 0f), Font, false), GameStates.None },
+
+                { new TextBox(0, 80, "PLAY", 0.5f, new Vector3(1f), Font), GameStates.PlayingGame },
+                { new TextBox(0, 0, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitMenu }
+            });
+
+            QuitMenuGUI = new GUI(new Dictionary<TextBox, GameStates>()
+            {
+                { new TextBox(0, 120, "Do you want to quit the game?", 0.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(-60, -60, "YES", 0.5f, new Vector3(1f), Font), GameStates.QuitGame },
+                { new TextBox(60, -60, "NO", 0.5f, new Vector3(1f), Font), GameStates.PlayingGame }
+            });
+
+            YouWinGUI = new GUI(new Dictionary<TextBox, GameStates>()
+            {
+                { new TextBox(0, 200, "YOU WIN!", 1.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(0, 0, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitGame }
+            });
+        }
+
     }
 }

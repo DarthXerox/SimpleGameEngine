@@ -41,8 +41,17 @@ void main() {
 		}
 	}
 
+
+//	size = 1;
+//	for(int i = -size; i <= size; i++) {
+//		for(int j = -size; j <= size; j++) {
+//			color += edge_detection[i + size][j + size] * texelFetch(input_image, ivec2(gl_FragCoord.xy) + ivec2(i, j), 0).rgb;
+//		}
+//	}
+
 	// https://en.wikipedia.org/wiki/Tone_mapping
 	// http://filmicworlds.com/blog/filmic-tonemapping-operators/
+	//final_color = vec4(color, 1.0);
 	final_color = vec4(color / (color + 1.0), 1.0);	
 	//final_color = vec4(0.5, 0.5, 0.5, 0.5);
 }

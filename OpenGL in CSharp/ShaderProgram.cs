@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenGL_in_CSharp.Utils;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 
@@ -14,8 +15,7 @@ namespace OpenGL_in_CSharp
     /// Provides connection between shaders and C# classes
     /// </summary>
     /// 
-
-    public class BaseProgram : IDisposable
+    public class ShaderProgram : IDisposable
     {
         public static List<ShaderType> AvailableShaders { get; } = new List<ShaderType>()
         {
@@ -32,7 +32,7 @@ namespace OpenGL_in_CSharp
         /// </summary>
         public List<int> ShaderIds { private set; get; } = new List<int>();
 
-        public BaseProgram(params string[] shaderFilePaths)
+        public ShaderProgram(params string[] shaderFilePaths)
         {
             ID = GL.CreateProgram();
             for (int i = 0; i < shaderFilePaths.Length; i++)
@@ -108,7 +108,10 @@ namespace OpenGL_in_CSharp
         //protected abstract void InitAttribLocations();
     }
 
-    public class SimpleProgram : BaseProgram
+    /// <summary>
+    /// Represents a program that uses light, materials and fog for rendering
+    /// </summary>
+    public class LightsProgram : ShaderProgram
     {
         public int PositionAttrib { protected set; get; }
         public int TexCoordsAttrib { protected set; get; }
@@ -118,25 +121,9 @@ namespace OpenGL_in_CSharp
         public int ProjectionUniform { protected set; get; }
         public int TextureSamplerUniform { protected set; get; }
 
-        public SimpleProgram(params string[] shaderFilePaths) : base(shaderFilePaths)
+        public LightsProgram(params string[] shaderFilePaths) : base(shaderFilePaths)
         {
-            /*
-            ID = GL.CreateProgram();
-            for (int i = 0; i < shaderFilePaths.Length; i++)
-            {
-                if (i < AvailableShaders.Count)
-                {
-                    ShaderIds.Add(CompileShader(shaderFilePaths[i], AvailableShaders[i]));
-                    GL.AttachShader(ID, ShaderIds[i]);
-                }
-            }
-            GL.LinkProgram(ID);
-            InitAttribLocations();
-
-            Console.WriteLine(GL.GetProgramInfoLog(ID));
-            */
         }
-
         
         public void AttachModelMatrix(Matrix4 matrix)
         {
@@ -175,59 +162,14 @@ namespace OpenGL_in_CSharp
             AttachUniformVector3(fog.Color, "fog.color");
         }
 
-        /*
-        protected override void InitAttribLocations()
+        public void AttachMaterial(Material material)
         {
-            PositionAttrib = GL.GetAttribLocation(ID, "position");
-            TexCoordsAttrib = GL.GetAttribLocation(ID, "texCoors");
-            NormalsAttrib = GL.GetAttribLocation(ID, "normals");
-
-            ModelUniform = GL.GetUniformLocation(ID, "model");
-            ViewUniform = GL.GetUniformLocation(ID, "view");
-            ProjectionUniform = GL.GetUniformLocation(ID, "projection");
-
-            TextureSamplerUniform = GL.GetUniformLocation(ID, "texture0");
+            AttachUniformVector3(material.Ambient, "material.ambient");
+            AttachUniformVector3(material.Diffuse, "material.diffuse");
+            AttachUniformVector3(material.Specular, "material.specular");
+            AttachUniformFloat(material.Shininess, "material.shininess");
         }
-        */
     }
 
-
-    public class TextProgram : BaseProgram
-    {
-        public int VertexAttrib { private set; get; }
-        public int TextColorUniform { private set; get; }
-        public int ProjectionUniform { private set; get; }
-
-        public int TextSampler { private set; get; }
-
-        public TextProgram(params string[] shaderFilePaths)
-        {
-            /*
-            ID = GL.CreateProgram();
-            for (int i = 0; i < shaderFilePaths.Length; i++)
-            {
-                if (i < AvailableShaders.Count)
-                {
-                    ShaderIds.Add(CompileShader(shaderFilePaths[i], AvailableShaders[i]));
-                    GL.AttachShader(ID, ShaderIds[i]);
-                }
-            }
-            GL.LinkProgram(ID);
-            //InitAttribLocations();
-
-            Console.WriteLine(GL.GetProgramInfoLog(ID));
-            */
-        }
-
-        /*
-        protected override void InitAttribLocations()
-        {
-            VertexAttrib = GL.GetAttribLocation(ID, "vertex");
-            TextColorUniform = GL.GetUniformLocation(ID, "textColor");
-            ProjectionUniform = GL.GetUniformLocation(ID, "projection");
-            TextSampler = GL.GetUniformLocation(ID, "textColor");
-        }
-        */
-    }
 
 }

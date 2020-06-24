@@ -20,6 +20,13 @@ struct Fog {
 	float density;
 };
 
+struct Material {
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	float shininess;
+};
+
 
 #define LIGHTS_AMNT 2
 
@@ -27,6 +34,8 @@ struct Fog {
 layout (location = 3) uniform vec4 lightPosition;
 layout (location = 4) uniform vec3 lightColor;
 layout (location = 5) uniform vec3 camPosition;
+
+//layout (location = 8) uniform Material material;
 
 layout (location = 8) uniform vec3 materialAmbientColor;
 layout (location = 9) uniform vec3 materialDiffuseColor;

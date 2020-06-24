@@ -30,7 +30,7 @@ namespace OpenGL_in_CSharp.InstancedDrawing
 
        
 
-        public void Draw(SimpleProgram program)
+        public void Draw(LightsProgram program)
         {
             foreach (var sceneObject in ModelTransformations) 
             {
@@ -71,7 +71,7 @@ namespace OpenGL_in_CSharp.InstancedDrawing
             }
 
 
-            public void Draw(SimpleProgram program)
+            public void Draw(LightsProgram program)
             {
                 foreach (var coll in Collidables)
                 {

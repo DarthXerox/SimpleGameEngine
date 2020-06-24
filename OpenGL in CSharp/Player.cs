@@ -18,7 +18,8 @@ namespace OpenGL_in_CSharp
         public Player(Vector3 position, Map map) : base(position)
         {
             AssociatedMap = map;
-            Flashlight = new ConeLight(new Vector3(position.X, Height, position.Z), new Vector3(1,0,1), 1f, 0.07f, 0.017f, 12.5f, 17.5f);
+            Flashlight = new ConeLight(new Vector3(position.X, 
+                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), new Vector3(1,0,1), 1f, 0.07f, 0.017f, 12.5f, 17.5f);
         }
 
         public override void Move(MouseState mouse)

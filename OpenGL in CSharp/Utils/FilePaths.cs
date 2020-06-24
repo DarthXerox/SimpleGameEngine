@@ -7,6 +7,7 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string Prefix = $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}";
         public static readonly string TextureFolder = $"{Prefix}Textures{Path.DirectorySeparatorChar}";
         public static readonly string ShadersFolder = $"{Prefix}Shaders{Path.DirectorySeparatorChar}";
+        public static readonly string FontsFolder = $"{Prefix}Fonts{Path.DirectorySeparatorChar}";
         public static readonly string ObjectsFolder = $"{Prefix}Objects{Path.DirectorySeparatorChar}";
         public static readonly string MaterialsFolder = $"{Prefix}Materials{Path.DirectorySeparatorChar}";
 
@@ -37,7 +38,10 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TextureMossyRock = TextureFolder + "Colormap.jpg";
         public static readonly string TextureBrickWall = TextureFolder + "brickwall.jpg";
 
-        public static readonly string SansFont = TextureFolder + "FreeSans.ttf";
+        public static readonly string SansFont = FontsFolder + "FreeSans.ttf";
+        public static readonly string HaloFont = FontsFolder + "Halo3.ttf";
+        public static readonly string MonoFont = FontsFolder + "joystix monospace.ttf";
+
 
         public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";

@@ -32,7 +32,7 @@ namespace OpenGL_in_CSharp.Utils
 		{
 		}
 
-		public Mesh(string objFileName, string textureFileName, SimpleProgram program)
+		public Mesh(string objFileName, string textureFileName, LightsProgram program)
 		{
 			ShaderAttribVertices = program.PositionAttrib;
 			ShaderAttribTexCoords = program.TexCoordsAttrib;

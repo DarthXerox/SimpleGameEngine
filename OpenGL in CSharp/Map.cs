@@ -120,7 +120,7 @@ namespace OpenGL_in_CSharp
             }
         }
 
-        public void DrawMap(SimpleProgram program, SimpleProgram normalMapping)
+        public void DrawMap(LightsProgram program, LightsProgram normalMapping)
         {
             TerrainInstanced.Draw(program);
             
