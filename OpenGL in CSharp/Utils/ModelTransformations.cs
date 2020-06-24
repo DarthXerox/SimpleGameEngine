@@ -12,7 +12,7 @@ namespace OpenGL_in_CSharp.Utils
         public float RotX { set; get; } = 0.0f;
         public float RotY { set; get; } = 0.0f;
         public float RotZ { set; get; } = 0.0f;
-        public float ScalingFactor { set; get; } = 1.0f;
+        public Vector3 Scaling { set; get; } = new Vector3(1.0f);
         public Vector3 Position { set; get; } = new Vector3(0.0f);
 
         public ModelTransformations() { }
@@ -27,7 +27,7 @@ namespace OpenGL_in_CSharp.Utils
             RotX = rotX;
             RotY = rotY;
             RotZ = rotZ;
-            ScalingFactor = scalingFactor;
+            Scaling = Scaling * scalingFactor;
             Position = position;
         }
 
@@ -38,7 +38,7 @@ namespace OpenGL_in_CSharp.Utils
             model *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(RotX));
             model *= Matrix4.CreateRotationY(MathHelper.DegreesToRadians(RotY));
             model *= Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(RotZ));
-            model *= Matrix4.CreateScale(ScalingFactor);
+            model *= Matrix4.CreateScale(Scaling);
             model *= Matrix4.CreateTranslation(Position);
 
             return model;

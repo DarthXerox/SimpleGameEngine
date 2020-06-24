@@ -15,7 +15,7 @@ namespace OpenGL_in_CSharp
     /// </summary>
     /// 
 
-    public class AbstractShaderProgram : IDisposable
+    public class BaseProgram : IDisposable
     {
         public static List<ShaderType> AvailableShaders { get; } = new List<ShaderType>()
         {
@@ -32,7 +32,7 @@ namespace OpenGL_in_CSharp
         /// </summary>
         public List<int> ShaderIds { private set; get; } = new List<int>();
 
-        public AbstractShaderProgram(params string[] shaderFilePaths)
+        public BaseProgram(params string[] shaderFilePaths)
         {
             ID = GL.CreateProgram();
             for (int i = 0; i < shaderFilePaths.Length; i++)
@@ -108,7 +108,7 @@ namespace OpenGL_in_CSharp
         //protected abstract void InitAttribLocations();
     }
 
-    public class SimpleProgram : AbstractShaderProgram
+    public class SimpleProgram : BaseProgram
     {
         public int PositionAttrib { protected set; get; }
         public int TexCoordsAttrib { protected set; get; }
@@ -192,7 +192,7 @@ namespace OpenGL_in_CSharp
     }
 
 
-    public class TextProgram : AbstractShaderProgram
+    public class TextProgram : BaseProgram
     {
         public int VertexAttrib { private set; get; }
         public int TextColorUniform { private set; get; }

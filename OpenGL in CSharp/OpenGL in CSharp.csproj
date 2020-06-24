@@ -163,6 +163,7 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="SimpleProgram.cs" />
     <Compile Include="TextRendering\FreeTypeFont.cs" />
+    <Compile Include="TextRendering\GUI.cs" />
     <Compile Include="Utils\CollisionsCollection.cs" />
     <Compile Include="Utils\FilePaths.cs" />
     <Compile Include="Utils\Helper.cs" />

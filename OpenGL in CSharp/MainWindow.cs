@@ -14,19 +14,30 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using OpenTK_example_5;
+using OpenGL_in_CSharp.TextRendering;
 using RangeTree;
 
 namespace GameNamespace
 {
+    public enum WindowStates
+    {
+        PlayingGame,
+        MainMenu,
+        QuitMenu,
+        QuitGame,
+        GameOver,
+        None // nothing changes
+    }
     // More interesting tutorials
     // http://neokabuto.blogspot.com/p/tutorials.html
     public class MainWindow : GameWindow
     {
+
+        public WindowStates GameState = WindowStates.PlayingGame; 
         public SimpleProgram Program { private set; get; } // ID of the program
         public SimpleProgram NormalMappingProgram { private set; get; }
 
-        public AbstractShaderProgram TextProgram { set; get; }
+        public BaseProgram TextProgram { set; get; }
 
         public SimpleProgram PostprocessProgram { set; get; }
         public Texture2D Background { set; get; }
@@ -85,8 +96,6 @@ namespace GameNamespace
         public int framebuffer_color = 0;
         public int framebuffer_depth = 0;
 
-        public bool IsPause { private set; get; } = false;
-        public bool FirstPauseFrame { private set; get; } = true;
 
 
         public readonly float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -120,7 +129,7 @@ namespace GameNamespace
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
             light.Color = new Vector3(1f, 1f, 1f);
 
-            TextProgram = new AbstractShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
+            TextProgram = new BaseProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new SimpleProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
             Background = new Texture2D(FilePaths.TextureBrickWall);
             Font = new FreeTypeFont(48);
@@ -137,7 +146,7 @@ namespace GameNamespace
             objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
 
             objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
-            objectToDraw2.ScalingFactor = 0.5f;
+            //objectToDraw2.ScalingFactor = 0.5f;
 
             map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
             //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
@@ -280,7 +289,8 @@ namespace GameNamespace
             //objectToDraw2.Draw();
             //GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
             
-            if (IsPause && !FirstPauseFrame)
+            
+            /*if (IsPause && !FirstPauseFrame)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, clear_color);
@@ -293,7 +303,7 @@ namespace GameNamespace
                 GL.BindTexture(TextureTarget.Texture2D, Background.ID);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
             }
-            else if (IsPause)
+            else*/ if (GameState == WindowStates.QuitMenu)
             {
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
                 //Console.WriteLine(GL.GetError());
@@ -303,7 +313,6 @@ namespace GameNamespace
                 GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Depth, 0, clear_depth);
 
                 RenderGame();
-                FirstPauseFrame = false;
 
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, clear_color);
@@ -315,21 +324,12 @@ namespace GameNamespace
                 PostprocessProgram.Use();
                 GL.BindTexture(TextureTarget.Texture2D, framebuffer_color);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            }
-            else
-            {
-                RenderGame();
-            }
-            
-            
-            /*
-            if (!DrawOnlyText)
-            {
+
                 Matrix4 projectionM = Matrix4.CreateScale(new Vector3(1f / this.Width, 1f / this.Height, 1.0f));
                 //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, this.Width, Height, 0.0f,  -1.0f, 1.0f);
                 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
 
-                //GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 //GL.Clear(ClearBufferMask.ColorBufferBit);
 
                 GL.Disable(EnableCap.CullFace);
@@ -340,18 +340,31 @@ namespace GameNamespace
                 TextProgram.Use();
                 GL.UniformMatrix4(1, false, ref projectionM);
 
-                GL.Uniform3(2, new Vector3(0.5f, 0.8f, 0.2f));
-                Font.RenderText("This is a sample text",0f, 0f, 1f, new Vector2(0f, 0f));
+                //GL.Uniform3(2, new Vector3(0.5f, 0.8f, 0.2f));
+                Font.RenderText("This is a sample text", 0f, 0f, 1f, new Vector3(0.5f, 0.8f, 0.2f));
 
-                GL.Uniform3(2, new Vector3(0.3f, 0.7f, 0.9f));
-                Font.RenderText("(C) LearnOpenGL.com", 50.0f, 200.0f, 0.9f, new Vector2(1.0f, 0));
+                //GL.Uniform3(2, new Vector3(0.3f, 0.7f, 0.9f));
+                Font.RenderText("(C) LearnOpenGL.com", 50.0f, 200.0f, 0.9f, new Vector3(0.5f, 0.8f, 0.2f));
 
-                Font.RenderText("Loooooooooooool", new ModelTransformations() { 
+                /*
+                Font.RenderText("Loooooooooooool", new ModelTransformations()
+                {
                     Position = new Vector3(100, 80, 0)
                 });
-
+                */
             }
-            */
+            else if (GameState == WindowStates.PlayingGame)
+            {
+                RenderGame();
+            }
+            
+            
+            
+            
+            
+
+            
+            
             
             
 
@@ -404,16 +417,26 @@ namespace GameNamespace
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             HandleKeyboard();
-            if (IsPlayerMoving)
+            if (GameState == WindowStates.PlayingGame)
             {
-                player.Move(Mouse.GetState());
-                CollisionManager.CheckCollisions();
-                //coneLight.Position = new Vector4(player.Position, 1f);
-                //coneLight.Direction = player.Front;
+                CursorVisible = false;
+                
+                if (IsPlayerMoving)
+                {
+                    player.Move(Mouse.GetState());
+                    CollisionManager.CheckCollisions();
+                    //coneLight.Position = new Vector4(player.Position, 1f);
+                    //coneLight.Direction = player.Front;
+                }
+                else
+                {
+                    Camera.Move(Mouse.GetState());
+                }
             } else
             {
-                Camera.Move(Mouse.GetState());
+                CursorVisible = true;
             }
+            
 
         }
         private void HandleKeyboard()
@@ -440,12 +463,11 @@ namespace GameNamespace
             } 
             else if (keyState.IsKeyDown(Key.M))
             {
-                IsPause = true;
+                GameState = WindowStates.QuitMenu;
             }
             else if (keyState.IsKeyDown(Key.N))
             {
-                IsPause = false;
-                FirstPauseFrame = true;
+                GameState = WindowStates.PlayingGame;
             }
             /*else if (keyState.IsKeyDown(Key.X))
             {
@@ -455,7 +477,7 @@ namespace GameNamespace
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            if (Focused) // check to see if the window is focused  
+            if (Focused && GameState == WindowStates.PlayingGame) // check to see if the window is focused  
             {
                 Mouse.SetPosition(X + Width / 2f, Y + Height / 2f);
             }
