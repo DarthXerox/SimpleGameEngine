@@ -18,12 +18,14 @@ namespace OpenGL_in_CSharp.Utils
         */
         public readonly float MaxHeight = 10f;
 
-        public readonly int TexturesPerSide = 8;
+        public readonly int TexturesPerSide = 60;
 
-        public int WidthX { get; set; }
-        public int WidthZ { get; set; }
-        public int PointsPerSide { get; }
+        public int ShaderTextureSampler2 { get; } = 1;
+
+        public int WidthX { get => HeightMap.Width; }
+        public int WidthZ { get => HeightMap.Height; }
         public Bitmap HeightMap { get; }
+        public Texture2D NormalTexture { get; }
 
         /*
         public Terrain(int widthX, int widthZ, string texture) : base()
@@ -34,6 +36,7 @@ namespace OpenGL_in_CSharp.Utils
             RawMesh = new Mesh(CalculateMesh(), new Texture2D(texture));           
         }
         */
+        /*
         public Terrain(string texture)
         {
             HeightMap = new Bitmap(FilePaths.HeightMapPath);
@@ -41,13 +44,23 @@ namespace OpenGL_in_CSharp.Utils
             WidthZ = HeightMap.Height;
             RawMesh = new Mesh(CalculateMesh(), texture);
         }
-
+        */
+        /*
         public Terrain(string texture, Bitmap heightMap)
         {
             HeightMap = heightMap;
             WidthX = HeightMap.Width;
             WidthZ = HeightMap.Height;
             RawMesh = new Mesh(CalculateMesh(), texture);
+        }
+        */ 
+
+        public Terrain(string bitmapFile, string colorTextureFile, string normalTextureFile, string materialFile, Vector3 position)
+            : base(new ModelTransformations() { Position = position })
+        {
+            HeightMap = new Bitmap(bitmapFile);
+            RawMesh = new Mesh(CalculateMesh(), colorTextureFile, materialFile);
+            NormalTexture = new Texture2D(normalTextureFile);
         }
 
         public float GetHeight(int x, int z)
@@ -153,8 +166,6 @@ namespace OpenGL_in_CSharp.Utils
                 }
             }
 
-            
-
             model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 flaots for each
             model.TextureCoordinatesFloat = new float[model.Vertices.Count * 2]; // 2 floats for each
             model.NormalsFloat = new float[model.Vertices.Count * 3]; //3 for each
@@ -179,6 +190,22 @@ namespace OpenGL_in_CSharp.Utils
                 model.NormalsFloat[3 * i + 1] = model.Normals[i].Y;
                 model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
             }
+            /*
+            model.Tangents = new float[model.Normals.Count * 3];
+            model.BiTangents = new float[model.Normals.Count * 3];
+
+            for (int i = 0; i < model.Normals.Count; i++)
+            {
+                //var normal = model.Normals[i];
+                model.Tangents[3 * i] = 1f;
+                model.Tangents[3 * i + 1] = 0f;
+                model.Tangents[3 * i + 2] = 0f;
+
+                model.BiTangents[3 * i] = 0f;
+                model.BiTangents[3 * i + 1] = 0f;
+                model.BiTangents[3 * i + 2] = 1f;
+            }
+            */
             return model;
         }
 
@@ -191,7 +218,6 @@ namespace OpenGL_in_CSharp.Utils
             {
                 return 0.0f;
             }
-            //return Math.Abs(GetColorGreyScale(HeightMap.GetPixel(x, z)) - 1f) * 2f - 1f;
             return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
         }
 
@@ -199,15 +225,14 @@ namespace OpenGL_in_CSharp.Utils
         {
             return (col.R / 255f + col.G / 255f + col.B / 255f ) / 3.0f;
         }
+
+        public override void Draw(LightsProgram lightsProgram)
+        {
+            NormalTexture.Use(ShaderTextureSampler2);
+            lightsProgram.AttachUniformVector3(-Vector3.UnitZ, "tangent");
+            lightsProgram.AttachUniformVector3(Vector3.UnitX, "biTangent");
+            base.Draw(lightsProgram);
+        }
     }
-
-    /// <summary>
-    /// Reads data for a heatmap from
-    /// http://www.arendpeter.com/Perlin_Noise.html
-    /// http://devmag.org.za/2009/04/25/perlin-noise/
-    /// </summary>
-    /// 
-
-    
 }
     

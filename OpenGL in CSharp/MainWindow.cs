@@ -7,6 +7,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using OpenGL_in_CSharp.TextRendering;
+using System.IO;
 
 namespace GameNamespace
 {
@@ -19,14 +20,13 @@ namespace GameNamespace
         YouWin,
         None // nothing changes
     }
-
     
     public class MainWindow : GameWindow
     {
 
         public GameStates GameState = GameStates.MainMenu; 
-        public LightsProgram Program { private set; get; } // ID of the program
-        public LightsProgram NormalMappingProgram { private set; get; }
+        public LightsProgram NormalMappingProg { private set; get; } // ID of the program
+        public LightsProgram FakeNormalMappingProg { private set; get; }
 
         public ShaderProgram TextProgram { set; get; }
 
@@ -49,35 +49,22 @@ namespace GameNamespace
 
         public Vector3 WorldOrigin { private set; get; } = new Vector3(0.0f);
 
-
-        //private Matrix4 matModel = Matrix4.Identity; 
         private Matrix4 matView;
         private Matrix4 matProjection;
         
         public Camera Camera { private set; get; }
         private Player player;
-
-        private SceneObject objectToDraw;
-        private SceneObject objectToDraw2;
-        private NormalMappingMesh AssMesh;
-        private NormalMappingMesh TreeLeaves;
         private Map map;
-        public Texture2D BricksNormal { set;  get; }
         public Fog WorldFog;
-
-        private Material objectMaterial;
-
-        private SceneObject[] animation = new SceneObject[25];
-
+        public Terrain Terrain { set; get; }
 
         private Light light;
-        //private readonly ConeLight coneLight = new ConeLight(new Vector4(5f, 5f, 5f, 1), new Vector3(1, 1, 1), new Vector3(0, -1, 0), 10);
+        public SceneObject Tree { set; get; }
+        public SceneObject TreeLeaves { set; get; }
 
         public CollisionManager CollisionManager { set; get; }
 
         public bool IsPlayerMoving { private set; get; } = true;
-        public bool DrawOnlyText { get; } = true;
-
         private float counter = 0.0f;
         private int framecounter = 0;
         private int step = 2;
@@ -116,7 +103,8 @@ namespace GameNamespace
 
             //GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             GL.ClearColor(Color4.Aqua);
-            Program = new LightsProgram(FilePaths.VertexShaderPath, FilePaths.FragmentShaderPath);
+            NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
+            FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
             //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
             light.Color = new Vector3(1f, 1f, 1f);
@@ -124,24 +112,13 @@ namespace GameNamespace
             TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
             Font = new FreeTypeFont(48, FilePaths.MonoFont);
-            /*
-            objectToDraw = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed, 
-                shaderAttribPosition, shaderAttribTexCoors, shaderAttribNormals, shaderUniformTextureSampler);
 
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[1];
-            */
-            objectToDraw = new Terrain(FilePaths.TexturePath);
-            objectMaterial = MtlParser.ParseMtl(FilePaths.MtlGold)[0];
-            objectToDraw.RotX = 30.0f;
-            objectToDraw.RotY = 20.0f;
-            objectToDraw.Position = new Vector3(0.0f, -3.0f, 0.0f);
 
-            objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
+            //objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
             //objectToDraw2.ScalingFactor = 0.5f;
 
-            map = new Map(2, 2, FilePaths.TexturePathGrass2, FilePaths.HeightMapPath);
+            map = new Map(1, 1, FilePaths.HeightMapPath);
             //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
-            BricksNormal = new Texture2D(FilePaths.BumpTexBrickWall);
             player = new Player(new Vector3(1, 5, 1), map);
 
            
@@ -161,8 +138,15 @@ namespace GameNamespace
             //CollisionManager.CollisionChecking += map.TallGrass.OnCollisionCheck;
 
             //new AssimpMesh(FilePaths.ObjCube);
-            AssMesh = new NormalMappingMesh(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk, FilePaths.BumpTexTrunk);
-            TreeLeaves = new NormalMappingMesh(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3, FilePaths.BumpTexTreeLeaves);
+            //TreeLeaves = new NormalMappingMesh(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3, FilePaths.BumpTexTreeLeaves);
+            Tree = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeTrunk,
+                FilePaths.TextureTreeTrunk, FilePaths.MtlGold, FilePaths.BumpTexTrunk), new Vector3(10, 0, 10));
+
+            TreeLeaves = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3,
+                FilePaths.MtlGold, FilePaths.BumpTexTreeLeaves), new Vector3(10, 0, 10));
+
+            Terrain = new Terrain(FilePaths.HeightMapPath, FilePaths.TextureGrass4, 
+                 FilePaths.BumpTexGrass4, FilePaths.MtlGold, Vector3.Zero);
 
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.DepthTest);
@@ -207,47 +191,75 @@ namespace GameNamespace
             matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 1000.0f);
             matView = IsPlayerMoving ? player.GetViewMatrix() : Camera.GetViewMatrix();
 
-            Program.Use();
+            NormalMappingProg.Use();
 
             Vector3 camPosition = IsPlayerMoving ? player.Position : Camera.Position;
-            GL.ProgramUniform3(Program.ID, 5, camPosition);
+
+
+            int lightIndex = 0;
+            NormalMappingProg.AttachLight(light, lightIndex);
+            FakeNormalMappingProg.AttachLight(light, lightIndex);
+            lightIndex++;
+            NormalMappingProg.AttachLight(player.Flashlight, lightIndex);
+            FakeNormalMappingProg.AttachLight(player.Flashlight, lightIndex);
+
+
+            GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
+            NormalMappingProg.AttachFog(WorldFog);
+            NormalMappingProg.AttachViewMatrix(matView);
+            NormalMappingProg.AttachProjectionMatrix(matProjection);
+
+            GL.ProgramUniform3(FakeNormalMappingProg.ID, 5, camPosition);
+            FakeNormalMappingProg.AttachFog(WorldFog);
+            FakeNormalMappingProg.AttachViewMatrix(matView);
+            FakeNormalMappingProg.AttachProjectionMatrix(matProjection);
+            /*
             GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "materialAmbientColor"), objectMaterial.Ambient);
             GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
             GL.ProgramUniform3(Program.ID, 10, objectMaterial.Specular);
             GL.ProgramUniform1(Program.ID, 11, objectMaterial.Shininess);
-            
-            /*
-            GL.ProgramUniform4(Program.ID, GL.GetUniformLocation(Program.ID, "lightPosition"), light.Position);
-            
-            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "lightColor"), light.Color);
+           
             */
+            //Program.AttachMaterial(Tree.RawMesh.Material);
 
+            /*
             framecounter = (framecounter + 1) % 360;
             int val = 0;
             if (framecounter < 180)
             {
                 val = 1;
             }
-            
+            */
             //GL.ProgramUniform1(Program.ID, 12, val);
             //Program.AttachDirectionalLight(light);
-            int lightIndex = 0;
-            Program.AttachLight(player.Flashlight, lightIndex);
-            lightIndex++;
-            Program.AttachLight(light, lightIndex);
-            lightIndex++;
+            //Program.AttachLight(player.Flashlight, lightIndex);
+            /*
+            NormalMappingProg.AttachLight(light, lightIndex);
 
-            Program.AttachFog(WorldFog);
-            //Program.AttachModelMatrix(animation[0].GetModelMatrix());
+            NormalMappingProg.AttachFog(WorldFog);
+            NormalMappingProg.AttachViewMatrix(matView);
+            NormalMappingProg.AttachProjectionMatrix(matProjection);
+            Tree.Draw(NormalMappingProg);
+            TreeLeaves.Draw(NormalMappingProg);
 
-            //BricksNormal.Use(1);
-            Program.AttachViewMatrix(matView);
-            Program.AttachProjectionMatrix(matProjection);
-            map.DrawMap(Program, NormalMappingProgram);
 
-            Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
-            AssMesh.Draw();
+            FakeNormalMappingProg.Use();
+            GL.ProgramUniform3(FakeNormalMappingProg.ID, 5, camPosition);
+            FakeNormalMappingProg.AttachLight(light, lightIndex);
+            FakeNormalMappingProg.AttachFog(WorldFog);
+            FakeNormalMappingProg.AttachViewMatrix(matView);
+            FakeNormalMappingProg.AttachProjectionMatrix(matProjection);
+            */
+            //Terrain.Draw(FakeNormalMappingProg);
+            //map.DrawMap(Program, NormalMappingProgram);
+
             //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
+            //AssMesh.Draw();
+
+
+            //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
+
+            map.DrawMap(NormalMappingProg, FakeNormalMappingProg);
         }
 
 
@@ -257,6 +269,10 @@ namespace GameNamespace
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+
+            //RenderGame();
+
+            
             if (GameState != GameStates.PlayingGame)
             {
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
@@ -416,7 +432,7 @@ namespace GameNamespace
                     GameState = newState;
                 }
             }
-            CollisionManager.CheckCollisions();
+            //CollisionManager.CheckCollisions();
 
             HandleKeyboard();
             if (GameState == GameStates.PlayingGame)

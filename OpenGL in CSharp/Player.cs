@@ -5,7 +5,7 @@ using OpenTK.Input;
 
 namespace OpenGL_in_CSharp
 {
-    public class Player : Camera, ICollidable
+    public class Player : Camera
     {
         public Map AssociatedMap { private set; get; }
         public ConeLight Flashlight { set; get; }
@@ -19,7 +19,7 @@ namespace OpenGL_in_CSharp
         {
             AssociatedMap = map;
             Flashlight = new ConeLight(new Vector3(position.X, 
-                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), new Vector3(1,0,1), 1f, 0.07f, 0.017f, 12.5f, 17.5f);
+                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), new Vector3(1,1,1), 1f, 0.07f, 0.017f, 12.5f, 17.5f);
         }
 
         public override void Move(MouseState mouse)
@@ -91,6 +91,7 @@ namespace OpenGL_in_CSharp
 
         }
 
+        /*
         public bool IsColliding(ICollidable other)
         {
             if (LowerCentre.Y > other.LowerCentre.Y)
@@ -126,6 +127,12 @@ namespace OpenGL_in_CSharp
             temp.Y = AssociatedMap.GetHeight(temp.X, temp.Z) + Height;
             Position = temp;
 
+        }
+        */
+
+        public void SetNewPositionOnMap(Vector2 newPosition)
+        {
+            Position = new Vector3(newPosition.X, AssociatedMap.GetHeight(newPosition) + Height, newPosition.Y);
         }
     }
 }

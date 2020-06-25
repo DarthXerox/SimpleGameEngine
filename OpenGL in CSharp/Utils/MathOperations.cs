@@ -27,4 +27,13 @@ namespace OpenGL_in_CSharp.Utils
             vec += unitMovementVector * difference;
         }
     }
+
+    public static class Vector2Extensions 
+    { 
+        public static void Resize(ref this Vector2 vec, float newLength)
+        {
+            vec *= (newLength / vec.Length);
+        }
+    }
+
 }

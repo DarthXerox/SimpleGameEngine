@@ -15,6 +15,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
         public static readonly string NormalMappingFrag = ShadersFolder + "NormalMapping.frag";
         public static readonly string NormalMappingVert = ShadersFolder + "NormalMapping.vert";
+        public static readonly string FakeNormalMappingVert = ShadersFolder + "VertFakeNormalMapping.glsl";
+
         public static readonly string TextVertex = ShadersFolder + "Text.vert";
         public static readonly string TextFrag = ShadersFolder + "Text.frag";
         public static readonly string PostprocessVert = ShadersFolder + "postprocess.vert";
@@ -37,12 +39,17 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TextureTallGrass = TextureFolder + "tall_grass.png";
         public static readonly string TextureMossyRock = TextureFolder + "Colormap.jpg";
         public static readonly string TextureBrickWall = TextureFolder + "brickwall.jpg";
+        public static readonly string TextureGrass3 = TextureFolder + "grass3 color.jpg";
+        public static readonly string TextureGrass4 = TextureFolder + "grass4 color.jpg";
+
+
 
         public static readonly string SansFont = FontsFolder + "FreeSans.ttf";
         public static readonly string HaloFont = FontsFolder + "Halo3.ttf";
         public static readonly string MonoFont = FontsFolder + "joystix monospace.ttf";
 
-
+        public static readonly string BumpTexGrass3 = TextureFolder + "grass3 normal.jpg";
+        public static readonly string BumpTexGrass4 = TextureFolder + "grass4 normal.jpg";
         public static readonly string BumpTexBrickWall = TextureFolder + "brickwall_normal.jpg";
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";
         public static readonly string BumpTexTrunk = TextureFolder + "tree_trunk_normal.png";

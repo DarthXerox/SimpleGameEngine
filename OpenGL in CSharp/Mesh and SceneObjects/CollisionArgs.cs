@@ -8,9 +8,9 @@ namespace OpenGL_in_CSharp
 {
     public class CollisionArgs : EventArgs
     {
-        public ICollidable PointOfCollision { set; get; }
+        public Player PointOfCollision { set; get; }
 
-        public CollisionArgs(ICollidable pointOfCollision)
+        public CollisionArgs(Player pointOfCollision)
         {
             PointOfCollision = pointOfCollision;
         }

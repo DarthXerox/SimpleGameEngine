@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
-//using AssimpNet;
 using Assimp;
+using Assimp.Unmanaged;
 
 namespace OpenGL_in_CSharp.Utils
 {
 	public class Mesh : IDisposable
 	{
-		public ObjModel Model { get; set; }
-		public Texture2D TextureColor { get; }
-
-		public int ShaderAttribVertices { get; } = 0;
-		public int ShaderAttribTexCoords { get; } = 1;
-		public int ShaderAttribNormals { get; } = 2;
-		public int ShaderTextureSampler { get; } = 0;
+		public ObjModel Model { protected set; get; }
+		public Texture2D TextureColor { protected set; get; }
+		public Material Material { protected set; get; }
+		public int ShaderAttribVertices { protected set; get; } = 0;
+		public int ShaderAttribTexCoords { protected set; get; } = 1;
+		public int ShaderAttribNormals { protected set; get; } = 2;
+		public int ShaderTextureSampler { protected set; get; } = 0;
 
 		protected int vaoMesh;
 		protected int vboVertices;
@@ -25,32 +21,55 @@ namespace OpenGL_in_CSharp.Utils
 		protected int vboNormals;
 		protected int eboIndices;
 
-		public Mesh(string objFileName, string textureFileName, int shaderAttribVertices,
-		   int shaderAttribTexCoords, int shaderAttribNormals, int shaderTextureSampler)
-			: this(objFileName, new Texture2D(textureFileName), shaderAttribVertices, shaderAttribTexCoords,
-				  shaderAttribNormals, shaderTextureSampler)
+		public Mesh(string objFile, string textureFile, string materialFile, int shaderAttribVertices = 0,
+		   int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0)
+			: this(objFile, textureFile, MtlParser.ParseMtl(materialFile)[0], shaderAttribVertices, 
+				  shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler)
 		{
 		}
 
-		public Mesh(string objFileName, string textureFileName, LightsProgram program)
+		public Mesh(string objFile, string textureFile, Material material, int shaderAttribVertices = 0,
+		   int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0)
 		{
-			ShaderAttribVertices = program.PositionAttrib;
-			ShaderAttribTexCoords = program.TexCoordsAttrib;
-			ShaderAttribNormals = program.NormalsAttrib;
-			ShaderTextureSampler = program.TextureSamplerUniform;
+			ShaderAttribVertices = shaderAttribVertices;
+			ShaderAttribTexCoords = shaderAttribTexCoords;
+			ShaderAttribNormals = shaderAttribNormals;
+			ShaderTextureSampler = shaderTextureSampler;
 
-			TextureColor = new Texture2D(textureFileName);
-			Model = ObjParser.ParseObjFile(objFileName);
+			TextureColor = new Texture2D(textureFile);
+			Model = ObjParser.ParseObjFile(objFile);
+			Material = material;
 			InitBasicVao();
 			InitIndices();
 		}
 
-		public Mesh(string objFileName, string textureFileName)
-			: this(objFileName, textureFileName, 0, 1, 2, 0) { }
+		public Mesh(ObjModel model, string textureFile, string materialFile)
+		{
+			Model = model;
+			TextureColor = new Texture2D(textureFile);
+			Material = MtlParser.ParseMtl(materialFile)[0];
+			InitBasicVao();
+			InitIndices();
+		}
+
+		protected Mesh() { }
+		/*
+		public Mesh(string objFile, string textureFile, int shaderAttribVertices = 0,
+		   int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0)
+			: this(objFile, new Texture2D(textureFile), shaderAttribVertices, shaderAttribTexCoords,
+				  shaderAttribNormals, shaderTextureSampler)
+		{
+		}
+
+		
+
+	
+		public Mesh(string objFile, string textureFile)
+			: this(objFile, textureFile, 0, 1, 2, 0) { }
 
 
-		public Mesh(ObjModel model, string textureFileName)
-			: this(model, new Texture2D(textureFileName), 0, 1, 2, 0) { }
+		public Mesh(ObjModel model, string textureFile)
+			: this(model, new Texture2D(textureFile), 0, 1, 2, 0) { }
 
 		protected Mesh(ObjModel model, Texture2D texture, int shaderAttribVertices,
 			int shaderAttribTexCoords, int shaderAttribNormals, int shaderTextureSampler)
@@ -66,7 +85,7 @@ namespace OpenGL_in_CSharp.Utils
 			InitIndices();
 		}
 
-		protected Mesh(string objFileName, Texture2D texture, int shaderAttribVertices,
+		protected Mesh(string objFile, Texture2D texture, int shaderAttribVertices,
 			int shaderAttribTexCoords, int shaderAttribNormals, int shaderTextureSampler)
 		{
 			ShaderAttribVertices = shaderAttribVertices;
@@ -75,7 +94,7 @@ namespace OpenGL_in_CSharp.Utils
 			ShaderTextureSampler = shaderTextureSampler;
 			TextureColor = texture;
 
-			Model = ObjParser.ParseObjFile(objFileName);
+			Model = ObjParser.ParseObjFile(objFile);
 			InitBasicVao();
 			InitIndices();
 		}
@@ -84,7 +103,7 @@ namespace OpenGL_in_CSharp.Utils
 		{
 			TextureColor = new Texture2D(texCol);
 		}
-
+		*/
 		protected virtual void InitBasicVao()
 		{
 			GL.GenBuffers(1, out vboVertices);
@@ -121,10 +140,11 @@ namespace OpenGL_in_CSharp.Utils
 			GL.VertexArrayElementBuffer(vaoMesh, eboIndices);
 		}
 
-		public virtual void Draw()
+		public virtual void Draw(LightsProgram lightsProgram)
 		{
 			GL.BindVertexArray(vaoMesh);
 			TextureColor.Use(ShaderTextureSampler);
+			lightsProgram.AttachMaterial(Material);
 			GL.DrawElements(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, Model.Indices.Count, DrawElementsType.UnsignedInt, 0);
 		}
 
@@ -151,13 +171,64 @@ namespace OpenGL_in_CSharp.Utils
 
 		private int vboTangents;
 		private int vboBiTangents;
-
 		public int ShaderTextureSampler2 { get; } = 1;
 		public int ShaderAttribTangents { get; } = 13;
 		public int ShaderAttribBiTangents { get; } = 14;
 
 		public Scene Scene { get; }
 
+
+		public NormalMappingMesh(string objFile, string colorTextureFile, string materialFile, string normalTextureFile,
+			int shaderAttribVertices = 0, int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0,
+			int shaderAttribTangents = 13, int shaderAttribBiTangents = 14, int textureSampler2 = 1)
+			: this(objFile, colorTextureFile, MtlParser.ParseMtl(materialFile)[0], normalTextureFile, shaderAttribVertices,
+				  shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler, 
+				  shaderAttribTangents, shaderAttribBiTangents, textureSampler2) { }
+
+		public NormalMappingMesh(string objFile, string colorTextureFile, Material material, string normalTextureFile, 
+			int shaderAttribVertices = 0, int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0,
+			int shaderAttribTangents = 13, int shaderAttribBiTangents = 14, int textureSampler2 = 1)
+			//: base(objFile, colorTextureFile, material, shaderAttribVertices, 
+			//	  shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler)
+		{
+			ShaderAttribVertices = shaderAttribVertices;
+			ShaderAttribTexCoords = shaderAttribTexCoords;
+			ShaderAttribNormals = shaderAttribNormals;
+			ShaderTextureSampler = shaderTextureSampler;
+			ShaderTextureSampler2 = textureSampler2;
+			ShaderAttribTangents = shaderAttribTangents;
+			ShaderAttribBiTangents = shaderAttribBiTangents;
+			TextureNormal = new Texture2D(normalTextureFile);
+			TextureColor = new Texture2D(colorTextureFile);
+			Material = material;
+
+			Scene = new AssimpContext().ImportFile(objFile, PostProcessSteps.GenerateSmoothNormals
+				| PostProcessSteps.CalculateTangentSpace
+				//| PostProcessSteps.FlipUVs
+				);
+
+			if (!Scene.HasMeshes)
+			{
+				throw new MissingFieldException("No meshes found!");
+			}
+			// this whole class is only made for single mesh files
+			if (Scene.MeshCount > 1)
+			{
+				throw new MissingFieldException("Found multiple meshes!");
+			}
+
+			/*
+			var y = Scene.ToUnmanagedScene(Scene);
+			var afterPostProcess = AssimpLibrary.Instance.ApplyPostProcessing(y, PostProcessSteps.CalculateTangentSpace);
+			Scene = Scene.FromUnmanagedScene(afterPostProcess);
+			*/
+
+			InitObjModel();
+			InitBasicVao();
+			FindModelBorders();
+		}
+
+		/*
 		public NormalMappingMesh(string objFile, string texCol, string texNormal) 
 			: base(texCol)
 		{
@@ -175,28 +246,12 @@ namespace OpenGL_in_CSharp.Utils
 			{
 				throw new MissingFieldException("Found multiple meshes!");
 			}
-
-			/*
-			HelpPrinter.PrintList(Scene.Meshes[0].Vertices);
-			HelpPrinter.PrintList(Scene.Meshes[0].TextureCoordinateChannels[0]);
-
-			HelpPrinter.PrintList(Scene.Meshes[0].Normals);
-
-			HelpPrinter.PrintArray(Scene.Meshes[0].GetIndices());
-			HelpPrinter.PrintList(Scene.Meshes[0].Tangents);
-
-			Console.WriteLine("FAce count");
-			Console.WriteLine(Scene.Meshes[0].Faces.Count);
-			HelpPrinter.PrintList(Scene.Meshes[0].Faces);
-			*/
-
-			//HelpPrinter.PrintList(Scene.Meshes[0].Tangents);
-
 			TextureNormal = new Texture2D(texNormal);
 			InitObjModel();
 			InitBasicVao();
 			FindModelBorders();
 		}
+		*/
 
 		private void InitObjModel()
 		{
@@ -253,11 +308,12 @@ namespace OpenGL_in_CSharp.Utils
 			GL.VertexArrayAttribBinding(vaoMesh, ShaderAttribBiTangents, ShaderAttribBiTangents);
 		}
 
-		public override void Draw()
+		public override void Draw(LightsProgram lightsProgram)
 		{
 			GL.BindVertexArray(vaoMesh);
 			TextureColor.Use(ShaderTextureSampler);
 			TextureNormal.Use(ShaderTextureSampler2);
+			lightsProgram.AttachMaterial(Material);
 			GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, Scene.Meshes[0].VertexCount);
 		}
 

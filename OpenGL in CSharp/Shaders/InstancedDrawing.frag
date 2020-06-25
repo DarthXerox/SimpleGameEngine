@@ -20,7 +20,7 @@ struct Fog {
 	float density;
 };
 
-#define LIGHTS_AMNT 1
+#define LIGHTS_AMNT 2
 
 
 layout (location = 3) uniform vec4 lightPosition;

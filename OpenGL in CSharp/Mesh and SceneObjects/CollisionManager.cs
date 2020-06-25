@@ -7,19 +7,20 @@ using System.Threading.Tasks;
 namespace OpenGL_in_CSharp
 {
     /// <summary>
-    /// Collision detection in my game uses 2 types of hitboxes:
-    /// -> axis-aligned bounding box 
+    /// Collision detection in my game uses 1 type of hitboxes:
     /// -> cylinder perpendicular to plane xz (its upper and lower circle bases are parallel to xz plane)
+    /// Implementing axis-aligned bounding box (AABB hitbox) would be slightly easier, 
+    /// but most of my objects are round, so collsions would be a bit less realistic
     /// </summary>
     public class CollisionManager
     {
-        public ICollidable PointOfCollision { private set; get; }
+        public Player PointOfCollision { private set; get; }
         public delegate void CollisionCheckingEventHandler(object sauce, CollisionArgs args);
         public event CollisionCheckingEventHandler CollisionChecking;
 
-        public CollisionManager(ICollidable point)
+        public CollisionManager(Player player)
         {
-            PointOfCollision = point;
+            PointOfCollision = player;
         }
 
         public void CheckCollisions()

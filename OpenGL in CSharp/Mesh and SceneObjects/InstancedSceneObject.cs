@@ -4,6 +4,7 @@ using OpenTK;
 
 namespace OpenGL_in_CSharp.InstancedDrawing
 {
+    /*
     public class InstancedSceneObject
     {
         public List<ModelTransformations> ModelTransformations { protected set; get; } = new List<ModelTransformations>();
@@ -91,4 +92,5 @@ namespace OpenGL_in_CSharp.InstancedDrawing
         }
         
     }
+    */
 }

@@ -150,16 +150,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
-    <Compile Include="Collidable.cs" />
-    <Compile Include="CollisionArgs.cs" />
-    <Compile Include="CollisionManager.cs" />
+    <Compile Include="Mesh and SceneObjects\Collidable.cs" />
+    <Compile Include="Mesh and SceneObjects\CollisionArgs.cs" />
+    <Compile Include="Mesh and SceneObjects\CollisionManager.cs" />
     <Compile Include="Fog.cs" />
-    <Compile Include="ICollidable.cs" />
+    <Compile Include="Mesh and SceneObjects\ICollidable.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="InstancedDrawing\InstancedSceneObject.cs" />
-    <Compile Include="Map.cs" />
+    <Compile Include="Mesh and SceneObjects\InstancedSceneObject.cs" />
+    <Compile Include="Map\Map.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="SceneObject.cs" />
+    <Compile Include="Mesh and SceneObjects\SceneObject.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="ShaderProgram.cs" />
@@ -168,9 +168,9 @@
     <Compile Include="Utils\FilePaths.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\MathOperations.cs" />
-    <Compile Include="Utils\Mesh.cs" />
-    <Compile Include="Utils\ModelTransformations.cs" />
-    <Compile Include="Utils\TerrainGenerator.cs" />
+    <Compile Include="Mesh and SceneObjects\Mesh.cs" />
+    <Compile Include="Mesh and SceneObjects\ModelTransformations.cs" />
+    <Compile Include="Map\Terrain.cs" />
     <Compile Include="Utils\MtlParser.cs" />
     <Compile Include="Utils\ObjParser.cs" />
     <Compile Include="Program.cs" />
@@ -199,11 +199,11 @@
     <None Include="Shaders\Text.frag" />
     <None Include="Shaders\Text.vert" />
     <None Include="Shaders\VertexShader.vert" />
+    <None Include="Shaders\VertFakeNormalMapping.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Animation\" />
     <Folder Include="Fonts\" />
-    <Folder Include="NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Textures\diffuse.png" />

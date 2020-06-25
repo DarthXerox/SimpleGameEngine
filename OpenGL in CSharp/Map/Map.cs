@@ -7,7 +7,6 @@ using System.Linq;
 using System.ComponentModel.Design;
 using System.IO;
 using OpenGL_in_CSharp.InstancedDrawing;
-using static OpenGL_in_CSharp.InstancedDrawing.InstancedSceneObject;
 using System.Runtime.InteropServices;
 
 namespace OpenGL_in_CSharp
@@ -22,14 +21,12 @@ namespace OpenGL_in_CSharp
         //public Collidable TallGrass { set; get; }
 
         public Terrain Terrain { private set; get; }
-        public InstancedCollidable Trees { set; get; }
-        public InstancedSceneObject TreeLeaves { set; get; }
-        public InstancedSceneObject TerrainInstanced { set; get; }
+        public Collidable Trees { set; get; }
+        public SceneObject TreeLeaves { set; get; }
+        //public SceneObject TerrainInstanced { set; get; }
+        public SceneObject Borders { private set; get; }
 
-        public SceneObject Wall { private set; get; }
-        
-        public InstancedSceneObject Borders { private set; get; }
-
+        public Texture2D BordersNormalTexture { private set; get; }
 
         public int Width { get; }
         public int Height { get; }
@@ -39,15 +36,22 @@ namespace OpenGL_in_CSharp
 
         public Bitmap HeightMap { private set; get; }
 
-        public Map(int width, int height, string texture, string heightMapFile)
+        public Map(int width, int height, string heightMapFile)
         {
             Width = width;
             Height = height;
             HeightMap = new Bitmap(heightMapFile);
-            Terrain = new Terrain(texture, HeightMap);
+            Terrain = new Terrain(FilePaths.HeightMapPath, FilePaths.TextureGrass4,
+                 FilePaths.BumpTexGrass4, FilePaths.MtlGold, Vector3.Zero);
+            Trees = new Collidable(new NormalMappingMesh(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk,
+                FilePaths.MtlGold, FilePaths.BumpTexTrunk));
+            TreeLeaves = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeLeaves,
+                FilePaths.TextureTreeLeaves3, FilePaths.MtlGold, FilePaths.BumpTexTreeLeaves));
+            /*
             TerrainInstanced = new InstancedSceneObject(Terrain.RawMesh);
             Trees = new InstancedCollidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
             TreeLeaves = new InstancedSceneObject(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3);
+            */
 
             for (int z = 0; z < Height; z++)
             {
@@ -59,18 +63,18 @@ namespace OpenGL_in_CSharp
                     };
                     Terrains.Add(ter);
                     */
-                    TerrainInstanced.AddPosition(new Vector3(x * (HeightMap.Width - 1), 0, z * (HeightMap.Height - 1)));
+                    Terrain.AddPosition(new Vector3(x * (HeightMap.Width - 1), 0, z * (HeightMap.Height - 1)));
                     
                 }
             }
 
-            for (int z = 0; z < HeightMap.Height; z++)
+            for (int z = 0; z < 100; z++)
             {
-                for (int x = 0; x < HeightMap.Width; x++)
+                for (int x = 0; x < 100; x++)
                 {
                     if (z % 20 == 0 && x % 20 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
                     {
-                        foreach (var sceneObject in TerrainInstanced.ModelTransformations)
+                        foreach (var sceneObject in Terrain.ModelTransformations)
                         {
                             Trees.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) * sceneObject.GetModelMatrix()).Xyz);
                             TreeLeaves.AddPosition(( new Vector4(x, GetHeight(x, z), z, 1) * sceneObject.GetModelMatrix()).Xyz);
@@ -79,14 +83,12 @@ namespace OpenGL_in_CSharp
                 }
             }
 
-            Console.WriteLine($"Trunks count: {Trees.Collidables.Count}");
             AddWall(MaxX - 1, 15, MaxX / 5, 3);
-            //Wall.RotY = -45;
             Borders.AddPosition(new Vector3(0, 0, 0));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -180, 0, 1, new Vector3(MaxX - 2, 0, MaxZ - 2)));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -270, 0, 1, new Vector3(0, 0, MaxZ - 2)));
-
+            BordersNormalTexture = new Texture2D(FilePaths.BumpTexBrickWall);
 
             /*
             Tree = new Collidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
@@ -103,7 +105,12 @@ namespace OpenGL_in_CSharp
 
         public void SignUpForCollisionChecking(CollisionManager collisionManager)
         {
-            Trees.AddToCollisionQueue(collisionManager);
+            collisionManager.CollisionChecking += Trees.OnCollisionCheck;
+        }
+
+        public float GetHeight(Vector2 pos)
+        {
+            return GetHeight(pos.X, pos.Y);
         }
 
         public float GetHeight(float x, float z)
@@ -120,15 +127,24 @@ namespace OpenGL_in_CSharp
             }
         }
 
-        public void DrawMap(LightsProgram program, LightsProgram normalMapping)
+        /// <summary>
+        /// Both programs need to have been attached a camera position, all lights and fog before they are drawn
+        /// </summary>
+        /// <param name="normalMappingProg"></param>
+        /// <param name="fakeNormalMappingProg"></param>
+        public void DrawMap(LightsProgram normalMappingProg, LightsProgram fakeNormalMappingProg, int uniformSampler2 = 1)
         {
-            TerrainInstanced.Draw(program);
-            
-            Trees.Draw(program);
-            TreeLeaves.Draw(program);
-            //program.AttachModelMatrix(Wall.GetModelMatrix());
-            //Wall.Draw();
-            Borders.Draw(program);
+            fakeNormalMappingProg.Use();
+            BordersNormalTexture.Use(uniformSampler2);
+            fakeNormalMappingProg.AttachUniformVector3(Vector3.UnitX, "tangent");
+            fakeNormalMappingProg.AttachUniformVector3(Vector3.UnitY, "biTangent");
+            Borders.Draw(fakeNormalMappingProg);
+            Terrain.Draw(fakeNormalMappingProg);
+
+            normalMappingProg.Use();
+            Trees.Draw(normalMappingProg);
+            TreeLeaves.Draw(normalMappingProg);
+
             
             /*
             program.AttachModelMatrix(Terrains.First().GetModelMatrix());
@@ -250,9 +266,9 @@ namespace OpenGL_in_CSharp
                 model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
             }
 
-
-            //Wall = new SceneObject(new Mesh(model, new Texture2D(FilePaths.TextureBrickWall)));
-            Borders = new InstancedSceneObject(new Mesh(model, FilePaths.TextureBrickWall));
+            Borders = new SceneObject(new Mesh(model, FilePaths.TextureBrickWall, FilePaths.MtlGold));
+            //Borders = new SceneObject(new Mesh(model, new Texture2D(FilePaths.TextureBrickWall)));
+            //Borders = new InstancedSceneObject(new Mesh(model, FilePaths.TextureBrickWall));
         }
     }
 }
