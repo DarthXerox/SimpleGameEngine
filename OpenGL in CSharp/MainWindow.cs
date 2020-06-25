@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using OpenGL_in_CSharp.TextRendering;
 using System.IO;
+using OpenGL_in_CSharp.Mesh_and_SceneObjects;
 
 namespace GameNamespace
 {
@@ -59,6 +60,8 @@ namespace GameNamespace
         public Terrain Terrain { set; get; }
 
         private Light light;
+
+        private Light lightForCoins { set; get; } 
         public SceneObject Tree { set; get; }
         public SceneObject TreeLeaves { set; get; }
 
@@ -77,7 +80,7 @@ namespace GameNamespace
         public GUI MainMenuGUI { set; get; }
         public GUI YouWinGUI { set; get; }
 
-        public readonly float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+        public float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
         public readonly float[] clear_depth = { 1.0f };
 
         public MainWindow() //1280:720
@@ -99,10 +102,11 @@ namespace GameNamespace
             base.OnLoad(e);
             GL.Viewport(0, 0, Width, Height);
 
-            WorldFog = new Fog(0.03f, new Vector3(0.5f, 0.5f, 0.5f));
+            WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
 
-            //GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
-            GL.ClearColor(Color4.Aqua);
+            GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
+            clear_color = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
+            //GL.ClearColor(Color4.Aqua);
             NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
             FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
             //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
@@ -117,7 +121,8 @@ namespace GameNamespace
             //objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
             //objectToDraw2.ScalingFactor = 0.5f;
 
-            map = new Map(1, 1, FilePaths.HeightMapPath);
+            map = new Map(5, 5, FilePaths.HeightMapPath);
+            Console.WriteLine($"Height map size: X: {map.HeightMap.Width} Y: {map.HeightMap.Height}");
             //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
             player = new Player(new Vector3(1, 5, 1), map);
 
@@ -131,6 +136,8 @@ namespace GameNamespace
             Camera = Camera.GenerateOmnipotentCamera(Vector3.Zero);*/
             CursorVisible = false;
 
+            lightForCoins = new ConeLight(new Vector3(10 + 2 * 5, map.GetHeight(10 + 2 * 5, 5) + 8, 5), -Vector3.UnitY,
+                1f, 0.07f, 0.017f, 12.5f, 17.5f);
 
             CollisionManager = new CollisionManager(player);
             map.SignUpForCollisionChecking(CollisionManager);
@@ -139,6 +146,7 @@ namespace GameNamespace
 
             //new AssimpMesh(FilePaths.ObjCube);
             //TreeLeaves = new NormalMappingMesh(FilePaths.ObjTreeLeaves, FilePaths.TextureTreeLeaves3, FilePaths.BumpTexTreeLeaves);
+            /*
             Tree = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeTrunk,
                 FilePaths.TextureTreeTrunk, FilePaths.MtlGold, FilePaths.BumpTexTrunk), new Vector3(10, 0, 10));
 
@@ -147,7 +155,7 @@ namespace GameNamespace
 
             Terrain = new Terrain(FilePaths.HeightMapPath, FilePaths.TextureGrass4, 
                  FilePaths.BumpTexGrass4, FilePaths.MtlGold, Vector3.Zero);
-
+                 */
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -197,12 +205,14 @@ namespace GameNamespace
 
 
             int lightIndex = 0;
-            NormalMappingProg.AttachLight(light, lightIndex);
-            FakeNormalMappingProg.AttachLight(light, lightIndex);
-            lightIndex++;
+            //NormalMappingProg.AttachLight(light, lightIndex);
+            //FakeNormalMappingProg.AttachLight(light, lightIndex);
+            //lightIndex++;
             NormalMappingProg.AttachLight(player.Flashlight, lightIndex);
             FakeNormalMappingProg.AttachLight(player.Flashlight, lightIndex);
-
+            lightIndex++;
+            NormalMappingProg.AttachLight(lightForCoins, lightIndex);
+            FakeNormalMappingProg.AttachLight(lightForCoins, lightIndex);
 
             GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
             NormalMappingProg.AttachFog(WorldFog);
@@ -259,13 +269,13 @@ namespace GameNamespace
 
             //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
 
-            map.DrawMap(NormalMappingProg, FakeNormalMappingProg);
+            map.DrawMap(NormalMappingProg, FakeNormalMappingProg, player);
         }
 
 
         protected override void OnRenderFrame(FrameEventArgs e)
         { 
-            //base.OnRenderFrame(e);
+            base.OnRenderFrame(e);
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -301,7 +311,7 @@ namespace GameNamespace
                 //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, Width, 0.0f, Height,  -1.0f, 1.0f);
                 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
 
-                GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+                //GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 //GL.Clear(ClearBufferMask.ColorBufferBit);
 
                 GL.Disable(EnableCap.CullFace);
@@ -320,7 +330,7 @@ namespace GameNamespace
                 {
                     YouWinGUI.Draw(GetMousePositionRelativeToWindowMiddle());
                 } 
-                else
+                else if (GameState == GameStates.QuitMenu)
                 {
                     QuitMenuGUI.Draw(GetMousePositionRelativeToWindowMiddle());
                 }
@@ -411,6 +421,10 @@ namespace GameNamespace
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            if (player.CoinsCollected >= Coins.AllCoinsCount)
+            {
+                GameState = GameStates.YouWin;
+            }
             if (Mouse.GetState().IsAnyButtonDown) 
             {
                 Vector2 mousePosMiddle = GetMousePositionRelativeToWindowMiddle();
@@ -424,7 +438,7 @@ namespace GameNamespace
                         newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
                         break;
                     case GameStates.YouWin:
-                        newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
+                        newState = YouWinGUI.OnMouseClick(mousePosMiddle);
                         break;
                 }
                 if (newState != GameStates.None)
@@ -573,7 +587,8 @@ namespace GameNamespace
 
             YouWinGUI = new GUI(new Dictionary<TextBox, GameStates>()
             {
-                { new TextBox(0, 200, "YOU WIN!", 1.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(0, 200, "YOU WIN!", 1.7f, new Vector3(0f), Font, false), GameStates.None },
+                { new TextBox(0, 200, "YOU WIN!", 1.5f, new Vector3(0f, 0.5f, 0f), Font, false), GameStates.None },
                 { new TextBox(0, 0, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitGame }
             });
         }

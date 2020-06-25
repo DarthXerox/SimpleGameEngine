@@ -8,6 +8,8 @@ using System.ComponentModel.Design;
 using System.IO;
 using OpenGL_in_CSharp.InstancedDrawing;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using OpenGL_in_CSharp.Mesh_and_SceneObjects;
 
 namespace OpenGL_in_CSharp
 {
@@ -23,10 +25,10 @@ namespace OpenGL_in_CSharp
         public Terrain Terrain { private set; get; }
         public Collidable Trees { set; get; }
         public SceneObject TreeLeaves { set; get; }
-        //public SceneObject TerrainInstanced { set; get; }
         public SceneObject Borders { private set; get; }
-
         public Texture2D BordersNormalTexture { private set; get; }
+
+        public SceneObject Key { private set; get; }
 
         public int Width { get; }
         public int Height { get; }
@@ -35,6 +37,8 @@ namespace OpenGL_in_CSharp
         public int MaxZ { get => Height * HeightMap.Height; }
 
         public Bitmap HeightMap { private set; get; }
+
+        public Coins Coins { private set; get; }
 
         public Map(int width, int height, string heightMapFile)
         {
@@ -47,6 +51,14 @@ namespace OpenGL_in_CSharp
                 FilePaths.MtlGold, FilePaths.BumpTexTrunk));
             TreeLeaves = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeLeaves,
                 FilePaths.TextureTreeLeaves3, FilePaths.MtlGold, FilePaths.BumpTexTreeLeaves));
+
+            Key = new SceneObject(new NormalMappingMesh(FilePaths.ObjCoin, FilePaths.TextureCoin,
+                FilePaths.MtlGold, FilePaths.BumpTexCoin), new ModelTransformations()
+                {
+                    Position = new Vector3(30, 2, 30),
+                    Scaling = new Vector3(0.25f, 0.25f, 0.25f),
+                    RotX = 90
+                }) ;
             /*
             TerrainInstanced = new InstancedSceneObject(Terrain.RawMesh);
             Trees = new InstancedCollidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
@@ -68,9 +80,9 @@ namespace OpenGL_in_CSharp
                 }
             }
 
-            for (int z = 0; z < 100; z++)
+            for (int z = 0; z < HeightMap.Height; z++)
             {
-                for (int x = 0; x < 100; x++)
+                for (int x = 0; x < HeightMap.Width; x++)
                 {
                     if (z % 20 == 0 && x % 20 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
                     {
@@ -82,6 +94,17 @@ namespace OpenGL_in_CSharp
                     }
                 }
             }
+
+            List<ModelTransformations> transformations = new List<ModelTransformations>();
+            for (int i = 0; i < 10; ++i)
+            {
+                transformations.Add(new ModelTransformations()
+                {
+                    Position = new Vector3(10 + i * 5, GetHeight(10 + i * 5, 5) + 3 , 5)
+                });
+            }
+            Coins = new Coins(new NormalMappingMesh(FilePaths.ObjMossyRock1, 
+                FilePaths.TextureMossyRock, FilePaths.MtlGold, FilePaths.BumpTexMossyRock), transformations);
 
             AddWall(MaxX - 1, 15, MaxX / 5, 3);
             Borders.AddPosition(new Vector3(0, 0, 0));
@@ -106,6 +129,7 @@ namespace OpenGL_in_CSharp
         public void SignUpForCollisionChecking(CollisionManager collisionManager)
         {
             collisionManager.CollisionChecking += Trees.OnCollisionCheck;
+            collisionManager.CollisionChecking += Coins.OnCollisionCheck;
         }
 
         public float GetHeight(Vector2 pos)
@@ -132,20 +156,21 @@ namespace OpenGL_in_CSharp
         /// </summary>
         /// <param name="normalMappingProg"></param>
         /// <param name="fakeNormalMappingProg"></param>
-        public void DrawMap(LightsProgram normalMappingProg, LightsProgram fakeNormalMappingProg, int uniformSampler2 = 1)
+        public void DrawMap(LightsProgram normalMappingProg, LightsProgram fakeNormalMappingProg, 
+            Player player, int uniformSampler2 = 1)
         {
             fakeNormalMappingProg.Use();
             BordersNormalTexture.Use(uniformSampler2);
             fakeNormalMappingProg.AttachUniformVector3(Vector3.UnitX, "tangent");
             fakeNormalMappingProg.AttachUniformVector3(Vector3.UnitY, "biTangent");
-            Borders.Draw(fakeNormalMappingProg);
-            Terrain.Draw(fakeNormalMappingProg);
+            Borders.Draw(fakeNormalMappingProg, player, Math.Max(MaxZ, MaxX));
+            Terrain.Draw(fakeNormalMappingProg, player, Terrain.GetDiagonalLength() + 100);
 
             normalMappingProg.Use();
-            Trees.Draw(normalMappingProg);
-            TreeLeaves.Draw(normalMappingProg);
-
-            
+            Trees.Draw(normalMappingProg, player);
+            TreeLeaves.Draw(normalMappingProg, player);
+            Key.Draw(normalMappingProg, player);
+            Coins.Draw(normalMappingProg, player);
             /*
             program.AttachModelMatrix(Terrains.First().GetModelMatrix());
             Terrains.First().Draw();

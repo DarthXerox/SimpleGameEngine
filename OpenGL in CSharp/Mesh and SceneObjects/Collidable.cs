@@ -20,7 +20,15 @@ namespace OpenGL_in_CSharp
         public float Radius { get; }
         
         public Collidable(Mesh mesh, ModelTransformations initialTransformations) 
-            : base(mesh, initialTransformations) 
+            : this(mesh) 
+        {
+            ModelTransformations.Add(initialTransformations);
+        }
+
+        public Collidable(Mesh mesh, Vector3 initialPosition) 
+            : this(mesh, new ModelTransformations() { Position = initialPosition }) { }
+
+        public Collidable(Mesh mesh) : base(mesh) 
         {
             Radius = Math.Max(
                 Math.Max(Math.Abs(RawMesh.Model.MinX), Math.Abs(RawMesh.Model.MaxX)),
@@ -28,11 +36,6 @@ namespace OpenGL_in_CSharp
                 );
             Height = Math.Abs(RawMesh.Model.MaxY) + Math.Abs(RawMesh.Model.MinY);
         }
-
-        public Collidable(Mesh mesh, Vector3 initialPosition) 
-            : this(mesh, new ModelTransformations() { Position = initialPosition }) { }
-
-        public Collidable(Mesh mesh) : this(mesh, Vector3.Zero) { }
 
 
 
@@ -47,13 +50,13 @@ namespace OpenGL_in_CSharp
         public ModelTransformations GetCollidingPosition(Player player)
         {
             return ModelTransformations.Where(trans =>
-                (player.Position.Y <= trans.Position.Y + Height) &&
-                (player.Position.Y >= trans.Position.Y) &&
+                ((player.Position.Y <= trans.Position.Y + Height) ||
+                (player.Position.Y >= trans.Position.Y)) &&
                 (Vector2.Distance(player.Position.Xz, trans.Position.Xz) <= Radius + player.Radius))
                 .FirstOrDefault();
         }
 
-        public void OnCollisionCheck(object source, CollisionArgs args)
+        public virtual void OnCollisionCheck(object source, CollisionArgs args)
         {
             ModelTransformations collidingObject = GetCollidingPosition(args.PointOfCollision);
             if (collidingObject != null)

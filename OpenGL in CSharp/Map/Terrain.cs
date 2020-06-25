@@ -63,6 +63,11 @@ namespace OpenGL_in_CSharp.Utils
             NormalTexture = new Texture2D(normalTextureFile);
         }
 
+        public float GetDiagonalLength()
+        {
+            return Vector2.Distance(new Vector2(WidthX, 0), new Vector2(0, WidthZ));
+        }
+
         public float GetHeight(int x, int z)
         {
             return GetHeightFromMap(x, z) * MaxHeight;
@@ -226,12 +231,12 @@ namespace OpenGL_in_CSharp.Utils
             return (col.R / 255f + col.G / 255f + col.B / 255f ) / 3.0f;
         }
 
-        public override void Draw(LightsProgram lightsProgram)
+        public override void Draw(LightsProgram lightsProgram, Player player, float maxDistance = 100)
         {
             NormalTexture.Use(ShaderTextureSampler2);
             lightsProgram.AttachUniformVector3(-Vector3.UnitZ, "tangent");
             lightsProgram.AttachUniformVector3(Vector3.UnitX, "biTangent");
-            base.Draw(lightsProgram);
+            base.Draw(lightsProgram, player, maxDistance);
         }
     }
 }

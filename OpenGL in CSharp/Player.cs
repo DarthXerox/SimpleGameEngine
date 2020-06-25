@@ -10,6 +10,7 @@ namespace OpenGL_in_CSharp
         public Map AssociatedMap { private set; get; }
         public ConeLight Flashlight { set; get; }
         public float Height { private set; get; } = 5f;
+        public int CoinsCollected { set; get; } = 0;
         public Vector3 LowerCentre{ get => Position - new Vector3(0, Height, 0); }
         public float Radius { private set; get; } = 3f;
 

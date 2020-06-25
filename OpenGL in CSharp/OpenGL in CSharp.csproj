@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
+    <Compile Include="Mesh and SceneObjects\Coins.cs" />
     <Compile Include="Mesh and SceneObjects\Collidable.cs" />
     <Compile Include="Mesh and SceneObjects\CollisionArgs.cs" />
     <Compile Include="Mesh and SceneObjects\CollisionManager.cs" />

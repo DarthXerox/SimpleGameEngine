@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 using OpenGL_in_CSharp.Utils;
 using OpenTK;
 
@@ -48,13 +50,26 @@ namespace OpenGL_in_CSharp
 			ModelTransformations.Add(transformations);
 		}
 
-		public virtual void Draw(LightsProgram lightsProgram)
+		public virtual void Draw(LightsProgram lightsProgram, Player player, float maxDistance = 100)
 		{
 			lightsProgram.AttachMaterial(RawMesh.Material);
 			foreach (var transformation in ModelTransformations)
 			{
-				lightsProgram.AttachModelMatrix(transformation.GetModelMatrix());
-				RawMesh.Draw(lightsProgram);
+				// we can misuse the fact that everything is rendered in xz plane
+				//if (checkDistance)
+				//{
+					if (Vector2.Distance(transformation.Position.Xz, player.Position.Xz) < maxDistance)
+					{
+						lightsProgram.AttachModelMatrix(transformation.GetModelMatrix());
+						RawMesh.Draw(lightsProgram);
+					}
+				/*}
+				//if (!checkDistance || Vector2.Distance(transformation.Position.Xz, player.Position.Xz) < 100)
+				else
+				{
+					lightsProgram.AttachModelMatrix(transformation.GetModelMatrix());
+					RawMesh.Draw(lightsProgram);
+				}*/
 			}
 		}
 	}

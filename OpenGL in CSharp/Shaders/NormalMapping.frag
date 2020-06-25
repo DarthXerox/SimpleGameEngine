@@ -27,7 +27,7 @@ struct Material {
 	float shininess;
 };
 
-#define LIGHTS_AMNT 2
+#define LIGHTS_AMNT 3
 
 
 layout (location = 3) uniform vec4 lightPosition;
@@ -116,15 +116,15 @@ vec3 calculateColor(Light light_) {
 
 
 void main(void) {
-	if (texture(texture0, texCoors).a < 0.5) {
-		discard;
-	}
+//	if (texture(texture0, texCoors).a < 0.5) {
+//		discard;
+//	}
 
 	vec3 lightSum = vec3(0.0);
 	for (uint i = 0; i < LIGHTS_AMNT; ++i) {
 		lightSum += calculateColor(lights[i]);
 
 	}
-	//finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
-	finalColor = vec4(lightSum, 1);
+	finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
+	//finalColor = vec4(lightSum, 1);
 }

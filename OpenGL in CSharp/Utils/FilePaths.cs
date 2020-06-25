@@ -41,7 +41,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string TextureBrickWall = TextureFolder + "brickwall.jpg";
         public static readonly string TextureGrass3 = TextureFolder + "grass3 color.jpg";
         public static readonly string TextureGrass4 = TextureFolder + "grass4 color.jpg";
-
+        public static readonly string TextureKey = TextureFolder + "key.png";
+        public static readonly string TextureCoin = TextureFolder + "coin color.png";
 
 
         public static readonly string SansFont = FontsFolder + "FreeSans.ttf";
@@ -54,6 +55,8 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string BumpTexMossyRock = TextureFolder + "Normalmap.jpg";
         public static readonly string BumpTexTrunk = TextureFolder + "tree_trunk_normal.png";
         public static readonly string BumpTexTreeLeaves = TextureFolder + "tree_leaves_normal.png";
+        public static readonly string BumpTextKey = TextureFolder + "key normal.png";
+        public static readonly string BumpTexCoin = TextureFolder + "coin normal.png";
 
         public static readonly string ObjCube = ObjectsFolder + "test.obj";
         public static readonly string ObjCubeBlender = ObjectsFolder + "cubeBlender.obj";
@@ -65,6 +68,11 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjMossyRock1 = ObjectsFolder + "Mossy Rock 1.obj";
         public static readonly string ObjMossyRock2 = ObjectsFolder + "Mossy Rock 2.obj";
         public static readonly string ObjMossyRock3 = ObjectsFolder + "Mossy Rock 3.obj";
+        public static readonly string ObjKey = ObjectsFolder + "key.obj";
+        public static readonly string ObjKey2 = ObjectsFolder + "key2.obj";
+        public static readonly string ObjCoin = ObjectsFolder + "coin.obj";
+
+
 
         public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
         public static readonly string MtlTest = MaterialsFolder + "test.mtl";

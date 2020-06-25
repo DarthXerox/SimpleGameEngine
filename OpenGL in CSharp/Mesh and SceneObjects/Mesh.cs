@@ -204,6 +204,7 @@ namespace OpenGL_in_CSharp.Utils
 
 			Scene = new AssimpContext().ImportFile(objFile, PostProcessSteps.GenerateSmoothNormals
 				| PostProcessSteps.CalculateTangentSpace
+				| PostProcessSteps.Triangulate
 				//| PostProcessSteps.FlipUVs
 				);
 
