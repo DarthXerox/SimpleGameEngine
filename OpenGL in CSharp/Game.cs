@@ -1,41 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using OpenGL_in_CSharp.Utils;
 
 namespace GameNamespace
 {
+    /// <summary>
+    /// This class might seem a little bit unnecessary, but I am planning to extend the project
+    /// to be able to load all of the .obj and .mtl files in different threads and send this info to the window
+    /// </summary>
     public class Game : IDisposable
     {
         private MainWindow Window { set;  get; }
-        private Thread GraphicsThread { set;  get; }
-
-        public bool IsEnd { set; get; } = false;
-
 
         public Game() 
         {
-            //GraphicsThread = new Thread(() => w = new MainWindow()  w.Run(1.0 / 60.0, 1.0 / 60.0)); { IsBackground = true };
-            GraphicsThread = new Thread(() =>
-            {
-                Window = new MainWindow();
-                while (!Window.IsExiting)
-                {
-                    Window.Run(1.0 / 60.0, 1.0 / 60.0);
-                }
-                IsEnd = true;
-            })
-            { IsBackground = true };
-            GraphicsThread.Start();
+            Window = new MainWindow();
+        }
+
+        public void Run()
+        {
+            Window.Run(1.0 / 60.0, 1.0 / 60.0);
         }
 
         public void Dispose()
         {
-            GraphicsThread.Abort(); // NOT GOOD
             Window.Close();
         }
     }

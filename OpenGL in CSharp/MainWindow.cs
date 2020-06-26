@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenGL_in_CSharp;
+using OpenGL_in_CSharp.Mesh_and_SceneObjects;
+using OpenGL_in_CSharp.TextRendering;
 using OpenGL_in_CSharp.Utils;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using OpenGL_in_CSharp.TextRendering;
-using OpenGL_in_CSharp.Mesh_and_SceneObjects;
 
 namespace GameNamespace
 {
@@ -23,41 +23,34 @@ namespace GameNamespace
     
     public class MainWindow : GameWindow
     {
+        private int framebuffer = 0;
+        private int framebuffer_color = 0;
+        private int framebuffer_depth = 0;
 
         public GameStates GameState = GameStates.MainMenu; 
         public LightsProgram NormalMappingProg { private set; get; } // ID of the program
         public LightsProgram FakeNormalMappingProg { private set; get; }
-
         public ShaderProgram TextProgram { set; get; }
-
         public LightsProgram PostprocessProgram { set; get; }
         public FreeTypeFont Font { set; get; }
         
 
-        private Matrix4 matView;
-        private Matrix4 matProjection;
-        
+        public Matrix4 ViewMatrix { private set; get; }
+        public Matrix4 ProjectionMatrix { private set; get; }
+
         public Camera Camera { private set; get; }
-        private Player player;
-        private Map map;
-        public Fog WorldFog;
-        public Terrain Terrain { set; get; }
+        public Player Player { private set; get; }
+        public Map Map { private set; get; }
+        public Fog WorldFog { private set; get; }
 
-        private Light light;
-
-        public SceneObject Tree { set; get; }
-        public SceneObject TreeLeaves { set; get; }
+        public Light Sun { private set; get; }
 
         public CollisionManager CollisionManager { set; get; }
 
+        //enables to switch between camera and player
         public bool IsPlayerMoving { private set; get; } = true;
-        private float counter = 0.0f;
-        private int framecounter = 0;
-        private int step = 2;
 
-        public int framebuffer = 0;
-        public int framebuffer_color = 0;
-        public int framebuffer_depth = 0;
+        
 
         public GUI QuitMenuGUI { set; get; }
         public GUI MainMenuGUI { set; get; }
@@ -66,18 +59,17 @@ namespace GameNamespace
         public float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
         public readonly float[] clear_depth = { 1.0f };
 
-        public MainWindow() //1280:720
-           : base(720, // initial width
-            720, // initial height
+        public MainWindow() 
+           : base(800, 
+            720, 
             GraphicsMode.Default,
-            "Slenderman??",  // initial title
+            "Forest",  
             GameWindowFlags.Default,
             DisplayDevice.Default,
-            4, // OpenGL major version
-            0, // OpenGL minor version
+            4, 
+            0, 
             GraphicsContextFlags.ForwardCompatible)
         {
-            Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -86,45 +78,38 @@ namespace GameNamespace
             GL.Viewport(0, 0, Width, Height);
 
             WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
-
             GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             clear_color = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
-            //GL.ClearColor(Color4.Aqua);
+
             NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
             FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
-            //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
-            light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
-            light.Color = new Vector3(0.3f, 0.3f, 0.3f);
-
             TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
             Font = new FreeTypeFont(48, FilePaths.MonoFont);
 
+            Sun = new Light(new Vector3(10.0f, 10.0f, 5.0f))
+            {
+                Color = new Vector3(0.3f, 0.3f, 0.3f)
+            }; 
 
+            Map = new Map(2, 2, FilePaths.HeightMapPath);
+            Player = new Player(new Vector3(1, 5, 1), Map);
 
-            map = new Map(2, 2, FilePaths.HeightMapPath);
-            player = new Player(new Vector3(1, 5, 1), map);
-
-           
+            // used for moving camera, this feature can only be turned on in the code see IsPlayerMoving
             Camera = new Camera(
                 new Vector3(0.0f, 20.0f, 20.0f),
                 Vector3.Zero,
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );
-            /*
-            Camera = Camera.GenerateOmnipotentCamera(Vector3.Zero);*/
+
             CursorVisible = false;
 
-            CollisionManager = new CollisionManager(player);
-            map.SignUpForCollisionChecking(CollisionManager);
-
-            GL.Enable(EnableCap.Multisample);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            CollisionManager = new CollisionManager(Player);
+            Map.SignUpForCollisionChecking(CollisionManager);
 
             InitGUI();
 
+            //just the postprocess stuff from 7th exercise
             GL.CreateFramebuffers(1, out framebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
@@ -136,7 +121,6 @@ namespace GameNamespace
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            // Set output 0 to GL_COLOR_ATTACHMENT0 (glNamedFramebufferDrawBuffers)
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
@@ -149,89 +133,39 @@ namespace GameNamespace
                 Console.WriteLine(GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer));
             }
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
         }
 
 
-        /// <summary>
-        /// Takes care of rendering a running game
-        /// </summary>
         private void RenderGame()
         {
             GL.Enable(EnableCap.DepthTest);
-            matProjection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 1000.0f);
-            matView = IsPlayerMoving ? player.GetViewMatrix() : Camera.GetViewMatrix();
-
-            NormalMappingProg.Use();
-
-            Vector3 camPosition = IsPlayerMoving ? player.Position : Camera.Position;
-
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 1000.0f);
+            ViewMatrix = IsPlayerMoving ? Player.GetViewMatrix() : Camera.GetViewMatrix();
+            Vector3 camPosition = IsPlayerMoving ? Player.Position : Camera.Position;
 
             int lightIndex = 0;
-            NormalMappingProg.AttachLight(light, lightIndex);
-            FakeNormalMappingProg.AttachLight(light, lightIndex);
+            NormalMappingProg.AttachLight(Sun, lightIndex);
+            FakeNormalMappingProg.AttachLight(Sun, lightIndex);
             lightIndex++;
-            NormalMappingProg.AttachLight(player.Flashlight, lightIndex);
-            FakeNormalMappingProg.AttachLight(player.Flashlight, lightIndex);
+            NormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
+            FakeNormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             lightIndex++;
-
             
             GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
             NormalMappingProg.AttachFog(WorldFog);
-            NormalMappingProg.AttachViewMatrix(matView);
-            NormalMappingProg.AttachProjectionMatrix(matProjection);
+            NormalMappingProg.AttachViewMatrix(ViewMatrix);
+            NormalMappingProg.AttachProjectionMatrix(ProjectionMatrix);
 
             GL.ProgramUniform3(FakeNormalMappingProg.ID, 5, camPosition);
             FakeNormalMappingProg.AttachFog(WorldFog);
-            FakeNormalMappingProg.AttachViewMatrix(matView);
-            FakeNormalMappingProg.AttachProjectionMatrix(matProjection);
+            FakeNormalMappingProg.AttachViewMatrix(ViewMatrix);
+            FakeNormalMappingProg.AttachProjectionMatrix(ProjectionMatrix);
 
-            /*
-            GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "materialAmbientColor"), objectMaterial.Ambient);
-            GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
-            GL.ProgramUniform3(Program.ID, 10, objectMaterial.Specular);
-            GL.ProgramUniform1(Program.ID, 11, objectMaterial.Shininess);
-           
-            */
-            //Program.AttachMaterial(Tree.RawMesh.Material);
-
-            /*
-            framecounter = (framecounter + 1) % 360;
-            int val = 0;
-            if (framecounter < 180)
-            {
-                val = 1;
-            }
-            */
-            //GL.ProgramUniform1(Program.ID, 12, val);
-            //Program.AttachDirectionalLight(light);
-            //Program.AttachLight(player.Flashlight, lightIndex);
-            /*
-            NormalMappingProg.AttachLight(light, lightIndex);
-
-            NormalMappingProg.AttachFog(WorldFog);
-            NormalMappingProg.AttachViewMatrix(matView);
-            NormalMappingProg.AttachProjectionMatrix(matProjection);
-            Tree.Draw(NormalMappingProg);
-            TreeLeaves.Draw(NormalMappingProg);
-
-
-            FakeNormalMappingProg.Use();
-            GL.ProgramUniform3(FakeNormalMappingProg.ID, 5, camPosition);
-            FakeNormalMappingProg.AttachLight(light, lightIndex);
-            FakeNormalMappingProg.AttachFog(WorldFog);
-            FakeNormalMappingProg.AttachViewMatrix(matView);
-            FakeNormalMappingProg.AttachProjectionMatrix(matProjection);
-            */
-            //Terrain.Draw(FakeNormalMappingProg);
-            //map.DrawMap(Program, NormalMappingProgram);
-
-            //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
-            //AssMesh.Draw();
-
-
-            //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
-
-            map.DrawMap(NormalMappingProg, FakeNormalMappingProg, player, ref lightIndex);
+            Map.DrawMap(NormalMappingProg, FakeNormalMappingProg, Player);
         }
 
 
@@ -241,14 +175,9 @@ namespace GameNamespace
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-
-            //RenderGame();
-
-            
             if (GameState != GameStates.PlayingGame)
             {
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
-                //Console.WriteLine(GL.GetError());
 
                 // Clear attachments
                 GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Color, 0, clear_color);
@@ -267,18 +196,12 @@ namespace GameNamespace
                 GL.BindTexture(TextureTarget.Texture2D, framebuffer_color);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-
-
-                //Matrix4 projectionM = Matrix4.CreateScale(new Vector3(1f / this.Width, 1f / this.Height, 1.0f));
-                //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, Width, 0.0f, Height,  -1.0f, 1.0f);
+                // for rendering text we use orthographic projection
                 Matrix4 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
 
-                //GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-                //GL.Clear(ClearBufferMask.ColorBufferBit);
 
                 GL.Disable(EnableCap.CullFace);
                 GL.Enable(EnableCap.Blend);
-                //GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
                 GL.BlendFunc(0, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
                 TextProgram.Use();
@@ -295,6 +218,7 @@ namespace GameNamespace
                 else if (GameState == GameStates.QuitMenu)
                 {
                     QuitMenuGUI.Draw(GetMousePositionRelativeToWindowMiddle());
+                    Player.DrawCollectedStonesGUI(Width, Height, Font);
                 }
             }
             else if (GameState == GameStates.PlayingGame)
@@ -302,55 +226,15 @@ namespace GameNamespace
                 RenderGame();
 
                 TextProgram.Use();
-                player.DrawCollectedCoinsGUI(Width, Height, Font);
+                Player.DrawCollectedStonesGUIWithTime(Width, Height, Font);
             }
             
-            
-            
-            
-            
-
-            
-            
-            
-            
-
-
-
-            /*
-            Program.AttachModelMatrix(Matrix4.Identity);
-            objectToDraw.Draw();
-            */
-            /*
-            Program.AttachModelMatrix(objectToDraw2.GetModelMatrix());
-            objectToDraw2.Draw();
-            */
-            //Console.WriteLine(framecounter / step);
-            /*animation[framecounter / step].Draw();
-            framecounter++;
-            if (framecounter >= step * 21)
-            {
-                framecounter = 0;
-            }*/
-
             SwapBuffers();
         }
 
-
-
-
-        
-
-
-
-
-        /// <summary>
-        /// NOT IMPORTANT
-        /// </summary>
-        /// <param name="e"></param>
         protected override void OnClosed(EventArgs e)
         {
-            //GL.DeleteProgram(Program);
+            base.OnClosed(e);
             Exit();
         }
 
@@ -369,7 +253,7 @@ namespace GameNamespace
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            if (player.CoinsCollected >= FloatingStone.AllCoinsCount)
+            if (Player.StonesCollected >= FloatingStone.AllCoinsCount)
             {
                 GameState = GameStates.YouWin;
             }
@@ -394,7 +278,6 @@ namespace GameNamespace
                     GameState = newState;
                 }
             }
-            //CollisionManager.CheckCollisions();
 
             HandleKeyboard();
             if (GameState == GameStates.PlayingGame)
@@ -402,7 +285,7 @@ namespace GameNamespace
                 CursorVisible = false;
                 if (IsPlayerMoving)
                 {
-                    player.Move(Mouse.GetState());
+                    Player.Move(Mouse.GetState());
                     CollisionManager.CheckCollisions();
                 }
                 else
@@ -424,10 +307,6 @@ namespace GameNamespace
         private void HandleKeyboard()
         {
             var keyState = Keyboard.GetState();
-            /*if (keyState.IsKeyDown(Key.Escape))
-            {
-                Exit();
-            } */
             if (keyState.IsKeyDown(Key.F))
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
@@ -445,15 +324,6 @@ namespace GameNamespace
             {
                 GameState = GameStates.QuitMenu;
             }
-            /*
-            else if (keyState.IsKeyDown(Key.N))
-            {
-                GameState = WindowStates.PlayingGame;
-            }*/
-            /*else if (keyState.IsKeyDown(Key.X))
-            {
-                IsPlayerMoving = !IsPlayerMoving;
-            }*/
         }
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
@@ -470,6 +340,8 @@ namespace GameNamespace
         {
             base.OnResize(e);
             GL.Viewport(0, 0, Width, Height);
+            
+            //on resize also the framebuffer size is changed so we need to change the postprocess framebuffer too
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
             GL.TextureStorage2D(framebuffer_color, 1, SizedInternalFormat.Rgba32f, Width, Height);
@@ -479,8 +351,7 @@ namespace GameNamespace
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            // Set output 0 to GL_COLOR_ATTACHMENT0 (glNamedFramebufferDrawBuffers)
+            
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
@@ -495,22 +366,18 @@ namespace GameNamespace
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
+        /// <summary>
+        /// Gets mouse position relative to the very middle of the game window screen
+        /// this is useful for text rendering - Matrix4.CreateOrthographicOffCenter
+        /// </summary>
+        /// <returns></returns>
         public Vector2 GetMousePositionRelativeToWindowMiddle()
         {
             var mouse = Mouse.GetCursorState();
             return new Vector2()
             {
                 X = mouse.X - (this.X + Width / 2),
-                Y =  - (mouse.Y - (this.Y + Height / 2))
-            };
-        }
-        public Vector2 GetMousePositionRelativeToWindowOrigin()
-        {
-            var mouse = Mouse.GetCursorState();
-            return new Vector2()
-            {
-                X = mouse.X - this.X,
-                Y = mouse.Y - this.Y
+                Y = -(mouse.Y - (this.Y + Height / 2))
             };
         }
 
@@ -540,6 +407,5 @@ namespace GameNamespace
                 { new TextBox(0, -100, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitGame }
             });
         }
-
     }
 }
