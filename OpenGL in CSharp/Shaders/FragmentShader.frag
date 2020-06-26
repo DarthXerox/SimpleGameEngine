@@ -28,7 +28,7 @@ struct Material {
 };
 
 
-#define LIGHTS_AMNT 1
+#define LIGHTS_AMNT 3
 
 
 layout (location = 3) uniform vec4 lightPosition;

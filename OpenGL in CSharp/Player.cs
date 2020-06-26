@@ -1,4 +1,6 @@
 ﻿using System;
+using OpenGL_in_CSharp.Mesh_and_SceneObjects;
+using OpenGL_in_CSharp.TextRendering;
 using OpenGL_in_CSharp.Utils;
 using OpenTK;
 using OpenTK.Input;
@@ -15,6 +17,8 @@ namespace OpenGL_in_CSharp
         public float Radius { private set; get; } = 3f;
 
         public DateTime LastEPressed = new DateTime(2000, 1, 1);
+
+        public DateTime LastCoinCollected = new DateTime(2000, 1, 1);
 
         public Player(Vector3 position, Map map) : base(position)
         {
@@ -90,6 +94,22 @@ namespace OpenGL_in_CSharp
                 ));*/
             return Matrix4.LookAt(Position, Position + GetEyeFront(), Up);
 
+        }
+
+        public void CollectCoin()
+        {
+            CoinsCollected++;
+            LastCoinCollected = DateTime.Now;
+        }
+
+        public void DrawCollectedCoinsGUI(int windowWidth, int windowHeight, FreeTypeFont font)
+        {
+            if ((DateTime.Now - LastCoinCollected).TotalSeconds <= 5)
+            {
+                new TextBox(windowWidth / 2 - 150, windowHeight / 2 - 50,
+                    $"Stones: {CoinsCollected}/{Coins.AllCoinsCount}", 0.5f, new Vector3(1f), font, false)
+                    .Draw(Vector2.Zero);
+            }
         }
 
         /*

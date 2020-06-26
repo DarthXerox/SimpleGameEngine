@@ -46,6 +46,7 @@ layout (location = 12) uniform bool isNormalTex;
  uniform Light lights[LIGHTS_AMNT];
  uniform Material material;
 layout (location = 50) uniform Fog fog;
+uniform int lightCount;
 
 uniform layout (binding = 0) sampler2D texture0;
 uniform layout (binding = 1) sampler2D texNormal;
@@ -87,8 +88,9 @@ vec3 calculateColor(Light light_) {
 
 	//vec3 ambient = texture(texture0, texCoors).xyz * light_.ambient.rgb;
 	//ambient += 0.5;
+	vec4 tex = texture(texture0, texCoors);
 	vec3 ambient = material.ambient.rgb * light_.ambient.rgb;
-	vec3 diffuse = material.diffuse.rgb * light_.diffuse.rgb * texture(texture0, texCoors).xyz;
+	vec3 diffuse = material.diffuse.rgb * light_.diffuse.rgb * tex.xyz;
 	vec3 specular = material.specular.rgb * light_.specular.rgb;
 
 	float distance_ = 1.0;
@@ -116,9 +118,9 @@ vec3 calculateColor(Light light_) {
 
 
 void main(void) {
-//	if (texture(texture0, texCoors).a < 0.5) {
-//		discard;
-//	}
+	if (texture(texture0, texCoors).a < 0.5) {
+		discard;
+	}
 
 	vec3 lightSum = vec3(0.0);
 	for (uint i = 0; i < LIGHTS_AMNT; ++i) {

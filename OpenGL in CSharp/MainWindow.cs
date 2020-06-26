@@ -111,7 +111,7 @@ namespace GameNamespace
             FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
             //NormalMappingProgram = new ShaderProgram(FilePaths.VertexShaderPath, FilePaths.NormalMappingPath);
             light = new Light(new Vector3(10.0f, 10.0f, 5.0f)); //new Light(new Vector4(-0.5f, 0.75f, 0.5f, 1.0f));
-            light.Color = new Vector3(1f, 1f, 1f);
+            light.Color = new Vector3(0.5f, 0.5f, 0.5f);
 
             TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
@@ -121,7 +121,7 @@ namespace GameNamespace
             //objectToDraw2 = new SceneObject(FilePaths.ObjDragon, FilePaths.TexturePathRed);
             //objectToDraw2.ScalingFactor = 0.5f;
 
-            map = new Map(5, 5, FilePaths.HeightMapPath);
+            map = new Map(2, 2, FilePaths.HeightMapPath);
             Console.WriteLine($"Height map size: X: {map.HeightMap.Width} Y: {map.HeightMap.Height}");
             //map = new Map(1, 1, FilePaths.TextureBrickWall, FilePaths.HeightMapPath);
             player = new Player(new Vector3(1, 5, 1), map);
@@ -136,7 +136,7 @@ namespace GameNamespace
             Camera = Camera.GenerateOmnipotentCamera(Vector3.Zero);*/
             CursorVisible = false;
 
-            lightForCoins = new ConeLight(new Vector3(10 + 2 * 5, map.GetHeight(10 + 2 * 5, 5) + 8, 5), -Vector3.UnitY,
+            lightForCoins = new ConeLight(new Vector3(10 + 2 * 15, map.GetHeight(10 + 2 * 5, 5) - 8, 5), -Vector3.UnitY,
                 1f, 0.07f, 0.017f, 12.5f, 17.5f);
 
             CollisionManager = new CollisionManager(player);
@@ -205,15 +205,14 @@ namespace GameNamespace
 
 
             int lightIndex = 0;
-            //NormalMappingProg.AttachLight(light, lightIndex);
-            //FakeNormalMappingProg.AttachLight(light, lightIndex);
-            //lightIndex++;
+            NormalMappingProg.AttachLight(light, lightIndex);
+            FakeNormalMappingProg.AttachLight(light, lightIndex);
+            lightIndex++;
             NormalMappingProg.AttachLight(player.Flashlight, lightIndex);
             FakeNormalMappingProg.AttachLight(player.Flashlight, lightIndex);
             lightIndex++;
-            NormalMappingProg.AttachLight(lightForCoins, lightIndex);
-            FakeNormalMappingProg.AttachLight(lightForCoins, lightIndex);
 
+            
             GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
             NormalMappingProg.AttachFog(WorldFog);
             NormalMappingProg.AttachViewMatrix(matView);
@@ -223,6 +222,7 @@ namespace GameNamespace
             FakeNormalMappingProg.AttachFog(WorldFog);
             FakeNormalMappingProg.AttachViewMatrix(matView);
             FakeNormalMappingProg.AttachProjectionMatrix(matProjection);
+
             /*
             GL.ProgramUniform3(Program.ID, GL.GetUniformLocation(Program.ID, "materialAmbientColor"), objectMaterial.Ambient);
             GL.ProgramUniform3(Program.ID, 9, objectMaterial.Diffuse);
@@ -269,7 +269,7 @@ namespace GameNamespace
 
             //Program.AttachModelMatrix(Matrix4.CreateTranslation(20, 0, 20));
 
-            map.DrawMap(NormalMappingProg, FakeNormalMappingProg, player);
+            map.DrawMap(NormalMappingProg, FakeNormalMappingProg, player, ref lightIndex);
         }
 
 
@@ -307,9 +307,9 @@ namespace GameNamespace
 
 
 
-                Matrix4 projectionM = Matrix4.CreateScale(new Vector3(1f / this.Width, 1f / this.Height, 1.0f));
+                //Matrix4 projectionM = Matrix4.CreateScale(new Vector3(1f / this.Width, 1f / this.Height, 1.0f));
                 //projectionM = Matrix4.CreateOrthographicOffCenter(0.0f, Width, 0.0f, Height,  -1.0f, 1.0f);
-                projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
+                Matrix4 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
 
                 //GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
                 //GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -355,6 +355,9 @@ namespace GameNamespace
             else if (GameState == GameStates.PlayingGame)
             {
                 RenderGame();
+
+                TextProgram.Use();
+                player.DrawCollectedCoinsGUI(Width, Height, Font);
             }
             
             

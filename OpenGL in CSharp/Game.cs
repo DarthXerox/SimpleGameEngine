@@ -25,8 +25,8 @@ namespace GameNamespace
                 Window = new MainWindow();
                 while (!Window.IsExiting)
                 {
-                    //Window.Run(1.0 / 60.0, 1.0 / 60.0);
-                    Window.Run();
+                    Window.Run(1.0 / 60.0, 1.0 / 60.0);
+                    //Window.Run();
                 }
                 IsEnd = true;
             })

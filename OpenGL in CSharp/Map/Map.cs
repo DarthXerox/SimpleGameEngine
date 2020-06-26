@@ -3,25 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using OpenTK;
 using OpenGL_in_CSharp.Utils;
-using System.Linq;
-using System.ComponentModel.Design;
-using System.IO;
-using OpenGL_in_CSharp.InstancedDrawing;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using OpenGL_in_CSharp.Mesh_and_SceneObjects;
 
 namespace OpenGL_in_CSharp
 {
     public class Map
     {
-        //public List<Terrain> Terrains { set; get; } = new List<Terrain>();
-
-        //public Collidable Tree { set; get; }
-        //public SceneObject TreeLeaves { set; get; }
-
-        //public Collidable TallGrass { set; get; }
-
         public Terrain Terrain { private set; get; }
         public Collidable Trees { set; get; }
         public SceneObject TreeLeaves { set; get; }
@@ -46,19 +33,12 @@ namespace OpenGL_in_CSharp
             Height = height;
             HeightMap = new Bitmap(heightMapFile);
             Terrain = new Terrain(FilePaths.HeightMapPath, FilePaths.TextureGrass4,
-                 FilePaths.BumpTexGrass4, FilePaths.MtlGold, Vector3.Zero);
+                 FilePaths.BumpTexGrass4, FilePaths.MtlEmerald, Vector3.Zero);
             Trees = new Collidable(new NormalMappingMesh(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk,
-                FilePaths.MtlGold, FilePaths.BumpTexTrunk));
+                FilePaths.MtlBronze, FilePaths.BumpTexTrunk));
             TreeLeaves = new SceneObject(new NormalMappingMesh(FilePaths.ObjTreeLeaves,
-                FilePaths.TextureTreeLeaves3, FilePaths.MtlGold, FilePaths.BumpTexTreeLeaves));
+                FilePaths.TextureTreeLeaves3, FilePaths.MtlEmerald, FilePaths.BumpTexTreeLeaves));
 
-            Key = new SceneObject(new NormalMappingMesh(FilePaths.ObjCoin, FilePaths.TextureCoin,
-                FilePaths.MtlGold, FilePaths.BumpTexCoin), new ModelTransformations()
-                {
-                    Position = new Vector3(30, 2, 30),
-                    Scaling = new Vector3(0.25f, 0.25f, 0.25f),
-                    RotX = 90
-                }) ;
             /*
             TerrainInstanced = new InstancedSceneObject(Terrain.RawMesh);
             Trees = new InstancedCollidable(FilePaths.ObjTreeTrunk, FilePaths.TextureTreeTrunk);
@@ -84,12 +64,15 @@ namespace OpenGL_in_CSharp
             {
                 for (int x = 0; x < HeightMap.Width; x++)
                 {
-                    if (z % 20 == 0 && x % 20 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
+                    if (z % 35 == 0 && x % 35 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
                     {
                         foreach (var sceneObject in Terrain.ModelTransformations)
                         {
-                            Trees.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) * sceneObject.GetModelMatrix()).Xyz);
-                            TreeLeaves.AddPosition(( new Vector4(x, GetHeight(x, z), z, 1) * sceneObject.GetModelMatrix()).Xyz);
+                            // I move it a litte bit down, so the tree nicely "grows" from the ground
+                            Trees.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) * 
+                                sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
+                            TreeLeaves.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) * 
+                                sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
                         }
                     }
                 }
@@ -100,12 +83,12 @@ namespace OpenGL_in_CSharp
             {
                 transformations.Add(new ModelTransformations()
                 {
-                    Position = new Vector3(10 + i * 5, GetHeight(10 + i * 5, 5) + 3 , 5)
+                    Position = new Vector3(10 + i * 15, GetHeight(10 + i * 5, 5) + 3 , 5)
                 });
             }
             Coins = new Coins(new NormalMappingMesh(FilePaths.ObjMossyRock1, 
-                FilePaths.TextureMossyRock, FilePaths.MtlGold, FilePaths.BumpTexMossyRock), transformations);
-
+                FilePaths.TextureMossyRock, FilePaths.MtlChrome, FilePaths.BumpTexMossyRock), transformations);
+            //Console.WriteLine(transformations.Count);
             AddWall(MaxX - 1, 15, MaxX / 5, 3);
             Borders.AddPosition(new Vector3(0, 0, 0));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));
@@ -157,7 +140,7 @@ namespace OpenGL_in_CSharp
         /// <param name="normalMappingProg"></param>
         /// <param name="fakeNormalMappingProg"></param>
         public void DrawMap(LightsProgram normalMappingProg, LightsProgram fakeNormalMappingProg, 
-            Player player, int uniformSampler2 = 1)
+            Player player, ref int lightIndex, int uniformSampler2 = 1)
         {
             fakeNormalMappingProg.Use();
             BordersNormalTexture.Use(uniformSampler2);
@@ -169,7 +152,8 @@ namespace OpenGL_in_CSharp
             normalMappingProg.Use();
             Trees.Draw(normalMappingProg, player);
             TreeLeaves.Draw(normalMappingProg, player);
-            Key.Draw(normalMappingProg, player);
+
+            //Coins.AttachAllLights(normalMappingProg, fakeNormalMappingProg, ref lightIndex);
             Coins.Draw(normalMappingProg, player);
             /*
             program.AttachModelMatrix(Terrains.First().GetModelMatrix());
@@ -291,7 +275,7 @@ namespace OpenGL_in_CSharp
                 model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
             }
 
-            Borders = new SceneObject(new Mesh(model, FilePaths.TextureBrickWall, FilePaths.MtlGold));
+            Borders = new SceneObject(new Mesh(model, FilePaths.TextureBrickWall, FilePaths.MtlBronze));
             //Borders = new SceneObject(new Mesh(model, new Texture2D(FilePaths.TextureBrickWall)));
             //Borders = new InstancedSceneObject(new Mesh(model, FilePaths.TextureBrickWall));
         }

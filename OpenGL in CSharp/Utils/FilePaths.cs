@@ -72,15 +72,12 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string ObjKey2 = ObjectsFolder + "key2.obj";
         public static readonly string ObjCoin = ObjectsFolder + "coin.obj";
 
-
-
-        public static readonly string MtlBasic = MaterialsFolder + "custom.mtl";
-        public static readonly string MtlTest = MaterialsFolder + "test.mtl";
         public static readonly string MtlGold = MaterialsFolder + "gold.mtl";
-        public static readonly string MtlTreeTrunk = MaterialsFolder + "tree_trunk.mtl";
-        public static readonly string MtlTreeLeaves = MaterialsFolder + "tree_leaves.mtl";
+        public static readonly string MtlBronze = MaterialsFolder + "bronze.mtl";
+        public static readonly string MtlChrome = MaterialsFolder + "chrome.mtl";
+        public static readonly string MtlEmerald = MaterialsFolder + "emerald.mtl";
+
+
         public static readonly string MtlMossyRock1 = MaterialsFolder + "Mossy Rock 1.mtl";
-        public static readonly string MtlMossyRock2 = MaterialsFolder + "Mossy Rock 2.mtl";
-        public static readonly string MtlMossyRock3 = MaterialsFolder + "Mossy Rock 3.mtl";
     }
 }
