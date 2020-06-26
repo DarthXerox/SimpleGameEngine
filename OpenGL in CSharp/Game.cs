@@ -26,13 +26,11 @@ namespace GameNamespace
                 while (!Window.IsExiting)
                 {
                     Window.Run(1.0 / 60.0, 1.0 / 60.0);
-                    //Window.Run();
                 }
                 IsEnd = true;
             })
             { IsBackground = true };
             GraphicsThread.Start();
-            //var a = new Animator($"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}model.dae");
         }
 
         public void Dispose()

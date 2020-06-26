@@ -25,7 +25,7 @@ namespace OpenGL_in_CSharp
 
         public Bitmap HeightMap { private set; get; }
 
-        public Coins Coins { private set; get; }
+        public FloatingStone Coins { private set; get; }
 
         public Map(int width, int height, string heightMapFile)
         {
@@ -78,17 +78,29 @@ namespace OpenGL_in_CSharp
                 }
             }
 
-            List<ModelTransformations> transformations = new List<ModelTransformations>();
-            for (int i = 0; i < 10; ++i)
+            // in middle of each terrain (2x2 map) and in the very middle of the map
+            /*
+            List<ModelTransformations> transformations = new List<ModelTransformations>()
             {
-                transformations.Add(new ModelTransformations()
-                {
-                    Position = new Vector3(10 + i * 15, GetHeight(10 + i * 5, 5) + 3 , 5)
-                });
-            }
-            Coins = new Coins(new NormalMappingMesh(FilePaths.ObjMossyRock1, 
+                new ModelTransformations() { Position = new Vector3(MaxX / 2, GetHeight(MaxX / 2, MaxZ / 2) + 3, MaxZ / 2) }, // the very middle
+                new ModelTransformations() { Position = new Vector3(MaxX / 4, GetHeight(MaxX / 4, MaxZ / 4) + 3, MaxZ / 4) },
+                new ModelTransformations() { Position = new Vector3( 3 * MaxX / 4, GetHeight(3 * MaxX / 4, 3 * MaxZ / 4) + 3, 3 * MaxZ / 4) },
+                new ModelTransformations() { Position = new Vector3( 3 * MaxX / 4, GetHeight(3 * MaxX / 4, MaxZ / 4) + 3, MaxZ / 4) },
+                new ModelTransformations() { Position = new Vector3(MaxX / 4, GetHeight(MaxX / 4, 3 * MaxZ / 4) + 3, 3 * MaxZ / 4) },
+            };*/
+
+            // for simplicity I put 4 of the stones in the map corners and one in its middle
+            List<ModelTransformations> transformations = new List<ModelTransformations>()
+            {
+                new ModelTransformations() { Position = new Vector3(MaxX / 2, GetHeight(MaxX / 2, MaxZ / 2) + 3, MaxZ / 2) }, // the very middle
+                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, 10) + 3, 10) },
+                new ModelTransformations() { Position = new Vector3(MaxX - 10, GetHeight(MaxX - 10, 10) + 3, 10) },
+                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, MaxZ - 10) + 3, MaxZ - 10) },
+                new ModelTransformations() { Position = new Vector3(MaxX - 7, GetHeight(MaxX - 7, MaxZ - 7) + 3, MaxZ - 7) }
+            };
+
+            Coins = new FloatingStone(new NormalMappingMesh(FilePaths.ObjMossyRock1, 
                 FilePaths.TextureMossyRock, FilePaths.MtlChrome, FilePaths.BumpTexMossyRock), transformations);
-            //Console.WriteLine(transformations.Count);
             AddWall(MaxX - 1, 15, MaxX / 5, 3);
             Borders.AddPosition(new Vector3(0, 0, 0));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));

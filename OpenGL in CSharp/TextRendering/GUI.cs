@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GameNamespace;
+using OpenGL_in_CSharp.Utils;
 using OpenTK;
 
 namespace OpenGL_in_CSharp.TextRendering
@@ -16,6 +17,7 @@ namespace OpenGL_in_CSharp.TextRendering
         public float MidY { get; }
 
         public bool HasHitbox { get; }
+        public bool IsHighlighted { private set; get; } = false;
         public Vector3 Color { set; get; }
         public Vector3 HighLightColor = new Vector3(1, 1, 0);
         private readonly float pixelLength;
@@ -47,7 +49,7 @@ namespace OpenGL_in_CSharp.TextRendering
 
         public bool IsColliding(float x, float y)
         {
-            if (x <= MaxX && x >= MinX && y <= MaxY && y >= MinY)
+            if (HasHitbox && x <= MaxX && x >= MinX && y <= MaxY && y >= MinY)
             {
                 return true;
             }
@@ -69,14 +71,20 @@ namespace OpenGL_in_CSharp.TextRendering
             //Console.WriteLine(PixelLength);
             if (HasHitbox && IsColliding(mousePos.X, mousePos.Y))
             {
+                if (!IsHighlighted)
+                {
+                    Sounder.PlaySound(FilePaths.SoundMenuBtnHover);
+                }
                 float scaleMultiplier = 1.2f;
                 Font.RenderText(Text, MidX - scaleMultiplier * (PixelLength / 2), 
                     MidY + scaleMultiplier * (PixelHeight / 2),
                     scaleMultiplier * Scale, 
                     HighLightColor, modelUniform, colorUniform, textureBinding);
+                IsHighlighted = true;
             } 
             else
             {
+                IsHighlighted = false;
                 //each letter's origin is in its topleft corner, that's why we have to render them at MaxY
                 Font.RenderText(Text, MinX, MaxY, Scale, Color, modelUniform, colorUniform, textureBinding);
             }

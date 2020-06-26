@@ -14,7 +14,7 @@ namespace OpenGL_in_CSharp
         public float Height { private set; get; } = 5f;
         public int CoinsCollected { set; get; } = 0;
         public Vector3 LowerCentre{ get => Position - new Vector3(0, Height, 0); }
-        public float Radius { private set; get; } = 3f;
+        public float Radius { private set; get; } = 2.5f;
 
         public DateTime LastEPressed = new DateTime(2000, 1, 1);
 
@@ -24,7 +24,8 @@ namespace OpenGL_in_CSharp
         {
             AssociatedMap = map;
             Flashlight = new ConeLight(new Vector3(position.X, 
-                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), new Vector3(1,1,1), 1f, 0.07f, 0.017f, 12.5f, 17.5f);
+                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), 
+                new Vector3(1,1,1), 1f, 0.027f, 0.0028f, 12.5f, 17.5f);
         }
 
         public override void Move(MouseState mouse)
@@ -107,7 +108,7 @@ namespace OpenGL_in_CSharp
             if ((DateTime.Now - LastCoinCollected).TotalSeconds <= 5)
             {
                 new TextBox(windowWidth / 2 - 150, windowHeight / 2 - 50,
-                    $"Stones: {CoinsCollected}/{Coins.AllCoinsCount}", 0.5f, new Vector3(1f), font, false)
+                    $"Stones: {CoinsCollected}/{FloatingStone.AllCoinsCount}", 0.5f, new Vector3(1f), font, false)
                     .Draw(Vector2.Zero);
             }
         }

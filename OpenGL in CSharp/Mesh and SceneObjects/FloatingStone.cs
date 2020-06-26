@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Assimp;
-using ObjLoader.Loader.Data.VertexData;
 using OpenGL_in_CSharp.Utils;
 using OpenTK;
-//using OpenTK.Audio.OpenAL
 
 namespace OpenGL_in_CSharp.Mesh_and_SceneObjects
 {
-    public class Coins : Collidable
+    public class FloatingStone : Collidable
     {
         public static readonly int AllCoinsCount = 5;
         public float RotationYPerFrame { get; } = 1f/3f * 360f / 60f;
@@ -25,7 +19,7 @@ namespace OpenGL_in_CSharp.Mesh_and_SceneObjects
 
         public List<Vector3> LightsPositions = new List<Vector3>();
 
-        public Coins(NormalMappingMesh mesh, 
+        public FloatingStone(NormalMappingMesh mesh, 
             List<ModelTransformations> positions) : base (mesh) 
         {
             if (positions.Count < AllCoinsCount)
@@ -74,8 +68,7 @@ namespace OpenGL_in_CSharp.Mesh_and_SceneObjects
             ModelTransformations.Remove(transformations);
             CoinsLeft--;
             player.CollectCoin();
-            Console.WriteLine(player.CoinsCollected);
-            //play sound
+            Sounder.PlaySound(FilePaths.SoundStonePickUp);
         }
     }
 }

@@ -54,9 +54,7 @@ namespace OpenGL_in_CSharp.Utils
                             currentMat.Specular = ParseVector3(ref parts);
                             break;
                         case "Ns":
-                            Console.WriteLine(parts[1]);
                             currentMat.Shininess = float.Parse(parts[1]);
-                            //currentMat.Shininess /= 1000;
                             break;
                         case "d":
                             currentMat.Transparency = 1.0f - float.Parse(parts[1]);

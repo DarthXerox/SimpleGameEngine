@@ -27,24 +27,17 @@ struct Material {
 	float shininess;
 };
 
-#define LIGHTS_AMNT 3
+#define LIGHTS_AMNT 2
 
 
 layout (location = 3) uniform vec4 lightPosition;
 layout (location = 4) uniform vec3 lightColor;
 layout (location = 5) uniform vec3 camPosition;
 
-//layout (location = 8) uniform vec3 materialAmbientColor;
-//layout (location = 9) uniform vec3 materialDiffuseColor;
-//layout (location = 10) uniform vec3 materialSpecularColor;
-//layout (location = 11) uniform float materialShininess;
 layout (location = 12) uniform bool isNormalTex;
 
-
-//layout (location = 12) uniform Light light;
-//uniform Light moon;
- uniform Light lights[LIGHTS_AMNT];
- uniform Material material;
+uniform Light lights[LIGHTS_AMNT];
+uniform Material material;
 layout (location = 50) uniform Fog fog;
 uniform int lightCount;
 

@@ -10,6 +10,7 @@ namespace OpenGL_in_CSharp.Utils
         public static readonly string FontsFolder = $"{Prefix}Fonts{Path.DirectorySeparatorChar}";
         public static readonly string ObjectsFolder = $"{Prefix}Objects{Path.DirectorySeparatorChar}";
         public static readonly string MaterialsFolder = $"{Prefix}Materials{Path.DirectorySeparatorChar}";
+        public static readonly string SoundsFolder = $"{Prefix}Sounds{Path.DirectorySeparatorChar}";
 
         public static readonly string VertexShaderPath = ShadersFolder + "VertexShader.vert";
         public static readonly string FragmentShaderPath = ShadersFolder + "FragmentShader.frag";
@@ -79,5 +80,11 @@ namespace OpenGL_in_CSharp.Utils
 
 
         public static readonly string MtlMossyRock1 = MaterialsFolder + "Mossy Rock 1.mtl";
+
+        public static readonly string SoundStonePickUp = SoundsFolder + "stone pickup.wav";
+        public static readonly string SoundMenuBtnHover = SoundsFolder + "menu btn hover.wav";
+        public static readonly string SoundGrassWalking = SoundsFolder + "grass walking.wav";
+        public static readonly string SoundGameWon = SoundsFolder + ".wav";
+
     }
 }

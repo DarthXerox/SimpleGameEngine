@@ -150,7 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Camera.cs" />
-    <Compile Include="Mesh and SceneObjects\Coins.cs" />
+    <Compile Include="Mesh and SceneObjects\FloatingStone.cs" />
     <Compile Include="Mesh and SceneObjects\Collidable.cs" />
     <Compile Include="Mesh and SceneObjects\CollisionArgs.cs" />
     <Compile Include="Mesh and SceneObjects\CollisionManager.cs" />
@@ -176,6 +176,7 @@
     <Compile Include="Utils\ObjParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Sounder.cs" />
     <Compile Include="Utils\Texture2D.cs" />
     <Compile Include="Utils\VertexNormalCalculator.cs" />
   </ItemGroup>
@@ -205,6 +206,7 @@
   <ItemGroup>
     <Folder Include="Animation\" />
     <Folder Include="Fonts\" />
+    <Folder Include="Sounds\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Textures\diffuse.png" />
