@@ -29,6 +29,7 @@ namespace OpenGL_in_CSharp
             Flashlight = new ConeLight(new Vector3(position.X, 
                 Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z), 
                 new Vector3(1,1,1), 1f, 0.027f, 0.0028f, 12.5f, 17.5f);
+            Speed = 0.50f;
         }
 
         public override void Move(MouseState mouse)

@@ -21,8 +21,8 @@ namespace OpenGL_in_CSharp.TextRendering
     public class FreeTypeFont
     {
         public Dictionary<uint, Character> Characters { get; } = new Dictionary<uint, Character>();
-        public int VaoID { private set; get; }
-        public int VboID { private set; get; }
+        private int VaoID;
+        private int VboID;
 
         public FreeTypeFont(uint pixelheight, string fontFile, int positionAttrib = 0, int texCoordsAttrib = 1)
         {
@@ -42,7 +42,8 @@ namespace OpenGL_in_CSharp.TextRendering
                     GlyphSlot glyph = face.Glyph;
                     FTBitmap bitmap = glyph.Bitmap;
 
-                    int texObj = GL.GenTexture();
+                    int texObj;
+                    GL.CreateTextures(TextureTarget.Texture2D, 1, out texObj);
                     GL.BindTexture(TextureTarget.Texture2D, texObj);
                     GL.TexImage2D(TextureTarget.Texture2D, 0,
                                     PixelInternalFormat.R8, bitmap.Width, bitmap.Rows, 0,
@@ -80,10 +81,10 @@ namespace OpenGL_in_CSharp.TextRendering
                 1.0f, -1.0f,   1.0f, 1.0f
             };
 
-            VboID = GL.GenBuffer();
+            GL.CreateBuffers(1, out VboID);
             GL.NamedBufferStorage(VboID, 4 * 6 * sizeof(float), vquad, 0);
 
-            VaoID = GL.GenVertexArray();
+            GL.CreateVertexArrays(1, out VaoID);
             GL.EnableVertexArrayAttrib(VaoID, positionAttrib);
             GL.VertexArrayVertexBuffer(VaoID, positionAttrib, VboID, IntPtr.Zero, 4 * sizeof(float));
             GL.VertexArrayAttribFormat(VaoID, positionAttrib, 2, VertexAttribType.Float, false, 0);

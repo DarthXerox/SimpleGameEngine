@@ -35,16 +35,16 @@ namespace OpenGL_in_CSharp.Utils
 		
 		protected virtual void InitBasicVao()
 		{
-			GL.GenBuffers(1, out vboVertices);
+			GL.CreateBuffers(1, out vboVertices);
 			GL.NamedBufferStorage(vboVertices, Model.VerticesFloat.Length * sizeof(float), Model.VerticesFloat, 0);
 
-			GL.GenBuffers(1, out vboTextureCoords);
+			GL.CreateBuffers(1, out vboTextureCoords);
 			GL.NamedBufferStorage(vboTextureCoords, Model.TextureCoordinatesFloat.Length * sizeof(float), Model.TextureCoordinatesFloat, 0);
 
-			GL.GenBuffers(1, out vboNormals);
+			GL.CreateBuffers(1, out vboNormals);
 			GL.NamedBufferStorage(vboNormals, Model.NormalsFloat.Length * sizeof(float), Model.NormalsFloat, 0);
 
-			GL.GenVertexArrays(1, out vaoMesh);
+			GL.CreateVertexArrays(1, out vaoMesh);
 			GL.EnableVertexArrayAttrib(vaoMesh, ShaderAttribVertices);
 			GL.VertexArrayVertexBuffer(vaoMesh, ShaderAttribVertices, vboVertices, IntPtr.Zero, 3 * sizeof(float));
 			GL.VertexArrayAttribFormat(vaoMesh, ShaderAttribVertices, 3, VertexAttribType.Float, true, 0);
@@ -63,7 +63,7 @@ namespace OpenGL_in_CSharp.Utils
 
 		private void InitIndices()
 		{
-			GL.GenBuffers(1, out eboIndices);
+			GL.CreateBuffers(1, out eboIndices);
 			GL.NamedBufferStorage(eboIndices, Model.Indices.Count * sizeof(uint), Model.Indices.ToArray(), 0);
 			GL.VertexArrayElementBuffer(vaoMesh, eboIndices);
 		}
@@ -194,10 +194,10 @@ namespace OpenGL_in_CSharp.Utils
 		protected override void InitBasicVao()
 		{
 			base.InitBasicVao();
-			GL.GenBuffers(1, out vboTangents);
+			GL.CreateBuffers(1, out vboTangents);
 			GL.NamedBufferStorage(vboTangents, Model.Tangents.Length * sizeof(float), Model.Tangents, 0);
 
-			GL.GenBuffers(1, out vboBiTangents);
+			GL.CreateBuffers(1, out vboBiTangents);
 			GL.NamedBufferStorage(vboBiTangents, Model.BiTangents.Length * sizeof(float), Model.BiTangents, 0);
 
 			GL.EnableVertexArrayAttrib(vaoMesh, ShaderAttribTangents);

@@ -152,6 +152,7 @@ namespace OpenGL_in_CSharp
         public void AddWall(int width, int height, int texPerWidth, int texPerHeight)
         {
             ObjModel model = new ObjModel();
+            
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -205,7 +206,7 @@ namespace OpenGL_in_CSharp
                 model.NormalsFloat[3 * i + 1] = model.Normals[i].Y;
                 model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
             }
-
+            
             Borders = new SceneObject(new Mesh(model, FilePaths.TextureBrickWall, FilePaths.MtlBronze));
         }
     }

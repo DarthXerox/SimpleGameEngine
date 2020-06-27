@@ -15,7 +15,7 @@ namespace OpenGL_in_CSharp
 
         public float Yaw { private set; get; } = 45f;
         public float Pitch { private set; get; } = 0;
-        public float Speed { private set; get; } = 1f;
+        public float Speed { protected set; get; } = 1f;
         public float Sensitivity { get; private set; } = 0.1f;
 
 
