@@ -118,8 +118,6 @@ void main(void) {
 	vec3 lightSum = vec3(0.0);
 	for (uint i = 0; i < LIGHTS_AMNT; ++i) {
 		lightSum += calculateColor(lights[i]);
-
 	}
 	finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
-	//finalColor = vec4(lightSum, 1);
 }

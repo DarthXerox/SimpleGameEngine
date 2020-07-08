@@ -21,8 +21,8 @@ namespace OpenGL_in_CSharp.TextRendering
     public class FreeTypeFont
     {
         public Dictionary<uint, Character> Characters { get; } = new Dictionary<uint, Character>();
-        private int VaoID;
-        private int VboID;
+        private int vaoID;
+        private int vboID;
 
         public FreeTypeFont(uint pixelheight, string fontFile, int positionAttrib = 0, int texCoordsAttrib = 1)
         {
@@ -81,19 +81,19 @@ namespace OpenGL_in_CSharp.TextRendering
                 1.0f, -1.0f,   1.0f, 1.0f
             };
 
-            GL.CreateBuffers(1, out VboID);
-            GL.NamedBufferStorage(VboID, 4 * 6 * sizeof(float), vquad, 0);
+            GL.CreateBuffers(1, out vboID);
+            GL.NamedBufferStorage(vboID, 4 * 6 * sizeof(float), vquad, 0);
 
-            GL.CreateVertexArrays(1, out VaoID);
-            GL.EnableVertexArrayAttrib(VaoID, positionAttrib);
-            GL.VertexArrayVertexBuffer(VaoID, positionAttrib, VboID, IntPtr.Zero, 4 * sizeof(float));
-            GL.VertexArrayAttribFormat(VaoID, positionAttrib, 2, VertexAttribType.Float, false, 0);
-            GL.VertexArrayAttribBinding(VaoID, positionAttrib, positionAttrib);
+            GL.CreateVertexArrays(1, out vaoID);
+            GL.EnableVertexArrayAttrib(vaoID, positionAttrib);
+            GL.VertexArrayVertexBuffer(vaoID, positionAttrib, vboID, IntPtr.Zero, 4 * sizeof(float));
+            GL.VertexArrayAttribFormat(vaoID, positionAttrib, 2, VertexAttribType.Float, false, 0);
+            GL.VertexArrayAttribBinding(vaoID, positionAttrib, positionAttrib);
 
-            GL.EnableVertexArrayAttrib(VaoID, texCoordsAttrib);
-            GL.VertexArrayVertexBuffer(VaoID, texCoordsAttrib, VboID, (IntPtr)(2 * sizeof(float)), 4 * sizeof(float));
-            GL.VertexArrayAttribFormat(VaoID, texCoordsAttrib, 2, VertexAttribType.Float, false, 0);
-            GL.VertexArrayAttribBinding(VaoID, texCoordsAttrib, texCoordsAttrib);
+            GL.EnableVertexArrayAttrib(vaoID, texCoordsAttrib);
+            GL.VertexArrayVertexBuffer(vaoID, texCoordsAttrib, vboID, (IntPtr)(2 * sizeof(float)), 4 * sizeof(float));
+            GL.VertexArrayAttribFormat(vaoID, texCoordsAttrib, 2, VertexAttribType.Float, false, 0);
+            GL.VertexArrayAttribBinding(vaoID, texCoordsAttrib, texCoordsAttrib);
         }
 
 
@@ -102,7 +102,7 @@ namespace OpenGL_in_CSharp.TextRendering
         {
             ModelTransformations transformations = new ModelTransformations();
 
-            GL.BindVertexArray(VaoID);
+            GL.BindVertexArray(vaoID);
             float pixelAdvancementX = 0.0f;
             foreach (var c in text)
             {

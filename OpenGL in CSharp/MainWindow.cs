@@ -18,14 +18,17 @@ namespace GameNamespace
         QuitMenu,
         QuitGame,
         YouWin,
+        HelpMenu,
         None // nothing changes
     }
     
     public class MainWindow : GameWindow
     {
         private int framebuffer = 0;
-        private int framebuffer_color = 0;
-        private int framebuffer_depth = 0;
+        private int framebufferColor = 0;
+        private int framebufferDepth = 0;
+        private bool isFirstFrame = true;
+        private DateTime loadTime;
 
         public GameStates GameState = GameStates.MainMenu; 
         public LightsProgram NormalMappingProg { private set; get; } // ID of the program
@@ -55,12 +58,13 @@ namespace GameNamespace
         public GUI QuitMenuGUI { set; get; }
         public GUI MainMenuGUI { set; get; }
         public GUI YouWinGUI { set; get; }
+        public GUI HelpGUI { set; get; }
 
         public float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
         public readonly float[] clear_depth = { 1.0f };
 
         public MainWindow() 
-           : base(800, 
+           : base(900, // 800, 720
             720, 
             GraphicsMode.Default,
             "Forest",  
@@ -70,11 +74,13 @@ namespace GameNamespace
             0, 
             GraphicsContextFlags.ForwardCompatible)
         {
+            loadTime = DateTime.Now;
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            //Console.WriteLine((DateTime.Now - loadTime).TotalSeconds + "s");
             GL.Viewport(0, 0, Width, Height);
 
             WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
@@ -112,11 +118,11 @@ namespace GameNamespace
             //just the postprocess stuff from 7th exercise
             GL.CreateFramebuffers(1, out framebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
-            GL.TextureStorage2D(framebuffer_color, 1, SizedInternalFormat.Rgba32f, Width, Height);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferColor);
+            GL.TextureStorage2D(framebufferColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_depth);
-            GL.BindTexture(TextureTarget.Texture2D, framebuffer_depth);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferDepth);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferDepth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -124,8 +130,8 @@ namespace GameNamespace
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebuffer_color, 0);
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebuffer_depth, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferColor, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferDepth, 0);
 
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             {
@@ -193,7 +199,7 @@ namespace GameNamespace
                 GL.Disable(EnableCap.CullFace);
 
                 PostprocessProgram.Use();
-                GL.BindTexture(TextureTarget.Texture2D, framebuffer_color);
+                GL.BindTexture(TextureTarget.Texture2D, framebufferColor);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
                 // for rendering text we use orthographic projection
@@ -215,6 +221,10 @@ namespace GameNamespace
                 {
                     YouWinGUI.Draw(GetMousePositionRelativeToWindowMiddle());
                 } 
+                else if (GameState == GameStates.HelpMenu)
+                {
+                    HelpGUI.Draw(GetMousePositionRelativeToWindowMiddle());
+                }
                 else if (GameState == GameStates.QuitMenu)
                 {
                     QuitMenuGUI.Draw(GetMousePositionRelativeToWindowMiddle());
@@ -253,6 +263,11 @@ namespace GameNamespace
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            if (isFirstFrame)
+            {
+                //Console.WriteLine("Time in seconds:" + (DateTime.Now - loadTime).TotalSeconds);
+                isFirstFrame = false;
+            }
             if (Player.StonesCollected >= FloatingStone.AllCoinsCount)
             {
                 GameState = GameStates.YouWin;
@@ -271,6 +286,9 @@ namespace GameNamespace
                         break;
                     case GameStates.YouWin:
                         newState = YouWinGUI.OnMouseClick(mousePosMiddle);
+                        break;
+                    case GameStates.HelpMenu:
+                        newState = HelpGUI.OnMouseClick(mousePosMiddle);
                         break;
                 }
                 if (newState != GameStates.None)
@@ -343,11 +361,11 @@ namespace GameNamespace
             
             //on resize also the framebuffer size is changed so we need to change the postprocess framebuffer too
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_color);
-            GL.TextureStorage2D(framebuffer_color, 1, SizedInternalFormat.Rgba32f, Width, Height);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferColor);
+            GL.TextureStorage2D(framebufferColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebuffer_depth);
-            GL.BindTexture(TextureTarget.Texture2D, framebuffer_depth);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferDepth);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferDepth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -355,8 +373,8 @@ namespace GameNamespace
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebuffer_color, 0);
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebuffer_depth, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferColor, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferDepth, 0);
 
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             {
@@ -390,8 +408,22 @@ namespace GameNamespace
                 { new TextBox(0, 200, "FOREST", 2.0f, new Vector3(0f, 0.5f, 0f), Font, false), GameStates.None },
 
                 { new TextBox(0, 80, "PLAY", 0.5f, new Vector3(1f), Font), GameStates.PlayingGame },
-                { new TextBox(0, 0, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitMenu }
+                { new TextBox(0, -20, "HELP", 0.5f, new Vector3(1f), Font), GameStates.HelpMenu },
+                { new TextBox(0, -120, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitMenu }
+
             });
+
+            HelpGUI = new GUI(new Dictionary<TextBox, GameStates>()
+            {
+                // Rendering a slightly bigger text behind a smaller creates a nice little "shadowy effect"
+                { new TextBox(0, 200, "Collect 5 floating rocks to win", 0.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(0, 100, "mouse - look around", 0.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(0, 150, "W, A, S, D - walk", 0.5f, new Vector3(1f), Font, false), GameStates.None },
+                { new TextBox(0, 50, "E - turn on/off flashlight", 0.5f, new Vector3(1f), Font, false), GameStates.None },
+
+                { new TextBox(0, -80, "Back", 0.5f, new Vector3(1f), Font), GameStates.MainMenu }
+            });
+
 
             QuitMenuGUI = new GUI(new Dictionary<TextBox, GameStates>()
             {

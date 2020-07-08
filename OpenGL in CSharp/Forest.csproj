@@ -146,8 +146,51 @@
     <None Include="App.config" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <None Include="res\Fonts\FreeSans.ttf" />
+    <None Include="res\Fonts\joystix monospace.ttf" />
+    <None Include="res\Materials\bronze.mtl" />
+    <None Include="res\Materials\chrome.mtl" />
+    <None Include="res\Materials\emerald.mtl" />
+    <None Include="res\Materials\gold.mtl" />
+    <None Include="res\Materials\Mossy Rock 1.mtl" />
+    <None Include="res\Objects\arms.obj" />
+    <None Include="res\Objects\coin.obj" />
+    <None Include="res\Objects\custom.obj" />
+    <None Include="res\Objects\dragon.obj" />
+    <None Include="res\Objects\key.obj" />
+    <None Include="res\Objects\key2.obj" />
+    <None Include="res\Objects\Mossy Rock 1.obj" />
+    <None Include="res\Objects\Mossy Rock 2.obj" />
+    <None Include="res\Objects\Mossy Rock 3.obj" />
+    <None Include="res\Objects\tall_grass.obj" />
+    <None Include="res\Objects\test.obj" />
+    <None Include="res\Objects\test2.obj" />
+    <None Include="res\Objects\tree_leaves.obj" />
+    <None Include="res\Objects\tree_trunk.obj" />
+    <None Include="res\Shaders\FakeNormalMapping.vert" />
+    <None Include="res\Shaders\NormalMapping.frag" />
+    <None Include="res\Shaders\NormalMapping.vert" />
+    <None Include="res\Shaders\postprocess.frag" />
+    <None Include="res\Shaders\postprocess.vert" />
+    <None Include="res\Shaders\Text.frag" />
+    <None Include="res\Shaders\Text.vert" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="res\Materials\emerald.txt" />
+    <Content Include="res\Sounds\menu btn hover.wav" />
+    <Content Include="res\Sounds\stone pickup.wav" />
+    <Content Include="res\Textures\brickwall.jpg" />
+    <Content Include="res\Textures\brickwall_normal.jpg" />
+    <Content Include="res\Textures\Colormap.jpg" />
+    <Content Include="res\Textures\grass4 color.jpg" />
+    <Content Include="res\Textures\grass4 normal.jpg" />
+    <Content Include="res\Textures\heightmap.png" />
+    <Content Include="res\Textures\Normalmap.jpg" />
+    <Content Include="res\Textures\tree_leaves3.png" />
+    <Content Include="res\Textures\tree_leaves_normal.png" />
+    <Content Include="res\Textures\tree_trunk.jpg" />
+    <Content Include="res\Textures\tree_trunk_normal.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\AssimpNet.4.1.0\build\AssimpNet.targets" Condition="Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

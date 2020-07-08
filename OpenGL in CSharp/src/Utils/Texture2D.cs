@@ -12,7 +12,6 @@ namespace OpenGL_in_CSharp.Utils
     {
         public int ID { get; }
         public Bitmap Data { private set; get; }
-
         public Texture2D(string fileName)
         {
             //ID = GL.GenTexture();

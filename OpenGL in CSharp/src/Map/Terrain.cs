@@ -8,7 +8,7 @@ namespace OpenGL_in_CSharp.Utils
     {
         public readonly float MaxHeight = 10f;
 
-        public readonly int TexturesPerSide = 60;
+        public readonly int TexturesPerSide = 96;
 
         public int ShaderTextureSampler2 { get; } = 1;
 
