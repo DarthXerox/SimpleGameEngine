@@ -22,7 +22,12 @@ namespace SimpleEngine.Text
         public Vector3 HighLightColor { set; get; } = new Vector3(1, 1, 0);
         public string Text { get; }
         public float Scale { get; }
-        FreeTypeFont Font { get; }
+
+        /// <summary>
+        /// Font is passed by a reference (not created within TextBox)
+        /// so it is not a good idea to dispose of it later
+        /// </summary>
+        FreeTypeFont Font { get; } 
 
         public TextBox(float midX, float midY, string text, float scale, 
             Vector3 baseColor, FreeTypeFont font, bool hasHitbox = true)
@@ -61,8 +66,7 @@ namespace SimpleEngine.Text
         /// Drawing uses alignment to middle
         /// </summary>
         /// <param name="mousePos">mouse cursor position RELATIVE to window MIDDLE </param>
-        public void Draw(Vector2 mousePos,
-            int modelUniform = 0, int colorUniform = 2, int textureBinding = 0)
+        public void Draw(Vector2 mousePos, int modelUniform = 0, int colorUniform = 2, int textureBinding = 0)
         {
             if (HasHitbox && IsColliding(mousePos.X, mousePos.Y))
             {

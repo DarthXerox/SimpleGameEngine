@@ -34,14 +34,14 @@ namespace SimpleEngine.WorldObjects
             NormalTexture = new Texture2D(normalTextureFile);
         }
 
-        public Terrain(Bitmap heightMap, Texture2D colTexture, Texture2D normalTexture, Material material, Vector3 position)
+        public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, Vector3 position)
             : base(new ModelTransformations() { Position = position })
         {
             HeightMap = heightMap;
             WidthX = HeightMap.Width;
             WidthZ = HeightMap.Height;
             RawMesh = new Mesh(CalculateMesh(), colTexture, material);
-            NormalTexture = normalTexture;
+            NormalTexture = new Texture2D(normalTexture);
         }
 
         public float GetDiagonalLength()
@@ -226,6 +226,13 @@ namespace SimpleEngine.WorldObjects
             lightsProgram.AttachUniformVector3(-Vector3.UnitZ, "tangent");
             lightsProgram.AttachUniformVector3(Vector3.UnitX, "biTangent");
             base.Draw(lightsProgram, player, maxDistance);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            HeightMap.Dispose();
+            NormalTexture.Dispose();
         }
     }
 }

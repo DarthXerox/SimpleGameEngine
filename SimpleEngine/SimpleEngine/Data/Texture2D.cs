@@ -20,7 +20,7 @@ namespace SimpleEngine.Data
         /// <summary>
         /// Useful for async bitmap loading.
         /// Sending texture data to GPU takes time too, but as OpenGL is very thread sensitive, 
-        /// all GL calls can only be made within one and the same context (gamewindow)
+        /// all GL calls can only be made within an opengl context (gamewindow) and is bound to one thread only
         /// (FYI: contexts can share texture data, but creating a context is time consuming)
         /// </summary>
         /// <param name="bitmap">Preloaded Bitmap object</param>

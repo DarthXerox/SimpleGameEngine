@@ -10,7 +10,7 @@ namespace SimpleEngine.WorldObjects
     /// Defines a package or connection between a mesh/model 
     /// and multiple positions in world (or transformation)
     /// </summary>
-    public class WorldObject
+    public class WorldObject : IDisposable
     {
 		public List<ModelTransformations> ModelTransformations { protected set; get; } 
 			= new List<ModelTransformations>();
@@ -59,5 +59,10 @@ namespace SimpleEngine.WorldObjects
 				}
 			}
 		}
-	}
+
+        public virtual void Dispose()
+        {
+			RawMesh.Dispose();
+        }
+    }
 }

@@ -4,6 +4,7 @@ using SharpFont;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using SimpleEngine.Utils;
+using System.Linq;
 
 namespace SimpleEngine.Text
 {
@@ -11,7 +12,7 @@ namespace SimpleEngine.Text
     /// <summary>
     /// Class used for loading .ttf  font files
     /// </summary>
-    public class FreeTypeFont
+    public class FreeTypeFont : IDisposable
     {
         public Dictionary<uint, Character> Characters { get; } = new Dictionary<uint, Character>();
         private int vaoID;
@@ -35,21 +36,20 @@ namespace SimpleEngine.Text
                     GlyphSlot glyph = face.Glyph;
                     FTBitmap bitmap = glyph.Bitmap;
 
-                    int texObj;
-                    GL.CreateTextures(TextureTarget.Texture2D, 1, out texObj);
-                    GL.BindTexture(TextureTarget.Texture2D, texObj);
+                    GL.CreateTextures(TextureTarget.Texture2D, 1, out int texId);
+                    GL.BindTexture(TextureTarget.Texture2D, texId);
                     GL.TexImage2D(TextureTarget.Texture2D, 0,
                                     PixelInternalFormat.R8, bitmap.Width, bitmap.Rows, 0,
                                     PixelFormat.Red, PixelType.UnsignedByte, bitmap.Buffer);
 
-                    GL.TextureParameter(texObj, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                    GL.TextureParameter(texObj, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                    GL.TextureParameter(texObj, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-                    GL.TextureParameter(texObj, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                    GL.TextureParameter(texId, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    GL.TextureParameter(texId, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TextureParameter(texId, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                    GL.TextureParameter(texId, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                     
                     Character chr = new Character
                     {
-                        TextureID = texObj,
+                        TextureID = texId,
                         Size = new Vector2(bitmap.Width, bitmap.Rows),
                         Bearing = new Vector2(glyph.BitmapLeft, glyph.BitmapTop),
                         Advance = glyph.Advance.X.Value
@@ -142,6 +142,17 @@ namespace SimpleEngine.Text
                     height = chr.Size.Y;
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            Characters.Values
+                .ToList()
+                .ForEach(chr => GL.DeleteTexture(chr.TextureID));
+            // making a struct an IDisposable doesnt make sense
+            Characters.Clear();
+            GL.DeleteBuffer(vboID);
+            GL.DeleteVertexArray(vaoID);
         }
     }
 }

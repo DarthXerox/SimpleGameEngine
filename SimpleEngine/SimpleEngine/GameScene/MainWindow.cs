@@ -26,44 +26,35 @@ namespace SimpleEngine.GameScene
 
     public class MainWindow : GameWindow
     {
-        private int framebuffer = 0;
-        private int framebufferColor = 0;
-        private int framebufferDepth = 0;
+        private int framebuffer;
+        private int framebufferTexColor;
+        private int framebufferTexDepth;
         private bool isFirstFrame = true;
+        
         private DateTime loadTime;
 
-        public GameStates GameState = GameStates.MainMenu;
+        public GameStates GameState { private set; get; } = GameStates.MainMenu;
+        public Matrix4 ViewMatrix { private set; get; }
+        public Matrix4 ProjectionMatrix { private set; get; }
         public LightsProgram NormalMappingProg { private set; get; } // ID of the program
         public LightsProgram FakeNormalMappingProg { private set; get; }
         public ShaderProgram TextProgram { set; get; }
         public LightsProgram PostprocessProgram { set; get; }
-        public FreeTypeFont Font { set; get; }
-
-
-        public Matrix4 ViewMatrix { private set; get; }
-        public Matrix4 ProjectionMatrix { private set; get; }
-
         public Camera Camera { private set; get; }
         public Player Player { private set; get; }
         public World Map { private set; get; }
         public Fog WorldFog { private set; get; }
-
-        public Light Sun { private set; get; }
-
+        public Light Moon { private set; get; }
         public CollisionManager CollisionManager { set; get; }
-
         //enables to switch between camera and player
         public bool IsPlayerMoving { private set; get; } = true;
-
-
-
+        public FreeTypeFont Font { set; get; }
         public GUI QuitMenuGUI { set; get; }
         public GUI MainMenuGUI { set; get; }
         public GUI YouWinGUI { set; get; }
         public GUI HelpGUI { set; get; }
-
-        public float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
-        public readonly float[] clear_depth = { 1.0f };
+        public float[] ClearColor { private set; get; } = { 0.0f, 0.0f, 0.0f, 1.0f };
+        public float[] ClearDepth { get; } = { 1.0f };
 
         // make it possible to delete
         Task<ConcurrentDictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
@@ -94,7 +85,7 @@ namespace SimpleEngine.GameScene
 
             WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
             GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
-            clear_color = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
+            ClearColor = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
 
             //var watches = System.Diagnostics.Stopwatch.StartNew();
             NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
@@ -105,7 +96,7 @@ namespace SimpleEngine.GameScene
 
             Font = new FreeTypeFont(48, FilePaths.FontMono);
 
-            Sun = new Light(new Vector3(10.0f, 10.0f, 5.0f))
+            Moon = new Light(new Vector3(10.0f, 10.0f, 5.0f))
             {
                 Color = new Vector3(0.3f, 0.3f, 0.3f)
             };
@@ -122,20 +113,17 @@ namespace SimpleEngine.GameScene
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );
 
-            CursorVisible = false;
-
-
+            CursorVisible = false; // we want to hide the cursor while the game is played
 
             InitGUI();
 
-            //just the postprocess stuff from 7th exercise
             GL.CreateFramebuffers(1, out framebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferColor);
-            GL.TextureStorage2D(framebufferColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexColor);
+            GL.TextureStorage2D(framebufferTexColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferDepth);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferDepth);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexDepth);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexDepth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -143,8 +131,8 @@ namespace SimpleEngine.GameScene
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferColor, 0);
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferDepth, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferTexColor, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferTexDepth, 0);
 
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             {
@@ -181,8 +169,8 @@ namespace SimpleEngine.GameScene
             Vector3 camPosition = IsPlayerMoving ? Player.Position : Camera.Position;
 
             int lightIndex = 0;
-            NormalMappingProg.AttachLight(Sun, lightIndex);
-            FakeNormalMappingProg.AttachLight(Sun, lightIndex);
+            NormalMappingProg.AttachLight(Moon, lightIndex);
+            FakeNormalMappingProg.AttachLight(Moon, lightIndex);
             lightIndex++;
             NormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             FakeNormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
@@ -213,20 +201,20 @@ namespace SimpleEngine.GameScene
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
 
                 // Clear attachments
-                GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Color, 0, clear_color);
-                GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Depth, 0, clear_depth);
+                GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Color, 0, ClearColor);
+                GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Depth, 0, ClearDepth);
 
                 RenderGame();
 
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, clear_color);
+                GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, ClearColor);
 
                 GL.Disable(EnableCap.DepthTest);
                 GL.Disable(EnableCap.Blend);
                 GL.Disable(EnableCap.CullFace);
 
                 PostprocessProgram.Use();
-                GL.BindTexture(TextureTarget.Texture2D, framebufferColor);
+                GL.BindTexture(TextureTarget.Texture2D, framebufferTexColor);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
                 // for rendering text we use orthographic projection
@@ -269,11 +257,6 @@ namespace SimpleEngine.GameScene
             SwapBuffers();
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-            Exit();
-        }
 
         /// <summary>
         /// Pauses the game when the window is put in the background
@@ -388,11 +371,11 @@ namespace SimpleEngine.GameScene
 
             //on resize also the framebuffer size is changed so we need to change the postprocess framebuffer too
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferColor);
-            GL.TextureStorage2D(framebufferColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexColor);
+            GL.TextureStorage2D(framebufferTexColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
 
-            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferDepth);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferDepth);
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexDepth);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexDepth);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32f, Width, Height, 0,
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -400,8 +383,8 @@ namespace SimpleEngine.GameScene
             DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
             GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
 
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferColor, 0);
-            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferDepth, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferTexColor, 0);
+            GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferTexDepth, 0);
 
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             {
@@ -465,6 +448,20 @@ namespace SimpleEngine.GameScene
                 { new TextBox(0, 200, "YOU WIN!", 1.5f, new Vector3(0f, 0.5f, 0f), Font, false), GameStates.None },
                 { new TextBox(0, -100, "QUIT", 0.5f, new Vector3(1f), Font), GameStates.QuitGame }
             });
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            NormalMappingProg.Dispose();
+            PostprocessProgram.Dispose();
+            FakeNormalMappingProg.Dispose();
+            TextProgram.Dispose();
+            Map.Dispose();
+            Font.Dispose();
+            GL.DeleteFramebuffer(framebuffer);
+            GL.DeleteTexture(framebufferTexColor);
+            GL.DeleteTexture(framebufferTexDepth);
         }
     }
 }

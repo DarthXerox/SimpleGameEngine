@@ -116,16 +116,20 @@
   <ItemGroup>
     <Compile Include="SimpleEngine\Data\Material.cs" />
     <Compile Include="SimpleEngine\Data\ObjParser.cs" />
+    <Compile Include="SimpleEngine\GameScene\ConeLight.cs" />
+    <Compile Include="SimpleEngine\GameScene\PointLight.cs" />
     <Compile Include="SimpleEngine\Text\Character.cs" />
     <Compile Include="SimpleEngine\Text\TextBox.cs" />
     <Compile Include="SimpleEngine\Data\DataLoader.cs" />
     <Compile Include="SimpleEngine\GameScene\GameStates.cs" />
     <Compile Include="SimpleEngine\GameScene\Camera.cs" />
+    <Compile Include="SimpleEngine\Utils\LightsProgram.cs" />
     <Compile Include="SimpleEngine\WorldObjects\FloatingStone.cs" />
     <Compile Include="SimpleEngine\WorldObjects\Collidable.cs" />
     <Compile Include="SimpleEngine\Collisions\CollisionArgs.cs" />
     <Compile Include="SimpleEngine\Collisions\CollisionManager.cs" />
     <Compile Include="SimpleEngine\GameScene\Fog.cs" />
+    <Compile Include="SimpleEngine\WorldObjects\NormalMappingMesh.cs" />
     <Compile Include="SimpleEngine\WorldObjects\World.cs" />
     <Compile Include="SimpleEngine\Collisions\ICollidable.cs" />
     <Compile Include="SimpleEngine\GameScene\Game.cs" />

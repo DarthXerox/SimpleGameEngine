@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using SimpleEngine.Data;
 using SimpleEngine.GameScene;
 using SimpleEngine.Utils;
@@ -11,7 +9,7 @@ using SimpleEngine.Collisions;
 
 namespace SimpleEngine.WorldObjects
 {
-    public class World
+    public class World : IDisposable
     {
         public Terrain Terrain { private set; get; }
         public Collidable Trees { set; get; }
@@ -54,7 +52,7 @@ namespace SimpleEngine.WorldObjects
             HeightMap = textures[FilePaths.TextureHeightMap];
 
 
-            Borders = new WorldObject(new Mesh(CalculateBordersObjModel(MaxX - 1, 15, MaxX / 5, 3), new Texture2D(textures[FilePaths.TextureBrickWall]), loadTreeTrunkMtl.Result[0]));
+            Borders = new WorldObject(new Mesh(CalculateBordersObjModel(MaxX - 1, 15, MaxX / 5, 3), textures[FilePaths.TextureBrickWall], loadTreeTrunkMtl.Result[0]));
             //AddWall(MaxX - 1, 15, MaxX / 5, 3, new Texture2D(loadWallTextureTask.Result), loadTreeTrunkMtl.Result[0]);
             Borders.AddPosition(new Vector3(0, 0, 0));
             Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));
@@ -64,12 +62,12 @@ namespace SimpleEngine.WorldObjects
 
 
 
-            Trees = new Collidable(new NormalMappingMesh(models[FilePaths.ObjTreeTrunk], new Texture2D(textures[FilePaths.TextureTreeTrunk]),
-                new Texture2D(textures[FilePaths.BumpTexTrunk]), loadTreeTrunkMtl.Result[0]));
-            TreeLeaves = new WorldObject(new NormalMappingMesh(models[FilePaths.ObjTreeLeaves], new Texture2D(textures[FilePaths.TextureTreeLeaves3]),
-                new Texture2D(textures[FilePaths.BumpTexTreeLeaves]), loadGrassMtl.Result[0]));
-            Terrain = new Terrain(HeightMap, new Texture2D(textures[FilePaths.TextureGrass4]),
-                 new Texture2D(textures[FilePaths.BumpTexGrass4]), loadGrassMtl.Result[0], Vector3.Zero);
+            Trees = new Collidable(new NormalMappingMesh(models[FilePaths.ObjTreeTrunk], textures[FilePaths.TextureTreeTrunk],
+                textures[FilePaths.BumpTexTrunk], loadTreeTrunkMtl.Result[0]));
+            TreeLeaves = new WorldObject(new NormalMappingMesh(models[FilePaths.ObjTreeLeaves], textures[FilePaths.TextureTreeLeaves3],
+                textures[FilePaths.BumpTexTreeLeaves], loadGrassMtl.Result[0]));
+            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass4],
+                 textures[FilePaths.BumpTexGrass4], loadGrassMtl.Result[0], Vector3.Zero);
 
 
 
@@ -118,8 +116,8 @@ namespace SimpleEngine.WorldObjects
                 new ModelTransformations() { Position = new Vector3(10, GetHeight(10, MaxZ - 10) + 3, MaxZ - 10) },
                 new ModelTransformations() { Position = new Vector3(MaxX - 7, GetHeight(MaxX - 7, MaxZ - 7) + 3, MaxZ - 7) }
             };
-            Stones = new FloatingStone(new NormalMappingMesh(models[FilePaths.ObjMossyRock1], new Texture2D(textures[FilePaths.TextureMossyRock]),
-                new Texture2D(textures[FilePaths.BumpTexMossyRock]), loadRockMtl.Result[0]), transformations);
+            Stones = new FloatingStone(new NormalMappingMesh(models[FilePaths.ObjMossyRock1], textures[FilePaths.TextureMossyRock],
+                textures[FilePaths.BumpTexMossyRock], loadRockMtl.Result[0]), transformations);
 
         }
 
@@ -170,69 +168,7 @@ namespace SimpleEngine.WorldObjects
             Stones.Draw(normalMappingProg, player);
         }
 
-        /// <summary>
-        /// Map is expected to have all vertices at level 0 at its edges
-        /// </summary>
-        public void AddWall(int width, int height, int texPerWidth, int texPerHeight, Texture2D colTexture, Material material)
-        {
-            ObjModel model = new ObjModel();
-            
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    model.Vertices.Add(new Vector3(x, y, 0));
-                    model.TextureCoordinates.Add(new Vector2(
-                        (float)x / (width + 1) * texPerWidth,
-                        (float)y / (height + 1) * texPerHeight) );
-                    model.Normals.Add(new Vector3(0, 0, 1));
-                }
-            }
-            for (int y = 0; y < height - 1; y++)
-            {
-                for (int x = 0; x < width - 1; x++)
-                {
-                    int bottomLeft = y * width + x;
-                    int bottomRight = bottomLeft + 1;
-                    int topLeft = (y + 1) * width + x;
-                    int topRight = topLeft + 1;
-
-                    model.Indices.Add((uint)bottomLeft);
-                    model.Indices.Add((uint)bottomRight);
-                    model.Indices.Add((uint)topLeft);
-
-                    model.Indices.Add((uint)topLeft);
-                    model.Indices.Add((uint)bottomRight);
-                    model.Indices.Add((uint)topRight);
-                }
-            }
-
-            model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 flaots for each
-            model.TextureCoordinatesFloat = new float[model.Vertices.Count * 2]; // 2 floats for each
-            model.NormalsFloat = new float[model.Vertices.Count * 3]; //3 for each
-
-            for (int i = 0; i < model.TextureCoordinates.Count; i++)
-            {
-                model.TextureCoordinatesFloat[2 * i] = model.TextureCoordinates[i].X;
-                model.TextureCoordinatesFloat[2 * i + 1] = model.TextureCoordinates[i].Y;
-            }
-
-            for (int i = 0; i < model.Vertices.Count; i++)
-            {
-                model.VerticesFloat[3 * i] = model.Vertices[i].X;
-                model.VerticesFloat[3 * i + 1] = model.Vertices[i].Y;
-                model.VerticesFloat[3 * i + 2] = model.Vertices[i].Z;
-            }
-
-            for (int i = 0; i < model.Normals.Count; i++)
-            {
-                model.NormalsFloat[3 * i] = model.Normals[i].X;
-                model.NormalsFloat[3 * i + 1] = model.Normals[i].Y;
-                model.NormalsFloat[3 * i + 2] = model.Normals[i].Z;
-            }
-            
-            Borders = new WorldObject(new Mesh(model, colTexture, material));
-        }
+        
 
         /// <summary>
         /// Map is expected to have all vertices at level 0 at its edges
@@ -296,6 +232,17 @@ namespace SimpleEngine.WorldObjects
             }
 
             return model;   
+        }
+
+        public void Dispose()
+        {
+            Trees.Dispose();
+            TreeLeaves.Dispose();
+            Borders.Dispose();
+            Terrain.Dispose();
+            HeightMap = null; // this invalidates MaxX and MaxZ
+            Stones.Dispose();
+            BordersNormalTexture.Dispose();
         }
     }
 }
