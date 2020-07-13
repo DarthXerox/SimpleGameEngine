@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using OpenTK;
 
 namespace OpenGL_in_CSharp.Utils
@@ -12,9 +13,11 @@ namespace OpenGL_in_CSharp.Utils
 
         public int ShaderTextureSampler2 { get; } = 1;
 
-        public int WidthX { get => HeightMap.Width; }
-        public int WidthZ { get => HeightMap.Height; }
+        public int WidthX { get;} //{ get => HeightMap.Width; } 
+        public int WidthZ { get; } //{ get => HeightMap.Height; }
         public Bitmap HeightMap { get; }
+
+        private object Locker = new object();
         public Texture2D NormalTexture { get; }
 
 
@@ -22,8 +25,20 @@ namespace OpenGL_in_CSharp.Utils
             : base(new ModelTransformations() { Position = position })
         {
             HeightMap = new Bitmap(bitmapFile);
+            WidthX = HeightMap.Width;
+            WidthZ = HeightMap.Height;
             RawMesh = new Mesh(CalculateMesh(), colorTextureFile, materialFile);
             NormalTexture = new Texture2D(normalTextureFile);
+        }
+
+        public Terrain(Bitmap heightMap, Texture2D colTexture, Texture2D normalTexture, Material material, Vector3 position)
+            : base(new ModelTransformations() { Position = position })
+        {
+            HeightMap = heightMap;
+            WidthX = HeightMap.Width;
+            WidthZ = HeightMap.Height;
+            RawMesh = new Mesh(CalculateMesh(), colTexture, material);
+            NormalTexture = normalTexture;
         }
 
         public float GetDiagonalLength()
@@ -48,8 +63,28 @@ namespace OpenGL_in_CSharp.Utils
             ret.Normalize();
             return ret;
         }
-
         
+        public async Task<float> GetHeightAsync(int x, int z)
+        {
+            return await Task.Run(() => GetHeightFromMap(x, z));
+            //return height * MaxHeight;
+        }
+        
+        
+        private async Task<Vector3> CalculateNormalAsync(int x, int z)
+        {
+            var heightLeftTask = GetHeightAsync(x - 1, z);
+            var heightRightTask = GetHeightAsync(x + 1, z);
+            var heightUpTask = GetHeightAsync(x, z + 1);
+            var heightDownTask = GetHeightAsync(x, z - 1);
+            var ret = new Vector3(await heightLeftTask - await heightRightTask,
+                                    2.0f,
+                                    await heightDownTask - await heightUpTask);
+            ret.Normalize();
+            return ret;
+        }
+        
+
         public float GetInterpolatedHeight(float x, float z)
         {
             int intX = (int)x;
@@ -80,14 +115,35 @@ namespace OpenGL_in_CSharp.Utils
             {
                 for (int x = 0; x < WidthX; x++)
                 {
-                    model.Vertices.Add(new Vector3(x, GetHeight(x, z), z));
+                    //var calculteNormalTask = CalculateNormalAsync(x, z);
+                    //var getHeightTask = GetHeightAsync(x, z);
+                    if (z < WidthZ - 1 && x < WidthX - 1)
+                    {
+                        int topLeft = z * WidthX + x;
+                        int bottomLeft = (z + 1) * WidthX + x;
+                        int topRight = topLeft + 1;
+                        int bottomRight = bottomLeft + 1;
+
+                        // 1 square created from 2 triangles
+                        model.Indices.Add((uint)topLeft);
+                        model.Indices.Add((uint)bottomLeft);
+                        model.Indices.Add((uint)bottomRight);
+
+                        model.Indices.Add((uint)bottomRight);
+                        model.Indices.Add((uint)topRight);
+                        model.Indices.Add((uint)topLeft);
+                    } 
+
                     model.TextureCoordinates.Add(new Vector2(
                         (float)x / (WidthX + 1),
                         (float)z / (WidthZ + 1)) * TexturesPerSide);
+                    model.Vertices.Add(new Vector3(x, GetHeight(x, z), z));
                     model.Normals.Add(CalculateNormal(x, z));
                 }
             }
 
+
+            /*
             for (int z = 0; z < WidthZ - 1; z++)
             {
                 for (int x = 0; x < WidthX - 1; x++)
@@ -107,7 +163,12 @@ namespace OpenGL_in_CSharp.Utils
                     model.Indices.Add((uint)topLeft);
                 }
             }
-
+            */
+            /*
+            var y = GetHeightAsync(5, 5);
+            float f = y.Result;
+            var y2 = CalculateNormalAsync(5, 5);
+            */
             model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 flaots for each
             model.TextureCoordinatesFloat = new float[model.Vertices.Count * 2]; // 2 floats for each
             model.NormalsFloat = new float[model.Vertices.Count * 3]; //3 for each
@@ -141,11 +202,14 @@ namespace OpenGL_in_CSharp.Utils
         /// </summary>
         public float GetHeightFromMap(int x, int z)
         {
-            if (x < 0 || z < 0 || x >= HeightMap.Width || z >= HeightMap.Height)
+            lock (Locker)
             {
-                return 0.0f;
+                if (x < 0 || z < 0 || x >= HeightMap.Width || z >= HeightMap.Height)
+                {
+                    return 0.0f;
+                }
+                return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
             }
-            return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
         }
 
         private float GetColorGreyScale(Color col)

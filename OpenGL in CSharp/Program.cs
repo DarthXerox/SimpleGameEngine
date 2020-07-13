@@ -1,4 +1,6 @@
-﻿using GameNamespace;
+﻿using System;
+using System.Threading;
+using GameNamespace;
 
 namespace OpenGL_in_CSharp
 {
@@ -9,6 +11,7 @@ namespace OpenGL_in_CSharp
             Game g = new Game();
             g.Run();
             g.Dispose();
+            Console.ReadKey();
         }
     }
 }

@@ -39,7 +39,7 @@ layout (location = 12) uniform bool isNormalTex;
 uniform Light lights[LIGHTS_AMNT];
 uniform Material material;
 layout (location = 50) uniform Fog fog;
-uniform int lightCount;
+//uniform int lightCount;
 
 uniform layout (binding = 0) sampler2D texture0;
 uniform layout (binding = 1) sampler2D texNormal;

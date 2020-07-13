@@ -1,6 +1,8 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL4;
 using Assimp;
+using System.Threading.Tasks;
+using System.Drawing;
 
 namespace OpenGL_in_CSharp.Utils
 {
@@ -20,13 +22,20 @@ namespace OpenGL_in_CSharp.Utils
 		protected int vboNormals;
 		protected int eboIndices;
 
-		
-
 		public Mesh(ObjModel model, string textureFile, string materialFile)
 		{
 			Model = model;
 			TextureColor = new Texture2D(textureFile);
 			Material = MtlParser.ParseMtl(materialFile)[0];
+			InitBasicVao();
+			InitIndices();
+		}
+
+		public Mesh(ObjModel model, Texture2D colTexture, Material material)
+        {
+			Model = model;
+			TextureColor = colTexture;
+			Material = material;
 			InitBasicVao();
 			InitIndices();
 		}
@@ -110,18 +119,35 @@ namespace OpenGL_in_CSharp.Utils
 
 		public Scene Scene { get; }
 
-
+        /*
 		public NormalMappingMesh(string objFile, string colorTextureFile, string materialFile, string normalTextureFile,
 			int shaderAttribVertices = 0, int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0,
 			int shaderAttribTangents = 13, int shaderAttribBiTangents = 14, int textureSampler2 = 1)
-			: this(objFile, colorTextureFile, MtlParser.ParseMtl(materialFile)[0], normalTextureFile, shaderAttribVertices,
+			: this(objFile, colorTextureFile, materialFile, normalTextureFile, shaderAttribVertices,
 				  shaderAttribTexCoords, shaderAttribNormals, shaderTextureSampler, 
 				  shaderAttribTangents, shaderAttribBiTangents, textureSampler2) { }
+		*/
 
-		public NormalMappingMesh(string objFile, string colorTextureFile, Material material, string normalTextureFile, 
-			int shaderAttribVertices = 0, int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0,
+		public NormalMappingMesh(ObjModel model, Texture2D colTexture, Texture2D normalTexture, Material material)
+        {
+			Model = model;
+			TextureColor = colTexture;
+			TextureNormal = normalTexture;
+			Material = material;
+			InitBasicVao();
+        }
+
+        public NormalMappingMesh(string objFile, string colorTextureFile, string materialFile, string normalTextureFile,
+            int shaderAttribVertices = 0, int shaderAttribTexCoords = 1, int shaderAttribNormals = 2, int shaderTextureSampler = 0,
 			int shaderAttribTangents = 13, int shaderAttribBiTangents = 14, int textureSampler2 = 1)
 		{
+			//var createTextureNormalTask = Texture2D.CreateTextureAsync(normalTextureFile);
+			//var createTextureColTask = Texture2D.CreateTextureAsync(colorTextureFile);
+			var bitmapColTask = Task.Run(() => new Bitmap(colorTextureFile));
+			var bitmapNormalTask = Task.Run(() => new Bitmap(normalTextureFile));
+			var createObjModelTask = ObjModel.LoadWithTangentsAsync(objFile);
+			var parseMtlTask = MtlParser.ParseMtlAsync(materialFile);
+
 			ShaderAttribVertices = shaderAttribVertices;
 			ShaderAttribTexCoords = shaderAttribTexCoords;
 			ShaderAttribNormals = shaderAttribNormals;
@@ -129,15 +155,16 @@ namespace OpenGL_in_CSharp.Utils
 			ShaderTextureSampler2 = textureSampler2;
 			ShaderAttribTangents = shaderAttribTangents;
 			ShaderAttribBiTangents = shaderAttribBiTangents;
-			TextureNormal = new Texture2D(normalTextureFile);
-			TextureColor = new Texture2D(colorTextureFile);
-			Material = material;
-
+			//TextureNormal = new Texture2D(normalTextureFile);
+			//TextureColor = new Texture2D(colorTextureFile);
+			//Material = MtlParser.ParseMtl(materialFile)[0];
+			/*
+			var watches = System.Diagnostics.Stopwatch.StartNew();
 			Scene = new AssimpContext().ImportFile(objFile, PostProcessSteps.GenerateSmoothNormals
 				| PostProcessSteps.CalculateTangentSpace
 				| PostProcessSteps.Triangulate
 				);
-
+			Console.WriteLine(watches.ElapsedMilliseconds);
 			if (!Scene.HasMeshes)
 			{
 				throw new MissingFieldException("No meshes found!");
@@ -149,8 +176,18 @@ namespace OpenGL_in_CSharp.Utils
 			}
 
 			InitObjModel();
-			InitBasicVao();
 			FindModelBorders();
+			*/
+			
+
+			//TextureNormal = createTextureNormalTask.Result;
+			//TextureColor = createTextureColTask.Result;
+
+			TextureColor = new Texture2D(bitmapColTask.Result);
+			TextureNormal = new Texture2D(bitmapNormalTask.Result);
+			Model = createObjModelTask.Result;
+			InitBasicVao();
+			Material = parseMtlTask.Result[0];
 		}
 
 		private void InitObjModel()
@@ -217,7 +254,7 @@ namespace OpenGL_in_CSharp.Utils
 			TextureColor.Use(ShaderTextureSampler);
 			TextureNormal.Use(ShaderTextureSampler2);
 			lightsProgram.AttachMaterial(Material);
-			GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, Scene.Meshes[0].VertexCount);
+			GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, Model.VerticesFloat.Length / 3);//Scene.Meshes[0].VertexCount);
 		}
 
 		public override void Dispose()

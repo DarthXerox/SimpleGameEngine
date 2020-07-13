@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
 using OpenGL_in_CSharp;
 using OpenGL_in_CSharp.Mesh_and_SceneObjects;
 using OpenGL_in_CSharp.TextRendering;
@@ -21,7 +24,15 @@ namespace GameNamespace
         HelpMenu,
         None // nothing changes
     }
-    
+
+    ///
+    /// <summary>
+    /// Check out later:
+    /// http://luiscubal.blogspot.com/2013/04/asynchronous-opengl-texture-loading.html
+    /// </summary>
+    /// 
+
+
     public class MainWindow : GameWindow
     {
         private int framebuffer = 0;
@@ -63,6 +74,13 @@ namespace GameNamespace
         public float[] clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
         public readonly float[] clear_depth = { 1.0f };
 
+        // make it possible to delete
+        Task<ConcurrentDictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
+        Task<ConcurrentDictionary<string, ObjModel>> Models = DataLoader.LoadAllObjModelsWithTangentsAsync();
+
+        //ConcurrentDictionary<string, Bitmap> TexSave;
+        //Task<Dictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
+
         public MainWindow() 
            : base(900, // 800, 720
             720, 
@@ -80,26 +98,31 @@ namespace GameNamespace
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            //Console.WriteLine((DateTime.Now - loadTime).TotalSeconds + "s");
+            Console.WriteLine((DateTime.Now - loadTime).TotalSeconds + "s");
             GL.Viewport(0, 0, Width, Height);
 
             WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
             GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             clear_color = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
 
+            //var watches = System.Diagnostics.Stopwatch.StartNew();
             NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
             FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
             TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
+			//Console.WriteLine($"Total programs load time: {watches.ElapsedMilliseconds}ms");
+
             Font = new FreeTypeFont(48, FilePaths.MonoFont);
 
             Sun = new Light(new Vector3(10.0f, 10.0f, 5.0f))
             {
                 Color = new Vector3(0.3f, 0.3f, 0.3f)
-            }; 
+            };
 
-            Map = new Map(2, 2, FilePaths.HeightMapPath);
-            Player = new Player(new Vector3(1, 5, 1), Map);
+            //Console.WriteLine("Before map init time: " + (DateTime.Now - loadTime).TotalSeconds + "s");
+
+            
+
 
             // used for moving camera, this feature can only be turned on in the code see IsPlayerMoving
             Camera = new Camera(
@@ -110,8 +133,7 @@ namespace GameNamespace
 
             CursorVisible = false;
 
-            CollisionManager = new CollisionManager(Player);
-            Map.SignUpForCollisionChecking(CollisionManager);
+            
 
             InitGUI();
 
@@ -143,6 +165,20 @@ namespace GameNamespace
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
+
+            var watches = System.Diagnostics.Stopwatch.StartNew();
+            //Map = new Map(2, 2, FilePaths.HeightMapPath);
+            //Map = new Map(2, 2, new ConcurrentDictionary<string, Bitmap>(Textures.Result));
+            Map = new Map(2, 2, Textures.Result, Models.Result);
+
+            //Textures.Result.Clear();
+            Console.WriteLine($"Total map load time: {watches.ElapsedMilliseconds}ms");
+
+            Player = new Player(new Vector3(1, 5, 1), Map);
+            CollisionManager = new CollisionManager(Player);
+            Map.SignUpForCollisionChecking(CollisionManager);
+
+            Console.WriteLine("Load end time: " + (DateTime.Now - loadTime).TotalSeconds + "s");
         }
 
 
@@ -265,7 +301,7 @@ namespace GameNamespace
         {
             if (isFirstFrame)
             {
-                //Console.WriteLine("Time in seconds:" + (DateTime.Now - loadTime).TotalSeconds);
+                Console.WriteLine("Time in seconds:" + (DateTime.Now - loadTime).TotalSeconds);
                 isFirstFrame = false;
             }
             if (Player.StonesCollected >= FloatingStone.AllCoinsCount)
