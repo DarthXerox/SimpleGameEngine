@@ -8,7 +8,7 @@ namespace SimpleEngine.Data
 {
     /// <summary>
     /// Takes care of preloading all necessary data from disk
-    /// Contains subset of all filepaths to resources (only the ones necesary for the current version of the game)
+    /// Contains subset of all filepaths to resources (only the necessary ones for the current version of the game)
     /// </summary>
     public static class DataLoader
     {
@@ -31,14 +31,20 @@ namespace SimpleEngine.Data
             FilePaths.TextureBrickWall,
             FilePaths.BumpTexBrickWall,
             FilePaths.TextureGrass4,
-            FilePaths.BumpTexGrass4
+            FilePaths.BumpTexGrass4,
+            FilePaths.TextureGrass1,
+            FilePaths.BumpTexGrass1,
+            FilePaths.TextureGrass2,
+            FilePaths.BumpTexGrass2
         };
 
         private static readonly List<string> MtlFilesLst = new List<string>()
         {
             FilePaths.MtlBronze,
             FilePaths.MtlEmerald,
-            FilePaths.MtlChrome
+            FilePaths.MtlChrome,
+            FilePaths.MtlTreeTrunk,
+            FilePaths.MtlMossyRock1
         };
 
         /// <summary>
@@ -48,33 +54,6 @@ namespace SimpleEngine.Data
         /// </summary>
         public static async Task<ConcurrentDictionary<string, Bitmap>> LoadAllBitmapsAsync()
         {
-            /*
-            var Textures = new ConcurrentDictionary<string, Bitmap>(
-                new Dictionary<string, Bitmap>()
-                {
-                    { FilePaths.HeightMapPath, null},
-                    { FilePaths.TextureTreeTrunk, null},
-                    { FilePaths.BumpTexTrunk, null},
-                    { FilePaths.TextureTreeLeaves3, null},
-                    { FilePaths.BumpTexTreeLeaves, null},
-                    { FilePaths.TextureMossyRock, null},
-                    { FilePaths.BumpTexMossyRock, null},
-                    { FilePaths.TextureBrickWall, null},
-                    { FilePaths.BumpTexBrickWall, null},
-                    { FilePaths.TextureGrass4, null},
-                    { FilePaths.BumpTexGrass4, null},
-                });
-
-
-            return await Task.Run(() =>
-            {
-                Parallel.ForEach(Textures.Keys, key =>
-                {
-                    Textures.TryUpdate(key, new Bitmap(key), null);
-                });
-                return Textures;
-            });
-            */
             return await LoadDataAsync(ImagesFilesLst, str => new Bitmap(str));
         }
 

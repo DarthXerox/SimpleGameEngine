@@ -7,29 +7,37 @@ using SimpleEngine.WorldObjects;
 namespace SimpleEngine.GameScene
 {
     /// <summary>
-    /// Player is just a moveable camera with associated map in which it can move
-    /// Thus it cannot escape its borders and its Position.Y equals terrain height
+    /// Player is just a movable camera with associated world in which it can move
+    /// Thus it cannot escape its borders and its Position.Y equals to terrain height (+players height)
     /// at the specified X and Z coordinates
     /// </summary>
     public class Player : Camera
     {
-        public World AssociatedMap { private set; get; }
+        public World AssociatedWorld { get; }
         public ConeLight Flashlight { set; get; }
-        public float Height { private set; get; } = 5f;
-        public int StonesCollected { set; get; } = 0;
-        public float Radius { private set; get; } = 2.5f;
+        public float Height { get; } = 5f;
+        public int StonesCollected { set; get; }
+        public float Radius { get; } = 2.5f;
+        public DateTime LastEPressed { private set; get; } = new DateTime(2000, 1, 1);
+        public DateTime LastStoneCollected { private set; get; } = new DateTime(2000, 1, 1);
 
-        public DateTime LastEPressed = new DateTime(2000, 1, 1);
-
-        public DateTime LastStoneCollected = new DateTime(2000, 1, 1);
-
-        public Player(Vector3 position, World map) : base(position)
+        public Player(Vector3 position, World world) : base(position)
         {
-            AssociatedMap = map;
+            AssociatedWorld = world;
             Flashlight = new ConeLight(new Vector3(position.X,
-                Height + AssociatedMap.GetHeight(Position.X, Position.Z), position.Z),
+                Height + AssociatedWorld.GetHeight(Position.X, Position.Z), position.Z),
                 new Vector3(1, 1, 1), 1f, 0.027f, 0.0028f, 12.5f, 17.5f);
             Speed = 0.50f;
+        }
+
+        private void SwitchFlashlight()
+        {
+            var keyState = Keyboard.GetState();
+            if (keyState.IsKeyDown(Key.E) && (DateTime.Now - LastEPressed).Milliseconds > 300)
+            {
+                Flashlight.Color = Flashlight.Color != Vector3.Zero ? new Vector3(0, 0, 0) : new Vector3(1, 1, 1);
+                LastEPressed = DateTime.Now;
+            }
         }
 
         public override void Move(MouseState mouse)
@@ -43,41 +51,28 @@ namespace SimpleEngine.GameScene
                 ));
 
             base.Move();
-            var keyState = Keyboard.GetState();
-
-            if (keyState.IsKeyDown(Key.E) && (DateTime.Now - LastEPressed).Milliseconds > 200)
-            {
-                if (Flashlight.Color != Vector3.Zero)
-                {
-                    Flashlight.Color = new Vector3(0, 0, 0);
-                }
-                else
-                {
-                    Flashlight.Color = new Vector3(1, 1, 1);
-                }
-                LastEPressed = DateTime.Now;
-            }
+            SwitchFlashlight();
 
             var pos = Position;
-            // checks if the player reached map borders
-            if (pos.X <= 0 + Radius)
+            // checks if the player reached world borders
+            if (pos.X <= Radius)
             {
                 pos.X = Radius + 0.01f;
             }
-            else if (pos.X >= AssociatedMap.MaxX - Radius)
+            else if (pos.X >= AssociatedWorld.MaxX - Radius)
             {
-                pos.X = AssociatedMap.MaxX - Radius - 0.01f;
+                pos.X = AssociatedWorld.MaxX - Radius - 0.01f;
             }
 
-            if (pos.Z <= 0 + Radius)
+            if (pos.Z <= Radius)
             {
                 pos.Z = Radius + 0.01f;
             }
-            else if (pos.Z >= AssociatedMap.MaxZ - Radius)
+            else if (pos.Z >= AssociatedWorld.MaxZ - Radius)
             {
-                pos.Z = AssociatedMap.MaxZ - Radius - 0.01f;
+                pos.Z = AssociatedWorld.MaxZ - Radius - 0.01f;
             }
-            pos.Y = AssociatedMap.GetHeight(pos.X, pos.Z) + Height;
+            pos.Y = AssociatedWorld.GetHeight(pos.X, pos.Z) + Height;
             Position = pos;
 
             Flashlight.Position = new Vector4(Position, 1.0f);
@@ -107,7 +102,7 @@ namespace SimpleEngine.GameScene
         public void DrawCollectedStonesGUI(int windowWidth, int windowHeight, FreeTypeFont font)
         {
             new TextBox(windowWidth / 2 - 150, windowHeight / 2 - 50,
-                    $"Stones: {StonesCollected}/{FloatingStone.AllCoinsCount}", 0.5f, new Vector3(1f), font, false)
+                    $"Stones: {StonesCollected}/{FloatingStone.AllStonesCount}", 0.5f, new Vector3(1f), font, false)
                     .Draw(Vector2.Zero);
         }
 
@@ -121,7 +116,7 @@ namespace SimpleEngine.GameScene
 
         public void SetNewPositionOnMap(Vector2 newPosition)
         {
-            Position = new Vector3(newPosition.X, AssociatedMap.GetHeight(newPosition) + Height, newPosition.Y);
+            Position = new Vector3(newPosition.X, AssociatedWorld.GetHeight(newPosition) + Height, newPosition.Y);
         }
     }
 }

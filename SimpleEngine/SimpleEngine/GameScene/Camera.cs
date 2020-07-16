@@ -7,22 +7,27 @@ namespace SimpleEngine.GameScene
     public class Camera
     {
         public Vector3 Position { protected set; get; }
-        public Vector3 Target { private set; get; }
-        public Vector3 Up { private set; get; }
+        public Vector3 Up { get; }
         public Vector3 Front { get; protected set; }
         public bool FirstMove { set; get; } = true;
         public Vector2 LastMousePos { private set; get; }
 
+        /// <summary>
+        /// Rotation around Y axis
+        /// </summary>
         public float Yaw { private set; get; } = 45f;
+
+        /// <summary>
+        /// Rotation around X axis
+        /// </summary>
         public float Pitch { private set; get; } = 0;
         public float Speed { protected set; get; } = 1f;
-        public float Sensitivity { get; private set; } = 0.1f;
+        public float Sensitivity { get; } = 0.1f;
 
 
-        public Camera(Vector3 pos, Vector3 cameraTarget, Vector3 up)
+        public Camera(Vector3 pos, Vector3 up)
         {
             Position = pos;
-            Target = cameraTarget;
             Up = up;
         }
 
@@ -36,11 +41,6 @@ namespace SimpleEngine.GameScene
         public Vector3 GetRight()
         {
             return Vector3.Normalize(Vector3.Cross(Front, Up));
-        }
-
-        public Matrix4 GetViewMatrixAtTarget()
-        {
-            return Matrix4.LookAt(Position, Target, Up);
         }
 
         public virtual Matrix4 GetViewMatrix()
@@ -84,7 +84,6 @@ namespace SimpleEngine.GameScene
                 Position -= GetRight() * Speed;
             }
 
-
             if (keyState.IsKeyDown(Key.KeypadPlus))
             {
                 Position = new Vector3(Position.X, Position.Y + Speed, Position.Z);
@@ -96,9 +95,8 @@ namespace SimpleEngine.GameScene
         }
 
         /// <summary>
-        /// Based on mouse position difference from last fram recalcualtes new angles - pitch and yaw
+        /// Based on mouse position difference from last frame recalculates new angles - pitch and yaw
         /// </summary>
-        /// <param name="mouse"></param>
         public virtual void UpdateAngles(MouseState mouse)
         {
             if (FirstMove)

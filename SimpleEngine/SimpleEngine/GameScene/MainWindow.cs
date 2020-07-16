@@ -23,6 +23,8 @@ namespace SimpleEngine.GameScene
         private bool isFirstFrame = true;
         
         private DateTime loadTime;
+        private int frameCounter = 0;
+        private bool isNormalMapping = true;
 
         public GameStates GameState { private set; get; } = GameStates.MainMenu;
         public Matrix4 ViewMatrix { private set; get; }
@@ -37,8 +39,9 @@ namespace SimpleEngine.GameScene
         public Fog WorldFog { private set; get; }
         public Light Moon { private set; get; }
         public CollisionManager CollisionManager { set; get; }
-        //enables to switch between camera and player
-        public bool IsPlayerMoving { private set; get; } = true;
+
+        //enables to switch  between omnipotent camera and player
+        public bool IsPlayerMoving { get; } = false;
         public FreeTypeFont Font { set; get; }
         public GUI QuitMenuGUI { set; get; }
         public GUI MainMenuGUI { set; get; }
@@ -52,12 +55,8 @@ namespace SimpleEngine.GameScene
         public readonly Task<ConcurrentDictionary<string, ObjModel>> ModelsTask = DataLoader.LoadAllObjModelsWithTangentsAsync();
         public readonly Task<ConcurrentDictionary<string, Material>> MaterialsTask = DataLoader.LoadAllMaterialsAsync();
 
-
-        //ConcurrentDictionary<string, Bitmap> TexSave;
-        //Task<Dictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
-
         public MainWindow()
-           : base(900, // 800, 720
+           : base(900, 
             720,
             GraphicsMode.Default,
             "Forest",
@@ -94,15 +93,10 @@ namespace SimpleEngine.GameScene
                 Color = new Vector3(0.3f, 0.3f, 0.3f)
             };
 
-            //Console.WriteLine("Before map init time: " + (DateTime.Now - loadTime).TotalSeconds + "s");
-
-
-
 
             // used for moving camera, this feature can only be turned on in the code see IsPlayerMoving
             Camera = new Camera(
                 new Vector3(0.0f, 20.0f, 20.0f),
-                Vector3.Zero,
                 new Vector3(0.0f, 1.0f, 0.0f)
                 );
 
@@ -110,6 +104,9 @@ namespace SimpleEngine.GameScene
 
             InitGUI();
 
+            // To be able to draw letter (GUI) over the background (game running)
+            // we have to render the background not directly to window screen but to a separate framebuffer 
+            // Here we create this separate buffer
             GL.CreateFramebuffers(1, out framebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexColor);
@@ -134,15 +131,11 @@ namespace SimpleEngine.GameScene
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            GL.Enable(EnableCap.CullFace); 
+            GL.CullFace(CullFaceMode.Back); // makes sure only the side (of a polygon) facing the camera is rendered
 
             var watches = System.Diagnostics.Stopwatch.StartNew();
-            //Map = new Map(2, 2, FilePaths.HeightMapPath);
-            //Map = new Map(2, 2, new ConcurrentDictionary<string, Bitmap>(Textures.Result));
             World = new World(2, 2, TexturesTask.Result, ModelsTask.Result, MaterialsTask.Result);
-
-            //Textures.Result.Clear();
             Console.WriteLine($"Total map load time: {watches.ElapsedMilliseconds}ms");
 
             Player = new Player(new Vector3(1, 5, 1), World);
@@ -156,6 +149,7 @@ namespace SimpleEngine.GameScene
         private void RenderGame()
         {
             GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
             ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(55.0f), (float)Width / Height, 0.1f, 1000.0f);
             ViewMatrix = IsPlayerMoving ? Player.GetViewMatrix() : Camera.GetViewMatrix();
             Vector3 camPosition = IsPlayerMoving ? Player.Position : Camera.Position;
@@ -167,6 +161,16 @@ namespace SimpleEngine.GameScene
             NormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             FakeNormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             lightIndex++;
+
+            frameCounter++;
+            if (frameCounter >= 120)
+            {
+                isNormalMapping = ! isNormalMapping;
+                frameCounter = 0;
+            }
+
+            GL.ProgramUniform1(NormalMappingProg.ID, 12, Convert.ToSingle(isNormalMapping));
+            GL.ProgramUniform1(FakeNormalMappingProg.ID, 12, Convert.ToSingle(isNormalMapping));
 
             GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
             NormalMappingProg.AttachFog(WorldFog);
@@ -185,19 +189,19 @@ namespace SimpleEngine.GameScene
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
+            Title = $"Forest FPS: {1f / e.Time:0}";
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             if (GameState != GameStates.PlayingGame)
             {
+                // Now we prepare a separate clear framebuffer and draw the game to it ... 
                 GL.BindFramebuffer(FramebufferTarget.FramebufferExt, framebuffer);
-
-                // Clear attachments
                 GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Color, 0, ClearColor);
                 GL.ClearNamedFramebuffer(framebuffer, ClearBuffer.Depth, 0, ClearDepth);
 
                 RenderGame();
 
+                // ... now we bind the default ("screen" frame buffer) ...
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.ClearNamedFramebuffer(0, ClearBuffer.Color, 0, ClearColor);
 
@@ -206,17 +210,20 @@ namespace SimpleEngine.GameScene
                 GL.Disable(EnableCap.CullFace);
 
                 PostprocessProgram.Use();
+
+                // ... and draw the separate framebuffer to it as a square (of 2 triangles) ...
                 GL.BindTexture(TextureTarget.Texture2D, framebufferTexColor);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-                // for rendering text we use orthographic projection
-                Matrix4 projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1);
+                // ... (orthographic projection is more useful as it helps "pretend" that the scene is just a square
+                // and not an actual 3D space) ...
+                var projectionM = Matrix4.CreateOrthographic(Width, Height, 1, -1); 
 
-
-                GL.Disable(EnableCap.CullFace);
-                GL.Enable(EnableCap.Blend);
+                GL.Enable(EnableCap.Blend); 
                 GL.BlendFunc(0, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
+                // ... on top of all this we draw the proper GUI.
+                // See, drawing text with OpenGL is ez af xD
                 TextProgram.Use();
                 GL.UniformMatrix4(1, false, ref projectionM);
 
@@ -246,7 +253,9 @@ namespace SimpleEngine.GameScene
                 Player.DrawCollectedStonesGUIWithTime(Width, Height, Font);
             }
 
-            SwapBuffers();
+            // 2 buffer drawing is used
+            // while one buffer is drawn to the screen another one is being updated
+            SwapBuffers(); 
         }
 
 
@@ -255,94 +264,106 @@ namespace SimpleEngine.GameScene
         /// </summary>
         protected override void OnFocusedChanged(EventArgs e)
         {
+            base.OnFocusedChanged(e);
             if (GameState == GameStates.PlayingGame)
             {
                 GameState = GameStates.QuitMenu;
             }
-            base.OnFocusedChanged(e);
         }
 
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            base.OnUpdateFrame(e);
             if (isFirstFrame)
             {
                 Console.WriteLine("Time in seconds:" + (DateTime.Now - loadTime).TotalSeconds);
                 isFirstFrame = false;
             }
-            if (Player.StonesCollected >= FloatingStone.AllCoinsCount)
+            if (Player.StonesCollected >= FloatingStone.AllStonesCount)
             {
                 GameState = GameStates.YouWin;
             }
-            if (Mouse.GetState().IsAnyButtonDown)
+
+            // No input is handled when the window is in the background
+            if (Focused)
             {
-                Vector2 mousePosMiddle = GetMousePositionRelativeToWindowMiddle();
-                GameStates newState = GameStates.None;
+                // GUI handling
+                if (Mouse.GetState().IsAnyButtonDown)
+                {
+                    Vector2 mousePosMiddle = GetMousePositionRelativeToWindowMiddle();
+                    GameStates newState = GameStates.None;
+                    switch (GameState)
+                    {
+                        case GameStates.MainMenu:
+                            newState = MainMenuGUI.OnMouseClick(mousePosMiddle);
+                            break;
+                        case GameStates.QuitMenu:
+                            newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
+                            break;
+                        case GameStates.YouWin:
+                            newState = YouWinGUI.OnMouseClick(mousePosMiddle);
+                            break;
+                        case GameStates.HelpMenu:
+                            newState = HelpGUI.OnMouseClick(mousePosMiddle);
+                            break;
+                    }
+
+                    if (newState != GameStates.None)
+                    {
+                        GameState = newState;
+                    }
+                }
+
+                HandleKeyboard();
+                // movement handling
                 switch (GameState)
                 {
-                    case GameStates.MainMenu:
-                        newState = MainMenuGUI.OnMouseClick(mousePosMiddle);
-                        break;
-                    case GameStates.QuitMenu:
-                        newState = QuitMenuGUI.OnMouseClick(mousePosMiddle);
-                        break;
-                    case GameStates.YouWin:
-                        newState = YouWinGUI.OnMouseClick(mousePosMiddle);
-                        break;
-                    case GameStates.HelpMenu:
-                        newState = HelpGUI.OnMouseClick(mousePosMiddle);
-                        break;
-                }
-                if (newState != GameStates.None)
-                {
-                    GameState = newState;
-                }
-            }
+                    case GameStates.PlayingGame:
+                    {
+                        CursorVisible = false;
+                        if (IsPlayerMoving)
+                        {
+                            Player.Move(Mouse.GetState());
+                            CollisionManager.CheckCollisions();
+                        }
+                        else
+                        {
+                            Camera.Move(Mouse.GetState());
+                        }
 
-            HandleKeyboard();
-            if (GameState == GameStates.PlayingGame)
-            {
-                CursorVisible = false;
-                if (IsPlayerMoving)
-                {
-                    Player.Move(Mouse.GetState());
-                    CollisionManager.CheckCollisions();
-                }
-                else
-                {
-                    Camera.Move(Mouse.GetState());
+                        break;
+                    }
+                    case GameStates.QuitGame:
+                        Exit();
+                        break;
+                    default:
+                        CursorVisible = true;
+                        break;
                 }
             }
-            else if (GameState == GameStates.QuitGame)
-            {
-                Exit();
-            }
-            else
-            {
-                CursorVisible = true;
-            }
-            base.OnRenderFrame(e);
         }
 
         private void HandleKeyboard()
         {
             var keyState = Keyboard.GetState();
-            if (keyState.IsKeyDown(Key.F))
+            if (keyState.IsKeyDown(Key.Escape))
+            {
+                GameState = GameStates.QuitMenu;
+            }
+            // Switches between OpenGL drawing modes
+            else if (keyState.IsKeyDown(Key.F))
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             }
-            else if (keyState.IsKeyDown(Key.L))
+            else if (keyState.IsKeyDown(Key.L)) 
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             }
             else if (keyState.IsKeyDown(Key.P))
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
-                GL.PointSize(10);
-            }
-            else if (keyState.IsKeyDown(Key.Escape))
-            {
-                GameState = GameStates.QuitMenu;
+                GL.PointSize(3);
             }
         }
 
@@ -362,6 +383,7 @@ namespace SimpleEngine.GameScene
             GL.Viewport(0, 0, Width, Height);
 
             //on resize also the framebuffer size is changed so we need to change the postprocess framebuffer too
+            // otherwise when resizing to a bigger window, only the smaller part of the window would be rendered to
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             GL.CreateTextures(TextureTarget.Texture2D, 1, out framebufferTexColor);
             GL.TextureStorage2D(framebufferTexColor, 1, SizedInternalFormat.Rgba32f, Width, Height);
@@ -390,7 +412,6 @@ namespace SimpleEngine.GameScene
         /// Gets mouse position relative to the very middle of the game window screen
         /// this is useful for text rendering - Matrix4.CreateOrthographicOffCenter
         /// </summary>
-        /// <returns></returns>
         public Vector2 GetMousePositionRelativeToWindowMiddle()
         {
             var mouse = Mouse.GetCursorState();
@@ -401,6 +422,9 @@ namespace SimpleEngine.GameScene
             };
         }
 
+        /// <summary>
+        /// Initializes all GUIs
+        /// </summary>
         public void InitGUI()
         {
             MainMenuGUI = new GUI(new Dictionary<TextBox, GameStates>()

@@ -145,6 +145,7 @@
     <None Include="Resources\Materials\emerald.mtl" />
     <None Include="Resources\Materials\gold.mtl" />
     <None Include="Resources\Materials\Mossy Rock 1.mtl" />
+    <None Include="Resources\Materials\trunk.mtl" />
     <None Include="Resources\Objects\arms.obj" />
     <None Include="Resources\Objects\coin.obj" />
     <None Include="Resources\Objects\custom.obj" />

@@ -10,7 +10,7 @@ namespace SimpleEngine
             Game g = new Game();
             g.Run();
             g.Dispose();
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 }

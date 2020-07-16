@@ -13,7 +13,7 @@ namespace SimpleEngine.WorldObjects
     {
         public readonly float MaxHeight = 10f;
 
-        public readonly int TexturesPerSide = 96;
+        public readonly int TexturesPerSide = 32;
 
         public int ShaderTextureSampler2 { get; } = 1;
 
@@ -21,7 +21,6 @@ namespace SimpleEngine.WorldObjects
         public int WidthZ { get; } //{ get => HeightMap.Height; }
         public Bitmap HeightMap { get; }
 
-        private object Locker = new object();
         public Texture2D NormalTexture { get; }
 
 
@@ -216,14 +215,11 @@ namespace SimpleEngine.WorldObjects
         /// </summary>
         public float GetHeightFromMap(int x, int z)
         {
-            lock (Locker)
+            if (x < 0 || z < 0 || x >= HeightMap.Width || z >= HeightMap.Height)
             {
-                if (x < 0 || z < 0 || x >= HeightMap.Width || z >= HeightMap.Height)
-                {
-                    return 0.0f;
-                }
-                return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
+                return 0.0f;
             }
+            return GetColorGreyScale(HeightMap.GetPixel(x, z)) * 2f - 1f;
         }
 
         private float GetColorGreyScale(Color col)

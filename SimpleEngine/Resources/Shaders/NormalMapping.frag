@@ -108,7 +108,59 @@ vec3 calculateColor(Light light_) {
 	return color;
 }
 
+vec3 calculateColorExperiment(Light light_) {
+	vec3 toLightVec = light_.position.xyz - position * light_.position.w;
+    vec3 L = normalize(toLightVec);
 
+	// obtain normal from normal map in range [0,1]
+    vec3 normal = texture(texNormal, texCoors).rgb;
+    // transform normal vector to range [-1,1]
+	vec3 N;
+	if (isNormalTex) {
+		N = normalize(TBN * (normal * 2.0 - 1.0));   
+	} else {
+		N = normalize(normals);
+	}
+
+	vec3 E = normalize(camPosition - position); 
+	vec3 H = normalize(L + E); 
+	float NdotL = max(dot(N, L), 0.0);
+	float NdotH = max(dot(N, H), 0.0);
+
+	//vec3 ambient = texture(texture0, texCoors).xyz * light_.ambient.rgb;
+	//ambient += 0.5;
+	vec4 tex = texture(texture0, texCoors);
+
+
+	vec3 ambient = material.ambient.rgb * light_.ambient.rgb * tex.xyz;
+	vec3 diffuse = light_.diffuse.rgb * tex.xyz;
+	vec3 specular =  light_.specular.rgb;
+
+
+
+
+
+	float distance_ = 1.0;
+	float attenuation = 1.0;
+	float intensity = 1.0;
+	if (light_.position.w == 1.0) { // not a directional light_
+		distance_ = length(light_.position.xyz - position);
+		attenuation = 1.0 / (light_.constant + light_.linear * distance_ + 
+    		    light_.quadratic * (distance_ * distance_)); 
+		intensity = calcualteCutOffIntensity(light_, L); 
+	}
+
+	ambient *= attenuation * intensity;
+	diffuse *= attenuation * intensity;
+	specular *= attenuation * intensity;
+
+	vec3 color = ambient.rgb +
+		NdotL * diffuse.rgb +
+		pow(NdotH, material.shininess) * specular.rgb;
+	//color /= distance_;
+
+	return color;
+}
 
 void main(void) {
 	if (texture(texture0, texCoors).a < 0.5) {
@@ -117,7 +169,8 @@ void main(void) {
 
 	vec3 lightSum = vec3(0.0);
 	for (uint i = 0; i < LIGHTS_AMNT; ++i) {
-		lightSum += calculateColor(lights[i]);
+		lightSum += calculateColorExperiment(lights[i]);
 	}
+
 	finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
 }

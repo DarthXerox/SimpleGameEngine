@@ -3,6 +3,9 @@ using OpenTK;
 
 namespace SimpleEngine.GameScene
 {
+    /// <summary>
+    /// ConeLight/Spotlight is just a point light that cast rays in one direction in a cone shape
+    /// </summary>
     public class ConeLight : PointLight
     {
         /// <param name="cutOffDeg">Cutoff for full color in degrees</param>

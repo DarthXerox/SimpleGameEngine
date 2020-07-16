@@ -10,24 +10,23 @@ namespace SimpleEngine.WorldObjects
 {
     public class FloatingStone : Collidable
     {
-        public static readonly int AllCoinsCount = 5;
+        public static readonly int AllStonesCount = 5;
         public float RotationYPerFrame { get; } = 1f/3f * 360f / 60f;
         public Vector3 MovementPerFrame { private set; get; } = new Vector3(0, 1f / 180f, 0);
         public Vector3 Offset { private set; get; } = new Vector3(0, 0, 0);
 
         public int CoinsLeft { private set; get; } = 5;
 
-        public ModelTransformations Movement = new ModelTransformations();
 
 
         public FloatingStone(NormalMappingMesh mesh, 
             List<ModelTransformations> positions) : base (mesh) 
         {
-            if (positions.Count < AllCoinsCount)
+            if (positions.Count < AllStonesCount)
             {
                 throw new IndexOutOfRangeException("Not enough coin positions");
             }
-            ModelTransformations = positions.Take(AllCoinsCount).ToList();
+            ModelTransformations = positions.Take(AllStonesCount).ToList();
         }
 
         /// <summary>

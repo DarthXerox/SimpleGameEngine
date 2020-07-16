@@ -85,8 +85,11 @@ namespace SimpleEngine.WorldObjects
 
                 }
             }
-            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass4],
-                 textures[FilePaths.BumpTexGrass4], materials[FilePaths.MtlEmerald], terrainPositions);
+
+            Material mat = materials[FilePaths.MtlEmerald];
+            mat.Shininess = 3000;
+            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass2],
+                 textures[FilePaths.BumpTexGrass2], mat, terrainPositions);
             
             // for simplicity I put 4 of the stones in the map corners and one in its middle
             List<ModelTransformations> stonesPositions = new List<ModelTransformations>()
@@ -142,7 +145,7 @@ namespace SimpleEngine.WorldObjects
 
 
             Trees = new Collidable(new NormalMappingMesh(models[FilePaths.ObjTreeTrunk], textures[FilePaths.TextureTreeTrunk],
-                textures[FilePaths.BumpTexTrunk], materials[FilePaths.MtlBronze]), treeTrunksPositions);
+                textures[FilePaths.BumpTexTrunk], materials[FilePaths.MtlTreeTrunk]), treeTrunksPositions);
             TreeLeaves = new WorldObject(new NormalMappingMesh(models[FilePaths.ObjTreeLeaves], textures[FilePaths.TextureTreeLeaves3],
                 textures[FilePaths.BumpTexTreeLeaves], materials[FilePaths.MtlEmerald]), treeLeavesPositions);
             
@@ -160,7 +163,7 @@ namespace SimpleEngine.WorldObjects
             
 
             Stones = new FloatingStone(new NormalMappingMesh(models[FilePaths.ObjMossyRock1], textures[FilePaths.TextureMossyRock],
-                textures[FilePaths.BumpTexMossyRock], materials[FilePaths.MtlChrome]), stonesPositions);
+                textures[FilePaths.BumpTexMossyRock], materials[FilePaths.MtlMossyRock1]), stonesPositions);
 
         }
 
@@ -192,8 +195,6 @@ namespace SimpleEngine.WorldObjects
         /// <summary>
         /// Both programs need to have been attached a camera position, all lights and fog before they are drawn
         /// </summary>
-        /// <param name="normalMappingProg"></param>
-        /// <param name="fakeNormalMappingProg"></param>
         public void DrawMap(LightsProgram normalMappingProg, LightsProgram fakeNormalMappingProg, 
             Player player, int uniformSampler2 = 1)
         {

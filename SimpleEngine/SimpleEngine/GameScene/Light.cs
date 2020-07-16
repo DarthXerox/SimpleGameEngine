@@ -3,8 +3,8 @@
 namespace SimpleEngine.GameScene
 {
     /// <summary>
-    /// Represents all parametres a light can have
-    /// Even directional light has them (but it has different Position.W parameter)
+    /// Represents all parameters a light can have
+    /// Even directional light has all of them (but it has different Position.W parameter)
     /// </summary>
     public class Light
     {
@@ -17,8 +17,9 @@ namespace SimpleEngine.GameScene
         public float CutOff { protected set; get; } = -1.0f;
         public float OuterCutOff { protected set; get; } = -1.0f;
 
-
-        /// Constructs basic diretional light
+        /// <summary>
+        /// Constructs a basic directional light
+        /// </summary>
         public Light(Vector3 pos)
         {
             Position = new Vector4(pos, 0.0f);

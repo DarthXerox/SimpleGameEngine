@@ -11,6 +11,10 @@
         QuitGame,
         YouWin,
         HelpMenu,
-        None // nothing changes
+
+        /// <summary>
+        /// Represents no change
+        /// </summary>
+        None 
     }
 }
