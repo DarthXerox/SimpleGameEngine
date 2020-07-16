@@ -25,7 +25,13 @@ namespace SimpleEngine.WorldObjects
 
 		public WorldObject(Mesh mesh) 
 		{
-			RawMesh = mesh;
+			RawMesh = mesh ?? throw new NullReferenceException($"Null mesh reference in {GetType()}.ctor");
+		}
+
+        public WorldObject(Mesh mesh, List<ModelTransformations> modelTransformations)
+        {
+            ModelTransformations = modelTransformations;
+			RawMesh = mesh ?? throw new NullReferenceException($"Null mesh reference in {GetType()}.ctor");
 		}
 
 		protected WorldObject(ModelTransformations transformations) 

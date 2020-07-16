@@ -15,15 +15,6 @@ using SimpleEngine.Data;
 
 namespace SimpleEngine.GameScene
 {
-
-    ///
-    /// <summary>
-    /// Check out later:
-    /// http://luiscubal.blogspot.com/2013/04/asynchronous-opengl-texture-loading.html
-    /// </summary>
-    /// 
-
-
     public class MainWindow : GameWindow
     {
         private int framebuffer;
@@ -42,7 +33,7 @@ namespace SimpleEngine.GameScene
         public LightsProgram PostprocessProgram { set; get; }
         public Camera Camera { private set; get; }
         public Player Player { private set; get; }
-        public World Map { private set; get; }
+        public World World { private set; get; }
         public Fog WorldFog { private set; get; }
         public Light Moon { private set; get; }
         public CollisionManager CollisionManager { set; get; }
@@ -57,8 +48,10 @@ namespace SimpleEngine.GameScene
         public float[] ClearDepth { get; } = { 1.0f };
 
         // make it possible to delete
-        Task<ConcurrentDictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
-        Task<ConcurrentDictionary<string, ObjModel>> Models = DataLoader.LoadAllObjModelsWithTangentsAsync();
+        public readonly Task<ConcurrentDictionary<string, Bitmap>> TexturesTask = DataLoader.LoadAllBitmapsAsync();
+        public readonly Task<ConcurrentDictionary<string, ObjModel>> ModelsTask = DataLoader.LoadAllObjModelsWithTangentsAsync();
+        public readonly Task<ConcurrentDictionary<string, Material>> MaterialsTask = DataLoader.LoadAllMaterialsAsync();
+
 
         //ConcurrentDictionary<string, Bitmap> TexSave;
         //Task<Dictionary<string, Bitmap>> Textures = DataLoader.LoadAllBitmapsAsync();
@@ -128,8 +121,7 @@ namespace SimpleEngine.GameScene
                 PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            DrawBuffersEnum[] draw_buffers = { DrawBuffersEnum.ColorAttachment0 };
-            GL.NamedFramebufferDrawBuffers(framebuffer, 1, draw_buffers);
+            GL.NamedFramebufferDrawBuffers(framebuffer, 1, new[] { DrawBuffersEnum.ColorAttachment0 });
 
             GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.ColorAttachment0, framebufferTexColor, 0);
             GL.NamedFramebufferTexture(framebuffer, FramebufferAttachment.DepthAttachment, framebufferTexDepth, 0);
@@ -148,14 +140,14 @@ namespace SimpleEngine.GameScene
             var watches = System.Diagnostics.Stopwatch.StartNew();
             //Map = new Map(2, 2, FilePaths.HeightMapPath);
             //Map = new Map(2, 2, new ConcurrentDictionary<string, Bitmap>(Textures.Result));
-            Map = new World(2, 2, Textures.Result, Models.Result);
+            World = new World(2, 2, TexturesTask.Result, ModelsTask.Result, MaterialsTask.Result);
 
             //Textures.Result.Clear();
             Console.WriteLine($"Total map load time: {watches.ElapsedMilliseconds}ms");
 
-            Player = new Player(new Vector3(1, 5, 1), Map);
+            Player = new Player(new Vector3(1, 5, 1), World);
             CollisionManager = new CollisionManager(Player);
-            Map.SignUpForCollisionChecking(CollisionManager);
+            World.SignUpForCollisionChecking(CollisionManager);
 
             Console.WriteLine("Load end time: " + (DateTime.Now - loadTime).TotalSeconds + "s");
         }
@@ -186,7 +178,7 @@ namespace SimpleEngine.GameScene
             FakeNormalMappingProg.AttachViewMatrix(ViewMatrix);
             FakeNormalMappingProg.AttachProjectionMatrix(ProjectionMatrix);
 
-            Map.DrawMap(NormalMappingProg, FakeNormalMappingProg, Player);
+            World.DrawMap(NormalMappingProg, FakeNormalMappingProg, Player);
         }
 
 
@@ -457,7 +449,7 @@ namespace SimpleEngine.GameScene
             PostprocessProgram.Dispose();
             FakeNormalMappingProg.Dispose();
             TextProgram.Dispose();
-            Map.Dispose();
+            World.Dispose();
             Font.Dispose();
             GL.DeleteFramebuffer(framebuffer);
             GL.DeleteTexture(framebufferTexColor);

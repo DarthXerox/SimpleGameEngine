@@ -4,6 +4,7 @@ using SimpleEngine.GameScene;
 using SimpleEngine.Utils;
 using OpenTK;
 using SimpleEngine.Collisions;
+using System.Collections.Generic;
 
 namespace SimpleEngine.WorldObjects
 {
@@ -33,6 +34,12 @@ namespace SimpleEngine.WorldObjects
                 Math.Max(Math.Abs(RawMesh.Model.MinZ), Math.Abs(RawMesh.Model.MaxZ))
                 );
             Height = Math.Abs(RawMesh.Model.MaxY) + Math.Abs(RawMesh.Model.MinY);
+        }
+
+        public Collidable(Mesh mesh, List<ModelTransformations> modelTransformations)
+            : this(mesh)
+        {
+            ModelTransformations = modelTransformations;
         }
 
         public bool IsColliding(Player player)

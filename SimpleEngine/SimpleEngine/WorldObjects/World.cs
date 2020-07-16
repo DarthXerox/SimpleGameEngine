@@ -35,7 +35,8 @@ namespace SimpleEngine.WorldObjects
         /// 
         /// As loading all this stuff is time expensive
         /// </summary>
-        public World(int width, int height, IDictionary<string, Bitmap> textures, IDictionary<string, ObjModel> models)
+        public World(int width, int height, IDictionary<string, Bitmap> textures, IDictionary<string, ObjModel> models,
+            IDictionary<string, Material> materials)
         {
             Width = width;
             Height = height;
@@ -45,39 +46,57 @@ namespace SimpleEngine.WorldObjects
             var loadTreeLeavesTask = ObjModel.LoadWithTangentsAsync(FilePaths.ObjTreeLeaves);
             var loadRockTask = ObjModel.LoadWithTangentsAsync(FilePaths.ObjMossyRock1);
             */
+            /*
             var loadTreeTrunkMtl = MtlParser.ParseMtlAsync(FilePaths.MtlBronze); //used for wall too
             var loadGrassMtl = MtlParser.ParseMtlAsync(FilePaths.MtlEmerald); //used for tree leaves too
             var loadRockMtl = MtlParser.ParseMtlAsync(FilePaths.MtlChrome);
+            */
+
+
+
+
+            var terrainPositions = new List<ModelTransformations>();
+            var treeLeavesPositions = new List<ModelTransformations>();
+            var treeTrunksPositions = new List<ModelTransformations>();
+
 
             HeightMap = textures[FilePaths.TextureHeightMap];
-
-
-            Borders = new WorldObject(new Mesh(CalculateBordersObjModel(MaxX - 1, 15, MaxX / 5, 3), textures[FilePaths.TextureBrickWall], loadTreeTrunkMtl.Result[0]));
-            //AddWall(MaxX - 1, 15, MaxX / 5, 3, new Texture2D(loadWallTextureTask.Result), loadTreeTrunkMtl.Result[0]);
-            Borders.AddPosition(new Vector3(0, 0, 0));
-            Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));
-            Borders.ModelTransformations.Add(new ModelTransformations(0, -180, 0, 1, new Vector3(MaxX - 2, 0, MaxZ - 2)));
-            Borders.ModelTransformations.Add(new ModelTransformations(0, -270, 0, 1, new Vector3(0, 0, MaxZ - 2)));
-            BordersNormalTexture = new Texture2D(textures[FilePaths.BumpTexBrickWall]);
-
-
-
-            Trees = new Collidable(new NormalMappingMesh(models[FilePaths.ObjTreeTrunk], textures[FilePaths.TextureTreeTrunk],
-                textures[FilePaths.BumpTexTrunk], loadTreeTrunkMtl.Result[0]));
-            TreeLeaves = new WorldObject(new NormalMappingMesh(models[FilePaths.ObjTreeLeaves], textures[FilePaths.TextureTreeLeaves3],
-                textures[FilePaths.BumpTexTreeLeaves], loadGrassMtl.Result[0]));
-            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass4],
-                 textures[FilePaths.BumpTexGrass4], loadGrassMtl.Result[0], Vector3.Zero);
-
+            ObjModel bordersModel = CalculateBordersObjModel(MaxX - 1, 15, MaxX / 5, 3);
+            var bordersPositions = new List<ModelTransformations>()
+            {
+                new ModelTransformations() { Position = new Vector3(0, 0, 0) },
+                new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)),
+                new ModelTransformations(0, -180, 0, 1, new Vector3(MaxX - 2, 0, MaxZ - 2)),
+                new ModelTransformations(0, -270, 0, 1, new Vector3(0, 0, MaxZ - 2))
+            };
+            Borders = new WorldObject(new Mesh(bordersModel, textures[FilePaths.TextureBrickWall], materials[FilePaths.MtlBronze]), 
+                bordersPositions);
 
 
             for (int z = 0; z < Height; z++)
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    Terrain.AddPosition(new Vector3(x * (HeightMap.Width - 1), 0, z * (HeightMap.Height - 1)));
+                    //Terrain.AddPosition(new Vector3(x * (HeightMap.Width - 1), 0, z * (HeightMap.Height - 1)));
+                    terrainPositions.Add(new ModelTransformations()
+                    { 
+                        Position = new Vector3(x * (HeightMap.Width - 1), 0, z * (HeightMap.Height - 1)) 
+                    });
+
                 }
             }
+            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass4],
+                 textures[FilePaths.BumpTexGrass4], materials[FilePaths.MtlEmerald], terrainPositions);
+            
+            // for simplicity I put 4 of the stones in the map corners and one in its middle
+            List<ModelTransformations> stonesPositions = new List<ModelTransformations>()
+            {
+                new ModelTransformations() { Position = new Vector3(MaxX / 2, GetHeight(MaxX / 2, MaxZ / 2) + 3, MaxZ / 2) }, // the very middle
+                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, 10) + 3, 10) },
+                new ModelTransformations() { Position = new Vector3(MaxX - 10, GetHeight(MaxX - 10, 10) + 3, 10) },
+                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, MaxZ - 10) + 3, MaxZ - 10) },
+                new ModelTransformations() { Position = new Vector3(MaxX - 7, GetHeight(MaxX - 7, MaxZ - 7) + 3, MaxZ - 7) }
+            };
 
             for (int z = 0; z < HeightMap.Height; z++)
             {
@@ -85,17 +104,48 @@ namespace SimpleEngine.WorldObjects
                 {
                     if (z % 35 == 0 && x % 35 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
                     {
-                        foreach (var sceneObject in Terrain.ModelTransformations)
+                        foreach (var sceneObject in terrainPositions) //Terrain.ModelTransformations)
                         {
                             // I move it a litte bit down, so the tree nicely "grows" from the ground
-                            Trees.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) *
-                                sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
-                            TreeLeaves.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) *
-                                sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
+                            //Trees.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) *
+                               // sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
+                            treeTrunksPositions.Add(new ModelTransformations()
+                            {
+                                Position = (new Vector4(x, GetHeight(x, z), z, 1) *
+                                    sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY
+                            });
+                            //TreeLeaves.AddPosition((new Vector4(x, GetHeight(x, z), z, 1) *
+                                //sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY);
+                            treeLeavesPositions.Add(new ModelTransformations() 
+                            {
+                                Position = (new Vector4(x, GetHeight(x, z), z, 1) *
+                                    sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY
+                            });
+
                         }
                     }
                 }
             }
+
+
+
+            /*
+            Borders = new WorldObject(new Mesh(CalculateBordersObjModel(MaxX - 1, 15, MaxX / 5, 3), textures[FilePaths.TextureBrickWall], loadTreeTrunkMtl.Result[0]));
+            //AddWall(MaxX - 1, 15, MaxX / 5, 3, new Texture2D(loadWallTextureTask.Result), loadTreeTrunkMtl.Result[0]);
+            Borders.AddPosition(new Vector3(0, 0, 0));
+            Borders.ModelTransformations.Add(new ModelTransformations(0, -90, 0, 1, new Vector3(MaxX - 2, 0, 0)));
+            Borders.ModelTransformations.Add(new ModelTransformations(0, -180, 0, 1, new Vector3(MaxX - 2, 0, MaxZ - 2)));
+            Borders.ModelTransformations.Add(new ModelTransformations(0, -270, 0, 1, new Vector3(0, 0, MaxZ - 2)));
+            */
+            BordersNormalTexture = new Texture2D(textures[FilePaths.BumpTexBrickWall]);
+            
+
+
+            Trees = new Collidable(new NormalMappingMesh(models[FilePaths.ObjTreeTrunk], textures[FilePaths.TextureTreeTrunk],
+                textures[FilePaths.BumpTexTrunk], materials[FilePaths.MtlBronze]), treeTrunksPositions);
+            TreeLeaves = new WorldObject(new NormalMappingMesh(models[FilePaths.ObjTreeLeaves], textures[FilePaths.TextureTreeLeaves3],
+                textures[FilePaths.BumpTexTreeLeaves], materials[FilePaths.MtlEmerald]), treeLeavesPositions);
+            
 
             // in middle of each terrain (2x2 map) and in the very middle of the map
             //list<modeltransformations> transformations = new list<modeltransformations>()
@@ -107,17 +157,10 @@ namespace SimpleEngine.WorldObjects
             //    new modeltransformations() { position = new vector3(maxx / 4, getheight(maxx / 4, 3 * maxz / 4) + 3, 3 * maxz / 4) },
             //};
 
-            // for simplicity I put 4 of the stones in the map corners and one in its middle
-            List<ModelTransformations> transformations = new List<ModelTransformations>()
-            {
-                new ModelTransformations() { Position = new Vector3(MaxX / 2, GetHeight(MaxX / 2, MaxZ / 2) + 3, MaxZ / 2) }, // the very middle
-                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, 10) + 3, 10) },
-                new ModelTransformations() { Position = new Vector3(MaxX - 10, GetHeight(MaxX - 10, 10) + 3, 10) },
-                new ModelTransformations() { Position = new Vector3(10, GetHeight(10, MaxZ - 10) + 3, MaxZ - 10) },
-                new ModelTransformations() { Position = new Vector3(MaxX - 7, GetHeight(MaxX - 7, MaxZ - 7) + 3, MaxZ - 7) }
-            };
+            
+
             Stones = new FloatingStone(new NormalMappingMesh(models[FilePaths.ObjMossyRock1], textures[FilePaths.TextureMossyRock],
-                textures[FilePaths.BumpTexMossyRock], loadRockMtl.Result[0]), transformations);
+                textures[FilePaths.BumpTexMossyRock], materials[FilePaths.MtlChrome]), stonesPositions);
 
         }
 
@@ -171,7 +214,8 @@ namespace SimpleEngine.WorldObjects
         
 
         /// <summary>
-        /// Map is expected to have all vertices at level 0 at its edges
+        /// Terrain is expected to have all vertices at level 0 at its edges
+        /// So we can nicely put them next to each other
         /// </summary>
         public ObjModel CalculateBordersObjModel(int width, int height, int texPerWidth, int texPerHeight)
         {

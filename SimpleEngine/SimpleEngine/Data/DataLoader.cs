@@ -42,7 +42,7 @@ namespace SimpleEngine.Data
         };
 
         /// <summary>
-        /// One of the longest processes at the game start is loading a texture
+        /// One of the longest processes at the game start is loading a texture (bitmap)
         /// A 1024 x 1024 pix texture has over a million bytes and each has to be read into the bitmap
         /// We want to put the loading process in the background
         /// </summary>

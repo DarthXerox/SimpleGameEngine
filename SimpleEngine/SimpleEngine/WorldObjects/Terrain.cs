@@ -5,6 +5,7 @@ using OpenTK;
 using SimpleEngine.Utils;
 using SimpleEngine.Data;
 using SimpleEngine.GameScene;
+using System.Collections.Generic;
 
 namespace SimpleEngine.WorldObjects
 {
@@ -37,6 +38,16 @@ namespace SimpleEngine.WorldObjects
         public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, Vector3 position)
             : base(new ModelTransformations() { Position = position })
         {
+            HeightMap = heightMap;
+            WidthX = HeightMap.Width;
+            WidthZ = HeightMap.Height;
+            RawMesh = new Mesh(CalculateMesh(), colTexture, material);
+            NormalTexture = new Texture2D(normalTexture);
+        }
+        public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, List<ModelTransformations> transformations)
+            : base(new ModelTransformations())
+        {
+            ModelTransformations = transformations;
             HeightMap = heightMap;
             WidthX = HeightMap.Width;
             WidthZ = HeightMap.Height;
