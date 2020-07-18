@@ -10,7 +10,7 @@ namespace SimpleEngine.Data
     /// </summary>
     public class Texture2D : IDisposable
     {
-        public int ID { private set; get; }
+        public int ID { get; }
 
         /// <summary>
         /// Normal synchronous way to load texture
@@ -51,7 +51,6 @@ namespace SimpleEngine.Data
 
             bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
         }
-
 
         public void Use()
         {

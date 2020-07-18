@@ -4,7 +4,7 @@ using SimpleEngine.GameScene;
 namespace SimpleEngine.Collisions
 {
     /// <summary>
-    /// Used for sending player as argument of a collsion event
+    /// Used for sending player as argument of a collision event
     /// </summary>
     public class CollisionArgs : EventArgs
     {

@@ -4,7 +4,7 @@ using SimpleEngine.Utils;
 namespace SimpleEngine.Collisions
 {
     /// <summary>
-    /// Defines an interface for a scene object that can collide with a player
+    /// Defines an interface for a world 3D object that can collide with a player
     /// </summary>
     public interface ICollidable
     {

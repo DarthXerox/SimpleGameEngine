@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Assimp;
 using OpenTK;
 
@@ -31,36 +30,11 @@ namespace SimpleEngine.Data
         public float[] Tangents;
         public float[] BiTangents;
 
-        public ObjModel() { }
-
         public static ObjModel LoadWithTangents(string objFile)
         {
             Scene scene = new AssimpContext().ImportFile(objFile, PostProcessSteps.GenerateSmoothNormals
                 | PostProcessSteps.CalculateTangentSpace
                 | PostProcessSteps.Triangulate);
-
-            if (!scene.HasMeshes)
-            {
-                throw new MissingFieldException("No meshes found!");
-            }
-            // this whole class is only made for single mesh files
-            if (scene.MeshCount > 1)
-            {
-                throw new MissingFieldException("Found multiple meshes!");
-            }
-
-            var model = InitFromScene(scene);
-            model.DetermineBorders(scene.Meshes[0].Vertices);
-
-            return model;
-        }
-
-        public static async Task<ObjModel> LoadWithTangentsAsync(string objFile)
-        {
-            Scene scene = await Task.Run(() => new AssimpContext().ImportFile(objFile, PostProcessSteps.GenerateSmoothNormals
-                | PostProcessSteps.CalculateTangentSpace
-                | PostProcessSteps.Triangulate
-                ));
 
             if (!scene.HasMeshes)
             {
@@ -131,7 +105,6 @@ namespace SimpleEngine.Data
                 {
                     MaxZ = vec.Z;
                 }
-                ///
                 if (vec.X < MinX)
                 {
                     MinX = vec.X;

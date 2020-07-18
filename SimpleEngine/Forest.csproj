@@ -97,7 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SimpleEngine\Data\Material.cs" />
-    <Compile Include="SimpleEngine\Data\ObjParser.cs" />
     <Compile Include="SimpleEngine\GameScene\ConeLight.cs" />
     <Compile Include="SimpleEngine\GameScene\PointLight.cs" />
     <Compile Include="SimpleEngine\Text\Character.cs" />

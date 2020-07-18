@@ -3,7 +3,7 @@
 namespace SimpleEngine.Data
 {
     /// <summary>
-    /// Simple .mtl file parser
+    /// Contains data specific to a material (colors, shininess...)
     /// </summary>
     public class Material
     {

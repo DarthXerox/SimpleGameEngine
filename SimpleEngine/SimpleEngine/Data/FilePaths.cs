@@ -2,6 +2,9 @@
 
 namespace SimpleEngine.Data
 {
+    /// <summary>
+    /// Contains paths to all resources
+    /// </summary>
     public static class FilePaths
     {
         public static readonly string Prefix = $"..{Path.DirectorySeparatorChar}.." +
@@ -30,8 +33,6 @@ namespace SimpleEngine.Data
         public static readonly string TextureGrass1 = TextureFolder + "grass1.png";
         public static readonly string TextureGrass2 = TextureFolder + "grass2.png";
 
-
-
         public static readonly string FontSans = FontsFolder + "FreeSans.ttf";
         public static readonly string FontMono = FontsFolder + "joystix monospace.ttf";
 
@@ -55,7 +56,6 @@ namespace SimpleEngine.Data
         public static readonly string MtlEmerald = MaterialsFolder + "emerald.mtl";
         public static readonly string MtlMossyRock1 = MaterialsFolder + "Mossy Rock 1.mtl";
         public static readonly string MtlTreeTrunk = MaterialsFolder + "trunk.mtl";
-
 
         public static readonly string SoundStonePickUp = SoundsFolder + "stone pickup.wav";
         public static readonly string SoundMenuBtnHover = SoundsFolder + "menu btn hover.wav";
