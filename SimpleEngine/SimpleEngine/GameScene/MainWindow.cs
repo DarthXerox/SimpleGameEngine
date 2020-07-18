@@ -26,6 +26,10 @@ namespace SimpleEngine.GameScene
         private int frameCounter = 0;
         private bool isNormalMapping = true;
 
+        public readonly Task<ConcurrentDictionary<string, Bitmap>> TexturesTask = DataLoader.LoadAllBitmapsAsync();
+        public readonly Task<ConcurrentDictionary<string, ObjModel>> ModelsTask = DataLoader.LoadAllObjModelsWithTangentsAsync();
+        public readonly Task<ConcurrentDictionary<string, Material>> MaterialsTask = DataLoader.LoadAllMaterialsAsync();
+
         public GameStates GameState { private set; get; } = GameStates.MainMenu;
         public Matrix4 ViewMatrix { private set; get; }
         public Matrix4 ProjectionMatrix { private set; get; }
@@ -41,7 +45,7 @@ namespace SimpleEngine.GameScene
         public CollisionManager CollisionManager { set; get; }
 
         //enables to switch  between omnipotent camera and player
-        public bool IsPlayerMoving { get; } = false;
+        public bool IsPlayerMoving { get; } = true;
         public FreeTypeFont Font { set; get; }
         public GUI QuitMenuGUI { set; get; }
         public GUI MainMenuGUI { set; get; }
@@ -49,11 +53,6 @@ namespace SimpleEngine.GameScene
         public GUI HelpGUI { set; get; }
         public float[] ClearColor { private set; get; } = { 0.0f, 0.0f, 0.0f, 1.0f };
         public float[] ClearDepth { get; } = { 1.0f };
-
-        // make it possible to delete
-        public readonly Task<ConcurrentDictionary<string, Bitmap>> TexturesTask = DataLoader.LoadAllBitmapsAsync();
-        public readonly Task<ConcurrentDictionary<string, ObjModel>> ModelsTask = DataLoader.LoadAllObjModelsWithTangentsAsync();
-        public readonly Task<ConcurrentDictionary<string, Material>> MaterialsTask = DataLoader.LoadAllMaterialsAsync();
 
         public MainWindow()
            : base(900, 
@@ -94,17 +93,20 @@ namespace SimpleEngine.GameScene
             };
 
 
-            // used for moving camera, this feature can only be turned on in the code see IsPlayerMoving
-            Camera = new Camera(
-                new Vector3(0.0f, 20.0f, 20.0f),
-                new Vector3(0.0f, 1.0f, 0.0f)
+            // used for moving camera, this feature can only be turned on in the code, see IsPlayerMoving
+            if (!IsPlayerMoving)
+            {
+                Camera = new Camera(
+                    new Vector3(0.0f, 20.0f, 20.0f),
+                    new Vector3(0.0f, 1.0f, 0.0f)
                 );
+            }
 
-            CursorVisible = false; // we want to hide the cursor while the game is played
+            CursorVisible = false; // we want to hide the cursor while the game is being played
 
             InitGUI();
 
-            // To be able to draw letter (GUI) over the background (game running)
+            // To be able to draw letters (GUI) over the background (game running)
             // we have to render the background not directly to window screen but to a separate framebuffer 
             // Here we create this separate buffer
             GL.CreateFramebuffers(1, out framebuffer);
@@ -165,7 +167,7 @@ namespace SimpleEngine.GameScene
             frameCounter++;
             if (frameCounter >= 120)
             {
-                isNormalMapping = ! isNormalMapping;
+                isNormalMapping = !isNormalMapping;
                 frameCounter = 0;
             }
 
@@ -322,6 +324,7 @@ namespace SimpleEngine.GameScene
                     case GameStates.PlayingGame:
                     {
                         CursorVisible = false;
+                        World.Stones.Move();
                         if (IsPlayerMoving)
                         {
                             Player.Move(Mouse.GetState());

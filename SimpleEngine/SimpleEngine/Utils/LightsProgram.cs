@@ -5,21 +5,11 @@ using OpenTK;
 namespace SimpleEngine.Utils
 {
     /// <summary>
-    /// Represents a program that uses light, materials and fog for rendering
+    /// Represents a shader program that uses lights, materials and a fog for rendering
     /// </summary>
     public class LightsProgram : ShaderProgram
     {
-        public int PositionAttrib { protected set; get; }
-        public int TexCoordsAttrib { protected set; get; }
-        public int NormalsAttrib { protected set; get; }
-        public int ModelUniform { protected set; get; }
-        public int ViewUniform { protected set; get; }
-        public int ProjectionUniform { protected set; get; }
-        public int TextureSamplerUniform { protected set; get; }
-
-        public LightsProgram(params string[] shaderFilePaths) : base(shaderFilePaths)
-        {
-        }
+        public LightsProgram(params string[] shaderFilePaths) : base(shaderFilePaths) { }
 
         public void AttachModelMatrix(Matrix4 matrix)
         {

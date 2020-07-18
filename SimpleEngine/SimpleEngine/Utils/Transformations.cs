@@ -3,24 +3,19 @@
 namespace SimpleEngine.Utils
 {
     /// <summary>
-    /// Represents all possible transformations of a model in the game
+    /// Represents all possible transformations of a 3D object in a game
     /// </summary>
-    public class ModelTransformations
+    public class Transformations
     {
-        public float RotX { set; get; } = 0.0f;
-        public float RotY { set; get; } = 0.0f;
-        public float RotZ { set; get; } = 0.0f;
+        public float RotX { set; get; }
+        public float RotY { set; get; }
+        public float RotZ { set; get; }
         public Vector3 Scaling { set; get; } = new Vector3(1.0f);
         public Vector3 Position { set; get; } = new Vector3(0.0f);
 
-        public ModelTransformations() { }
+        public Transformations() { }
 
-        public ModelTransformations(Vector3 pos)
-        {
-            Position = pos;
-        }
-
-        public ModelTransformations(float rotX, float rotY, float rotZ, float scalingFactor, Vector3 position)
+        public Transformations(float rotX, float rotY, float rotZ, float scalingFactor, Vector3 position)
         {
             RotX = rotX;
             RotY = rotY;

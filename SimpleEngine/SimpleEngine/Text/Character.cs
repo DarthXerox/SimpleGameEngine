@@ -2,6 +2,9 @@
 
 namespace SimpleEngine.Text
 {
+    /// <summary>
+    /// Represents a single character of a font
+    /// </summary>
     public struct Character
     {
         public int TextureID { get; set; }

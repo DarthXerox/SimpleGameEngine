@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using SharpFont;
+using System.Linq;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using SharpFont;
 using SimpleEngine.Utils;
-using System.Linq;
 
 namespace SimpleEngine.Text
 {
-
     /// <summary>
-    /// Class used for loading .ttf  font files
+    /// Class used for loading .ttf  font files and drawing them
     /// </summary>
     public class FreeTypeFont : IDisposable
     {
@@ -18,38 +17,39 @@ namespace SimpleEngine.Text
         private int vaoID;
         private int vboID;
 
-        public FreeTypeFont(uint pixelheight, string fontFile, int positionAttrib = 0, int texCoordsAttrib = 1)
+        public FreeTypeFont(uint pixelHeight, string fontFile, int positionAttrib = 0, int texCoordsAttrib = 1)
         {
             using (Face face = new Face(new Library(), fontFile))
             {
-                face.SetPixelSizes(0, pixelheight);
+                // Setting the width to 0 lets the face dynamically calculate the width based on the given height
+                face.SetPixelSizes(0, pixelHeight); 
 
                 // set 1 byte pixel alignment 
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
                 GL.ActiveTexture(TextureUnit.Texture0);
 
-                // Load first 128 characters of ASCII set
                 for (uint asciiVal = 0; asciiVal < 128; asciiVal++)
                 {
                     face.LoadChar(asciiVal, LoadFlags.Render, LoadTarget.Normal);
                     GlyphSlot glyph = face.Glyph;
                     FTBitmap bitmap = glyph.Bitmap;
 
-                    GL.CreateTextures(TextureTarget.Texture2D, 1, out int texId);
-                    GL.BindTexture(TextureTarget.Texture2D, texId);
+                    // Creates a simple texture from the glyphs bitmap (unfortunately FTBitmap is different from Bitmap)
+                    GL.CreateTextures(TextureTarget.Texture2D, 1, out int texID);
+                    GL.BindTexture(TextureTarget.Texture2D, texID);
                     GL.TexImage2D(TextureTarget.Texture2D, 0,
                                     PixelInternalFormat.R8, bitmap.Width, bitmap.Rows, 0,
                                     PixelFormat.Red, PixelType.UnsignedByte, bitmap.Buffer);
 
-                    GL.TextureParameter(texId, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-                    GL.TextureParameter(texId, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-                    GL.TextureParameter(texId, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-                    GL.TextureParameter(texId, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                    GL.TextureParameter(texID, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    GL.TextureParameter(texID, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TextureParameter(texID, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                    GL.TextureParameter(texID, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                     
                     Character chr = new Character
                     {
-                        TextureID = texId,
+                        TextureID = texID,
                         Size = new Vector2(bitmap.Width, bitmap.Rows),
                         Bearing = new Vector2(glyph.BitmapLeft, glyph.BitmapTop),
                         Advance = glyph.Advance.X.Value
@@ -63,9 +63,9 @@ namespace SimpleEngine.Text
 
             // Whenever an instance of this class is created only 4 * 6 floats are sent to GPU
             // and for each rendered character only a model matrix is different
-            float[] vquad =
+            float[] quad =
             {
-                // x      y      u     v    
+                // x      y       u     v    
                 0.0f, -1.0f,   0.0f, 1.0f,
                 0.0f,  0.0f,   0.0f, 0.0f,
                 1.0f,  0.0f,   1.0f, 0.0f,
@@ -75,7 +75,7 @@ namespace SimpleEngine.Text
             };
 
             GL.CreateBuffers(1, out vboID);
-            GL.NamedBufferStorage(vboID, 4 * 6 * sizeof(float), vquad, 0);
+            GL.NamedBufferStorage(vboID, 4 * 6 * sizeof(float), quad, 0);
 
             GL.CreateVertexArrays(1, out vaoID);
             GL.EnableVertexArrayAttrib(vaoID, positionAttrib);
@@ -93,7 +93,7 @@ namespace SimpleEngine.Text
         public void RenderText(string text, float x, float y, float scale, Vector3 color,
             int modelUniform = 0, int colorUniform = 2, int textureBinding = 0)
         {
-            ModelTransformations transformations = new ModelTransformations();
+            var transformations = new Transformations();
 
             GL.BindVertexArray(vaoID);
             float pixelAdvancementX = 0.0f;
@@ -101,7 +101,7 @@ namespace SimpleEngine.Text
             {
                 if (!Characters.ContainsKey(c))
                 {
-                    throw new InvalidOperationException("Invalid ASCII character! Use only first 128");
+                    throw new InvalidOperationException("Invalid ASCII character! Valid are only first 128 ASCII characters");
                 }
 
                 Character chr = Characters[c];
@@ -125,7 +125,7 @@ namespace SimpleEngine.Text
             GL.BindVertexArray(0);
         }
 
-        public void GetPixelLength(string text, float scale, ref float length, ref float height)
+        public void GetTextPixelSize(string text, float scale, ref float length, ref float height)
         {
             length = 0.0f;
             height = 0.0f;
@@ -133,10 +133,10 @@ namespace SimpleEngine.Text
             {
                 if (!Characters.ContainsKey(c))
                 {
-                    throw new InvalidOperationException("Invalid ASCII character! Use only first 128");
+                    throw new InvalidOperationException("Invalid ASCII character! Valid are only first 128 ASCII characters");
                 }
                 Character chr = Characters[c];
-                length += (chr.Advance >> 6) * scale;
+                length += (chr.Advance >> 6) * scale; 
                 if (chr.Size.Y > height)
                 {
                     height = chr.Size.Y;
@@ -146,10 +146,10 @@ namespace SimpleEngine.Text
 
         public void Dispose()
         {
+            // making a struct an IDisposable doesn't make sense
             Characters.Values
                 .ToList()
                 .ForEach(chr => GL.DeleteTexture(chr.TextureID));
-            // making a struct an IDisposable doesnt make sense
             Characters.Clear();
             GL.DeleteBuffer(vboID);
             GL.DeleteVertexArray(vaoID);

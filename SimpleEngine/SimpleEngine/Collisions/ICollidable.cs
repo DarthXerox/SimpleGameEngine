@@ -10,6 +10,6 @@ namespace SimpleEngine.Collisions
     {
         bool IsColliding(Player player);
         void OnCollisionCheck(object source, CollisionArgs args);
-        void ReactToCollision(Player player, ModelTransformations transformations);
+        void ReactToCollision(Player player, Transformations transformations);
     }
 }

@@ -18,15 +18,6 @@ namespace SimpleEngine.WorldObjects
         public float Height { get; }
         public float Radius { get; }
         
-        public Collidable(Mesh mesh, ModelTransformations initialTransformations) 
-            : this(mesh) 
-        {
-            ModelTransformations.Add(initialTransformations);
-        }
-
-        public Collidable(Mesh mesh, Vector3 initialPosition) 
-            : this(mesh, new ModelTransformations() { Position = initialPosition }) { }
-
         public Collidable(Mesh mesh) : base(mesh) 
         {
             Radius = Math.Max(
@@ -36,7 +27,7 @@ namespace SimpleEngine.WorldObjects
             Height = Math.Abs(RawMesh.Model.MaxY) + Math.Abs(RawMesh.Model.MinY);
         }
 
-        public Collidable(Mesh mesh, List<ModelTransformations> modelTransformations)
+        public Collidable(Mesh mesh, List<Transformations> modelTransformations)
             : this(mesh)
         {
             ModelTransformations = modelTransformations;
@@ -50,18 +41,17 @@ namespace SimpleEngine.WorldObjects
                 (Vector2.Distance(player.Position.Xz, trans.Position.Xz) <= Radius + player.Radius));
         }
 
-        public ModelTransformations GetCollidingPosition(Player player)
+        public Transformations GetCollidingPosition(Player player)
         {
-            return ModelTransformations.Where(trans =>
-                ((player.Position.Y <= trans.Position.Y + Height) ||
-                (player.Position.Y >= trans.Position.Y)) &&
-                (Vector2.Distance(player.Position.Xz, trans.Position.Xz) <= Radius + player.Radius))
-                .FirstOrDefault();
+            return ModelTransformations
+                .FirstOrDefault(trans => ((player.Position.Y <= trans.Position.Y + Height) ||
+                                          (player.Position.Y >= trans.Position.Y)) &&
+                                         (Vector2.Distance(player.Position.Xz, trans.Position.Xz) <= Radius + player.Radius));
         }
 
         public virtual void OnCollisionCheck(object source, CollisionArgs args)
         {
-            ModelTransformations collidingObject = GetCollidingPosition(args.PointOfCollision);
+            Transformations collidingObject = GetCollidingPosition(args.PointOfCollision);
             if (collidingObject != null)
             {
                 ReactToCollision(args.PointOfCollision, collidingObject);
@@ -73,7 +63,7 @@ namespace SimpleEngine.WorldObjects
         /// calculate vector from colliding object to player, then extend it length (out of collision)
         /// and add this vector to colliding object's position
         /// </summary>
-        public virtual void ReactToCollision(Player player, ModelTransformations transformations)
+        public virtual void ReactToCollision(Player player, Transformations transformations)
         {
             var collisionVector = Vector2.Subtract(player.Position.Xz, transformations.Position.Xz);
             collisionVector.Resize(Radius + player.Radius + 0.001f);

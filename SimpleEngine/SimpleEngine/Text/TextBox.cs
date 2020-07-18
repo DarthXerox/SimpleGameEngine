@@ -1,6 +1,6 @@
-﻿using SimpleEngine.Utils;
-using OpenTK;
+﻿using OpenTK;
 using SimpleEngine.Data;
+using SimpleEngine.Utils;
 
 namespace SimpleEngine.Text
 {
@@ -27,7 +27,7 @@ namespace SimpleEngine.Text
         /// Font is passed by a reference (not created within TextBox)
         /// so it is not a good idea to dispose of it later
         /// </summary>
-        FreeTypeFont Font { get; } 
+        public FreeTypeFont Font { get; } 
 
         public TextBox(float midX, float midY, string text, float scale, 
             Vector3 baseColor, FreeTypeFont font, bool hasHitbox = true)
@@ -39,11 +39,11 @@ namespace SimpleEngine.Text
             MidX = midX;
             MidY = midY;
             HasHitbox = hasHitbox;
-            // Moves the borders so that midX and midY are exatly in the middle of the text "rectangle"
+            // Moves the borders so that midX and midY are exactly in the middle of the text "rectangle"
             // => creates alignment to middle
-            Font.GetPixelLength(Text, scale, ref pixelLength, ref pixelHeight);
-            MinX = midX - PixelLength / 2;
-            MinY = midY - PixelHeight / 2;
+            Font.GetTextPixelSize(Text, scale, ref pixelLength, ref pixelHeight);
+            MinX = midX - PixelLength / 2f;
+            MinY = midY - PixelHeight / 2f;
             MaxX = MinX + PixelLength;
             MaxY = MinY + PixelHeight;
         }
@@ -59,7 +59,11 @@ namespace SimpleEngine.Text
 
         public bool IsColliding(Vector2 pos)
         {
-            return IsColliding(pos.X, pos.Y);
+            if (HasHitbox && pos.X <= MaxX && pos.X >= MinX && pos.Y <= MaxY && pos.Y >= MinY)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -68,9 +72,9 @@ namespace SimpleEngine.Text
         /// <param name="mousePos">mouse cursor position RELATIVE to window MIDDLE </param>
         public void Draw(Vector2 mousePos, int modelUniform = 0, int colorUniform = 2, int textureBinding = 0)
         {
-            if (HasHitbox && IsColliding(mousePos.X, mousePos.Y))
+            if (HasHitbox && IsColliding(mousePos))
             {
-                if (!IsHighlighted) // makes sure the sound is played only once while the text is being hovered over
+                if (!IsHighlighted) // makes sure the sound is played only once while the mouse is hovering over the text 
                 {
                     Sounder.PlaySound(FilePaths.SoundMenuBtnHover);
                 }

@@ -1,55 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using OpenTK;
-using SimpleEngine.Utils;
 using SimpleEngine.Data;
 using SimpleEngine.GameScene;
-using System.Collections.Generic;
+using SimpleEngine.Utils;
 
 namespace SimpleEngine.WorldObjects
 {
+    /// <summary>
+    /// Terrain is a worldobject with mesh calculated from a heatmap
+    /// </summary>
     public class Terrain : WorldObject
     {
         public readonly float MaxHeight = 10f;
-
         public readonly int TexturesPerSide = 32;
-
         public int ShaderTextureSampler2 { get; } = 1;
-
-        public int WidthX { get;} //{ get => HeightMap.Width; } 
-        public int WidthZ { get; } //{ get => HeightMap.Height; }
         public Bitmap HeightMap { get; }
-
+        public int WidthX  => HeightMap.Width; 
+        public int WidthZ => HeightMap.Height;
         public Texture2D NormalTexture { get; }
 
-
-        public Terrain(string bitmapFile, string colorTextureFile, string normalTextureFile, string materialFile, Vector3 position)
-            : base(new ModelTransformations() { Position = position })
-        {
-            HeightMap = new Bitmap(bitmapFile);
-            WidthX = HeightMap.Width;
-            WidthZ = HeightMap.Height;
-            RawMesh = new Mesh(CalculateMesh(), colorTextureFile, materialFile);
-            NormalTexture = new Texture2D(normalTextureFile);
-        }
-
-        public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, Vector3 position)
-            : base(new ModelTransformations() { Position = position })
-        {
-            HeightMap = heightMap;
-            WidthX = HeightMap.Width;
-            WidthZ = HeightMap.Height;
-            RawMesh = new Mesh(CalculateMesh(), colTexture, material);
-            NormalTexture = new Texture2D(normalTexture);
-        }
-        public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, List<ModelTransformations> transformations)
-            : base(new ModelTransformations())
+        public Terrain(Bitmap heightMap, Bitmap colTexture, Bitmap normalTexture, Material material, List<Transformations> transformations)
+            : base(new Transformations())
         {
             ModelTransformations = transformations;
             HeightMap = heightMap;
-            WidthX = HeightMap.Width;
-            WidthZ = HeightMap.Height;
             RawMesh = new Mesh(CalculateMesh(), colTexture, material);
             NormalTexture = new Texture2D(normalTexture);
         }
@@ -64,6 +40,10 @@ namespace SimpleEngine.WorldObjects
             return GetHeightFromMap(x, z) * MaxHeight;
         }
         
+        /// <summary>
+        /// This is not the most correct way to calculate normals for a given point
+        /// but is much easier and very accurate
+        /// </summary>
         private Vector3 CalculateNormal(int x, int z)
         {
             float heightLeft = GetHeight(x - 1, z);
@@ -76,28 +56,8 @@ namespace SimpleEngine.WorldObjects
             ret.Normalize();
             return ret;
         }
-        
-        public async Task<float> GetHeightAsync(int x, int z)
-        {
-            return await Task.Run(() => GetHeightFromMap(x, z));
-            //return height * MaxHeight;
-        }
-        
-        
-        private async Task<Vector3> CalculateNormalAsync(int x, int z)
-        {
-            var heightLeftTask = GetHeightAsync(x - 1, z);
-            var heightRightTask = GetHeightAsync(x + 1, z);
-            var heightUpTask = GetHeightAsync(x, z + 1);
-            var heightDownTask = GetHeightAsync(x, z - 1);
-            var ret = new Vector3(await heightLeftTask - await heightRightTask,
-                                    2.0f,
-                                    await heightDownTask - await heightUpTask);
-            ret.Normalize();
-            return ret;
-        }
-        
 
+       
         public float GetInterpolatedHeight(float x, float z)
         {
             int intX = (int)x;
@@ -114,10 +74,16 @@ namespace SimpleEngine.WorldObjects
             return Interpolate(i1, i2, fracZ);
         }
 
+        /// <summary>
+        /// Finds interpolated value between 2 values based on the given blend factor
+        /// </summary>
+        /// <param name="a">First value</param>
+        /// <param name="b">Second value</param>
+        /// <param name="blend">Blend factor</param>
         private float Interpolate(float a, float b, float blend)
         {
-            double theta = blend * Math.PI;
-            float f = (float)(1f - Math.Cos(theta)) * 0.5f;
+            // maps the blend factor to interval [-1, 0] 
+            float f = (float)(1f - Math.Cos(blend * Math.PI)) * 0.5f;
             return a * (1f - f) + b * f;
         }
         
@@ -128,8 +94,6 @@ namespace SimpleEngine.WorldObjects
             {
                 for (int x = 0; x < WidthX; x++)
                 {
-                    //var calculteNormalTask = CalculateNormalAsync(x, z);
-                    //var getHeightTask = GetHeightAsync(x, z);
                     if (z < WidthZ - 1 && x < WidthX - 1)
                     {
                         int topLeft = z * WidthX + x;
@@ -137,7 +101,8 @@ namespace SimpleEngine.WorldObjects
                         int topRight = topLeft + 1;
                         int bottomRight = bottomLeft + 1;
 
-                        // 1 square created from 2 triangles
+                        // 1 square is created from 2 triangles
+                        // indices must be in counter clockwise order, so the faceculling works correctly
                         model.Indices.Add((uint)topLeft);
                         model.Indices.Add((uint)bottomLeft);
                         model.Indices.Add((uint)bottomRight);
@@ -155,36 +120,9 @@ namespace SimpleEngine.WorldObjects
                 }
             }
 
-
-            /*
-            for (int z = 0; z < WidthZ - 1; z++)
-            {
-                for (int x = 0; x < WidthX - 1; x++)
-                {
-                    int topLeft = z * WidthX + x;
-                    int bottomLeft = (z + 1) * WidthX + x;
-                    int topRight = topLeft + 1;
-                    int bottomRight = bottomLeft + 1;
-
-                    // 1 square created from 2 triangles
-                    model.Indices.Add((uint)topLeft);
-                    model.Indices.Add((uint)bottomLeft);
-                    model.Indices.Add((uint)bottomRight);
-
-                    model.Indices.Add((uint)bottomRight);
-                    model.Indices.Add((uint)topRight);
-                    model.Indices.Add((uint)topLeft);
-                }
-            }
-            */
-            /*
-            var y = GetHeightAsync(5, 5);
-            float f = y.Result;
-            var y2 = CalculateNormalAsync(5, 5);
-            */
-            model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 flaots for each
+            model.VerticesFloat = new float[model.Vertices.Count * 3]; // 3 floats for each
             model.TextureCoordinatesFloat = new float[model.Vertices.Count * 2]; // 2 floats for each
-            model.NormalsFloat = new float[model.Vertices.Count * 3]; //3 for each
+            model.NormalsFloat = new float[model.Vertices.Count * 3]; // 3 for each
 
 
             for (int i = 0; i < model.TextureCoordinates.Count; i++)

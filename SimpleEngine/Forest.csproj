@@ -126,7 +126,7 @@
     <Compile Include="SimpleEngine\Data\FilePaths.cs" />
     <Compile Include="SimpleEngine\Utils\Vector2Extensions.cs" />
     <Compile Include="SimpleEngine\WorldObjects\Mesh.cs" />
-    <Compile Include="SimpleEngine\Utils\ModelTransformations.cs" />
+    <Compile Include="SimpleEngine\Utils\Transformations.cs" />
     <Compile Include="SimpleEngine\Data\MtlParser.cs" />
     <Compile Include="SimpleEngine\Data\ObjModel.cs" />
     <Compile Include="SimpleEngine\Program.cs" />

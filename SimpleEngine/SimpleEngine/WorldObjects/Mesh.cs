@@ -6,6 +6,11 @@ using System.Drawing;
 
 namespace SimpleEngine.WorldObjects
 {
+	/// <summary>
+	/// Holds vertices data (objmodel), texture and material of a 3D object
+	/// All this data is enough to draw the object at position [0, 0, 0] in world
+	/// without any transformations
+	/// </summary>
     public class Mesh : IDisposable
 	{
 		public ObjModel Model { protected set; get; }
@@ -77,10 +82,6 @@ namespace SimpleEngine.WorldObjects
 			GL.VertexArrayElementBuffer(vaoMesh, eboIndices);
 		}
 
-		/// <summary>
-		/// The program must have beend called to use
-		/// </summary>
-		/// <param name="lightsProgram"></param>
 		public virtual void Draw(LightsProgram lightsProgram)
 		{
 			lightsProgram.Use();

@@ -134,7 +134,7 @@ vec3 calculateColorExperiment(Light light_) {
 
 	vec3 ambient = material.ambient.rgb * light_.ambient.rgb * tex.xyz;
 	vec3 diffuse = light_.diffuse.rgb * tex.xyz;
-	vec3 specular =  light_.specular.rgb;
+	vec3 specular = light_.specular.rgb;
 
 
 

@@ -12,42 +12,31 @@ namespace SimpleEngine.WorldObjects
     /// </summary>
     public class WorldObject : IDisposable
     {
-		public List<ModelTransformations> ModelTransformations { protected set; get; } 
-			= new List<ModelTransformations>();
-
+		public List<Transformations> ModelTransformations { protected set; get; } 
+			
 		public Mesh RawMesh { protected set; get; }
 
-		public WorldObject(Mesh mesh, ModelTransformations initialTransformations)
-		{
-			RawMesh = mesh ?? throw new NullReferenceException($"Null mesh reference in {GetType()}.ctor");
-			ModelTransformations.Add(initialTransformations);
-		}
-
-		public WorldObject(Mesh mesh) 
-		{
+		public WorldObject(Mesh mesh)
+        {
+            ModelTransformations = new List<Transformations>();
 			RawMesh = mesh ?? throw new NullReferenceException($"Null mesh reference in {GetType()}.ctor");
 		}
 
-        public WorldObject(Mesh mesh, List<ModelTransformations> modelTransformations)
+        public WorldObject(Mesh mesh, List<Transformations> modelTransformations)
         {
             ModelTransformations = modelTransformations;
 			RawMesh = mesh ?? throw new NullReferenceException($"Null mesh reference in {GetType()}.ctor");
 		}
 
-		protected WorldObject(ModelTransformations transformations) 
-		{
-			ModelTransformations.Add(transformations);
+		protected WorldObject(Transformations transformations)
+        {
+            ModelTransformations = new List<Transformations>
+            {
+				transformations
+            };
 		}
 
-		public void AddPosition(Vector3 pos)
-		{
-			ModelTransformations.Add(new ModelTransformations()
-			{
-				Position = pos
-			});
-		}
-
-		public void AddTransformation(ModelTransformations transformations)
+		public void AddTransformation(Transformations transformations)
 		{
 			ModelTransformations.Add(transformations);
 		}
@@ -57,7 +46,7 @@ namespace SimpleEngine.WorldObjects
 			lightsProgram.AttachMaterial(RawMesh.Material);
 			foreach (var transformation in ModelTransformations)
 			{
-				// we can misuse the fact that everything is rendered in xz plane
+				// we can use the fact that everything is rendered in xz plane
 				if (Vector2.Distance(transformation.Position.Xz, player.Position.Xz) < maxDistance)
 				{
 					lightsProgram.AttachModelMatrix(transformation.GetModelMatrix());

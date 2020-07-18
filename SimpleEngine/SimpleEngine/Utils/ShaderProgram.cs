@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace SimpleEngine.Utils
 {
     /// <summary>
-    /// Provides connection between shaders and C# classes
+    /// Provides connection between shaders (Resources/Shaders) and C# classes
     /// </summary>
     public class ShaderProgram : IDisposable
     {
@@ -24,7 +24,7 @@ namespace SimpleEngine.Utils
         /// Each shader's type corresponds to type in <param>AvailableShaders</param> on the same index
         /// Not every program needs to have one of all of the shader types, it usually has 2
         /// </summary>
-        public List<int> ShaderIds { private set; get; } = new List<int>();
+        public List<int> ShaderIds { get; } = new List<int>();
 
         public ShaderProgram(params string[] shaderFilePaths)
         {
@@ -38,7 +38,11 @@ namespace SimpleEngine.Utils
                 }
             }
             GL.LinkProgram(ID);
-            Console.WriteLine(GL.GetProgramInfoLog(ID));
+            if (GL.GetProgramInfoLog(ID).Length != 0)
+            {
+                Console.Error.WriteLine(GL.GetProgramInfoLog(ID));
+                throw new Exception("Couldn't link shader program!");
+            }
         }
 
         protected int CompileShader(string path, ShaderType shaderType)
@@ -59,7 +63,11 @@ namespace SimpleEngine.Utils
                 Console.Error.WriteLine("Incorrect format of shader filename!!!");
             }
             GL.CompileShader(shaderId);
-            Console.WriteLine(GL.GetShaderInfoLog(shaderId));
+            if (GL.GetShaderInfoLog(shaderId).Length != 0)
+            {
+                Console.Error.WriteLine(GL.GetShaderInfoLog(shaderId));
+                throw new Exception($"Couldn't compile shader {path}!");
+            }
 
             return shaderId;
         }
