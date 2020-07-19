@@ -27,25 +27,20 @@ determining normals from the surface of the given 3D model.
 ![Without normal mapping](../Pictures/no_normal_mapping.png?raw=true =100x100)  
 ![With normal mapping](../Pictures/normal_mapping.png?raw=true =100x100)  
 
-figcaption {
-    margin: 10px 0 0 0;
-    font-variant: small-caps;
-    font-family: Arial;
-    font-weight: bold;
-    color: #bb3333;
-}
-figure {
-    padding: 5px;
-}
-<figure>
-	<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="300" height="300">
-	<figcaption>No normal mapping</figcaption>
-</figure>
-
-<figure>
-	<img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">
-	<figcaption>With normal mapping</figcaption>
-</figure>
+<div class="row">
+  <div class="column">
+	<figure>
+		<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="300" height="300">
+		<figcaption>No normal mapping</figcaption>
+	</figure>
+  </div>
+  <div class="column">
+	<figure>
+		<img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">
+		<figcaption>With normal mapping</figcaption>
+	</figure>
+  </div>
+</div>
 
 Requirements  
 --------------
