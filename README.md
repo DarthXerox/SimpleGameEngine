@@ -1,19 +1,22 @@
-Forest  
+Simple Game Engine
 ==============
-
 Hello,  
-this a simple 3D game created using OpenGL (exactly OpenTK + C#)  
-It runs on my *simple* game engine, which offers these features:  
+this my *very simple* game engine created using OpenGL (exactly OpenTK + C#).  
+3D game creator is probably more accurate, as it offers no UI to interact with objects, lights etc.  
+and add them directly to a specific place on a map, but rather all changes have to made in code,
+but this process is very simple.
+These features can be easily played around with:  
 - Normal mapping technique
-- Add a new 3D object to the game, this requires:
+- Adding a new 3D object to the game, using:
 	- an .obj file containing a single-mesh 3D model and assigning it multiple positions, scales and rotations within the game world  
 	- any 2D diffuse texture and any 2D normal texture  
 	- any material using an .mtl file  
-- Create an arbitrary text GUI with clickable text boxes that get highlighted and play a sound  
+- Creating an arbitrary text GUI with clickable text boxes that get highlighted and play a sound  
   when a mouse hovers over them  
-- Play .wav sounds (supports playing only one sound at a time)
-- Detect collisions of ingame objects on 1 to N scheme (e.g. player and trees) using simple hitboxes
-- Specify the world's surface based on a heatmap
+- Playing .wav sounds (supports playing only one sound at a time)
+- Detecting collisions of ingame objects on 1 to N scheme (e.g. player and trees) using simple hitboxes
+- Specifying the world's surface based on a heatmap
+- Adding lights (:grey_exclamation: right now this might lead to FPS drops)
 
 
 Requirements  
@@ -21,7 +24,7 @@ Requirements
 **To launch Forest game**  
  - Download the repository  
  - Head to SimpleGameEngine/bin/Release and launch Forest.exe (Windows OS is necessary)  
- - Ingame controls can be found in HELP in Main menu  
+ - Ingame controls can be found in HELP option in the Main menu  
   
 **To open the code in VS**  
  - .NET Framework 4.7.2
