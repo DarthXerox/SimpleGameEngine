@@ -34,12 +34,9 @@ layout (location = 3) uniform vec4 lightPosition;
 layout (location = 4) uniform vec3 lightColor;
 layout (location = 5) uniform vec3 camPosition;
 
-layout (location = 12) uniform bool isNormalTex;
-
 uniform Light lights[LIGHTS_AMNT];
 uniform Material material;
 layout (location = 50) uniform Fog fog;
-//uniform int lightCount;
 
 uniform layout (binding = 0) sampler2D texture0;
 uniform layout (binding = 1) sampler2D texNormal;
@@ -51,7 +48,6 @@ layout (location = 3) in float fogFactor;
 layout (location = 4) in mat3 TBN;
 
 out vec4 finalColor;
-
 
 float calcualteCutOffIntensity(in Light light_, in vec3 L) {
 	float theta = dot(L, normalize(-light_.direction));
@@ -66,13 +62,7 @@ vec3 calculateColor(Light light_) {
 	// obtain normal from normal map in range [0,1]
     vec3 normal = texture(texNormal, texCoors).rgb;
     // transform normal vector to range [-1,1]
-	vec3 N;
-	//if (isNormalTex) {
-
-		N = normalize(TBN * (normal * 2.0 - 1.0));   
-	 //} else {
-		//N = normalize(normals);
-	//}
+	vec3 N = normalize(TBN * (normal * 2.0 - 1.0));   
 
 	vec3 E = normalize(camPosition - position); 
 	vec3 H = normalize(L + E); 
@@ -115,12 +105,7 @@ vec3 calculateColorExperiment(Light light_) {
 	// obtain normal from normal map in range [0,1]
     vec3 normal = texture(texNormal, texCoors).rgb;
     // transform normal vector to range [-1,1]
-	vec3 N;
-	if (isNormalTex) {
-		N = normalize(TBN * (normal * 2.0 - 1.0));   
-	} else {
-		N = normalize(normals);
-	}
+	vec3 N = normalize(TBN * (normal * 2.0 - 1.0));   
 
 	vec3 E = normalize(camPosition - position); 
 	vec3 H = normalize(L + E); 
@@ -131,15 +116,10 @@ vec3 calculateColorExperiment(Light light_) {
 	//ambient += 0.5;
 	vec4 tex = texture(texture0, texCoors);
 
-
 	vec3 ambient = material.ambient.rgb * light_.ambient.rgb * tex.xyz;
 	vec3 diffuse = light_.diffuse.rgb * tex.xyz;
 	vec3 specular = light_.specular.rgb;
-
-
-
-
-
+	
 	float distance_ = 1.0;
 	float attenuation = 1.0;
 	float intensity = 1.0;
@@ -171,6 +151,6 @@ void main(void) {
 	for (uint i = 0; i < LIGHTS_AMNT; ++i) {
 		lightSum += calculateColorExperiment(lights[i]);
 	}
-
+	lightSum /= LIGHTS_AMNT;
 	finalColor = vec4(mix(fog.color, lightSum, fogFactor), 1);
 }

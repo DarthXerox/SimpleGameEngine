@@ -18,8 +18,8 @@ namespace SimpleEngine.WorldObjects
         public int Width { get; }
         public int Height { get; }
         public Terrain Terrain { get; }
-        public Collidable Trees { set; get; }
-        public WorldObject TreeLeaves { set; get; }
+        public Collidable Trees { get; }
+        public WorldObject TreeLeaves { get; }
         public WorldObject Borders { get; }
         public Texture2D BordersNormalTexture { get; }
         public FloatingStone Stones { get; }
@@ -64,40 +64,38 @@ namespace SimpleEngine.WorldObjects
             }
 
             Material mat = materials[FilePaths.MtlEmerald];
-            mat.Shininess = 3000;
-            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass2],
-                 textures[FilePaths.BumpTexGrass2], mat, terrainPositions);
+            //mat.Shininess = 300;
+            Terrain = new Terrain(HeightMap, textures[FilePaths.TextureGrass4],
+                 textures[FilePaths.BumpTexGrass4], mat, terrainPositions);
             
-            // for simplicity I put 4 of the stones in the map corners and one in its middle
+            // in middle of each terrain (2x2 map) and in the very middle of the map
             List<Transformations> stonesPositions = new List<Transformations>()
             {
                 new Transformations() { Position = new Vector3(MaxX / 2, GetHeight(MaxX / 2, MaxZ / 2) + 3, MaxZ / 2) }, // the very middle
-                new Transformations() { Position = new Vector3(10, GetHeight(10, 10) + 3, 10) },
-                new Transformations() { Position = new Vector3(MaxX - 10, GetHeight(MaxX - 10, 10) + 3, 10) },
-                new Transformations() { Position = new Vector3(10, GetHeight(10, MaxZ - 10) + 3, MaxZ - 10) },
-                new Transformations() { Position = new Vector3(MaxX - 7, GetHeight(MaxX - 7, MaxZ - 7) + 3, MaxZ - 7) }
+                new Transformations() { Position = new Vector3(MaxX / 4, GetHeight(MaxX / 4, MaxZ / 4) + 3, MaxZ / 4) },
+                new Transformations() { Position = new Vector3( 3 * MaxX / 4, GetHeight(3 * MaxX / 4, 3 * MaxZ / 4) + 3, 3 * MaxZ / 4) },
+                new Transformations() { Position = new Vector3( 3 * MaxX / 4, GetHeight(3 * MaxX / 4, MaxZ / 4) + 3, MaxZ / 4) },
+                new Transformations() { Position = new Vector3(MaxX / 4, GetHeight(MaxX / 4, 3 * MaxZ / 4) + 3, 3 * MaxZ / 4) },
             };
 
-            for (int z = 0; z < HeightMap.Height; z++)
+            var rand = new Random();
+            for (int z = 0; z < MaxZ; z++)
             {
-                for (int x = 0; x < HeightMap.Width; x++)
+                for (int x = 0; x < MaxX; x++)
                 {
-                    if (z % 35 == 0 && x % 35 == 0 && z > 3 && x > 3 && z < HeightMap.Height - 3 && x < HeightMap.Width - 3)
+                    if (z % 20 == 0 && x % 20 == 0 && z > 3 && x > 3 && z < MaxZ - 3 && x < MaxX - 3)
                     {
-                        foreach (var sceneObject in terrainPositions) //Terrain.Transformations)
+                        if (rand.NextDouble() <= 0.9)
                         {
                             // I move it a litte bit down, so the tree nicely "grows" from the ground
                             treeTrunksPositions.Add(new Transformations()
                             {
-                                Position = (new Vector4(x, GetHeight(x, z), z, 1) *
-                                    sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY
+                                Position = (new Vector4(x, GetHeight(x, z), z, 1)).Xyz - Vector3.UnitY
                             });
-                            treeLeavesPositions.Add(new Transformations() 
+                            treeLeavesPositions.Add(new Transformations()
                             {
-                                Position = (new Vector4(x, GetHeight(x, z), z, 1) *
-                                    sceneObject.GetModelMatrix()).Xyz - Vector3.UnitY
+                                Position = (new Vector4(x, GetHeight(x, z), z, 1)).Xyz - Vector3.UnitY
                             });
-
                         }
                     }
                 }

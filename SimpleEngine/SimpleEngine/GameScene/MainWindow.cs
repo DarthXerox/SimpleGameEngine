@@ -3,15 +3,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
-using SimpleEngine.WorldObjects;
-using SimpleEngine.Collisions;
-using SimpleEngine.Text;
-using SimpleEngine.Utils;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
+using SimpleEngine.Collisions;
 using SimpleEngine.Data;
+using SimpleEngine.Text;
+using SimpleEngine.Utils;
+using SimpleEngine.WorldObjects;
 
 namespace SimpleEngine.GameScene
 {
@@ -21,15 +21,9 @@ namespace SimpleEngine.GameScene
         private int framebufferTexColor;
         private int framebufferTexDepth;
         private bool isFirstFrame = true;
-        
-        private DateTime loadTime;
-        private int frameCounter = 0;
-        private bool isNormalMapping = true;
-
         public readonly Task<ConcurrentDictionary<string, Bitmap>> TexturesTask = DataLoader.LoadAllBitmapsAsync();
         public readonly Task<ConcurrentDictionary<string, ObjModel>> ModelsTask = DataLoader.LoadAllObjModelsWithTangentsAsync();
         public readonly Task<ConcurrentDictionary<string, Material>> MaterialsTask = DataLoader.LoadAllMaterialsAsync();
-
         public GameStates GameState { private set; get; } = GameStates.MainMenu;
         public Matrix4 ViewMatrix { private set; get; }
         public Matrix4 ProjectionMatrix { private set; get; }
@@ -65,25 +59,21 @@ namespace SimpleEngine.GameScene
             0,
             GraphicsContextFlags.ForwardCompatible)
         {
-            loadTime = DateTime.Now;
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            Console.WriteLine((DateTime.Now - loadTime).TotalSeconds + "s");
             GL.Viewport(0, 0, Width, Height);
 
             WorldFog = new Fog(0.03f, new Vector3(0.2f, 0.2f, 0.2f));
             GL.ClearColor(WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1);
             ClearColor = new float[] { WorldFog.Color.X, WorldFog.Color.Y, WorldFog.Color.Z, 1.0f };
 
-            //var watches = System.Diagnostics.Stopwatch.StartNew();
             NormalMappingProg = new LightsProgram(FilePaths.NormalMappingVert, FilePaths.NormalMappingFrag);
             FakeNormalMappingProg = new LightsProgram(FilePaths.FakeNormalMappingVert, FilePaths.NormalMappingFrag);
             TextProgram = new ShaderProgram(FilePaths.TextVertex, FilePaths.TextFrag);
             PostprocessProgram = new LightsProgram(FilePaths.PostprocessVert, FilePaths.PostprocessFrag);
-            //Console.WriteLine($"Total programs load time: {watches.ElapsedMilliseconds}ms");
 
             Font = new FreeTypeFont(48, FilePaths.FontMono);
 
@@ -91,7 +81,6 @@ namespace SimpleEngine.GameScene
             {
                 Color = new Vector3(0.3f, 0.3f, 0.3f)
             };
-
 
             // used for moving camera, this feature can only be turned on in the code, see IsPlayerMoving
             if (!IsPlayerMoving)
@@ -138,13 +127,10 @@ namespace SimpleEngine.GameScene
 
             var watches = System.Diagnostics.Stopwatch.StartNew();
             World = new World(2, 2, TexturesTask.Result, ModelsTask.Result, MaterialsTask.Result);
-            Console.WriteLine($"Total map load time: {watches.ElapsedMilliseconds}ms");
 
-            Player = new Player(new Vector3(1, 5, 1), World);
+            Player = new Player(new Vector3(50, 5, 50), World);
             CollisionManager = new CollisionManager(Player);
             World.SignUpForCollisionChecking(CollisionManager);
-
-            Console.WriteLine("Load end time: " + (DateTime.Now - loadTime).TotalSeconds + "s");
         }
 
 
@@ -163,16 +149,6 @@ namespace SimpleEngine.GameScene
             NormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             FakeNormalMappingProg.AttachLight(Player.Flashlight, lightIndex);
             lightIndex++;
-
-            frameCounter++;
-            if (frameCounter >= 120)
-            {
-                isNormalMapping = !isNormalMapping;
-                frameCounter = 0;
-            }
-
-            GL.ProgramUniform1(NormalMappingProg.ID, 12, Convert.ToSingle(isNormalMapping));
-            GL.ProgramUniform1(FakeNormalMappingProg.ID, 12, Convert.ToSingle(isNormalMapping));
 
             GL.ProgramUniform3(NormalMappingProg.ID, 5, camPosition);
             NormalMappingProg.AttachFog(WorldFog);
@@ -279,7 +255,6 @@ namespace SimpleEngine.GameScene
             base.OnUpdateFrame(e);
             if (isFirstFrame)
             {
-                Console.WriteLine("Time in seconds:" + (DateTime.Now - loadTime).TotalSeconds);
                 isFirstFrame = false;
             }
             if (Player.StonesCollected >= FloatingStone.AllStonesCount)
