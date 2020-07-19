@@ -27,10 +27,15 @@ determining normals from the surface of the given 3D model.
 ![Without normal mapping](../Pictures/no_normal_mapping.png?raw=true =100x100)  
 ![With normal mapping](../Pictures/normal_mapping.png?raw=true =100x100)  
 
-![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png =250x25)  
+<figure>
+	<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="300" height="300">
+	<figcaption>No normal mapping</figcaption>
+</figure>
 
-<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="100" height="100">
-
+<figure>
+	<img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">
+	<figcaption>With normal mapping</figcaption>
+</figure>
 
 Requirements  
 --------------
