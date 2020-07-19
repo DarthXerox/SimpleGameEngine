@@ -1,7 +1,6 @@
 Simple Game Engine
 ==============
-Hello,  
-this my *very simple* game engine created using OpenGL (exactly OpenTK + C#).  
+Hello, this my *very simple* game engine created using OpenGL (exactly OpenTK + C#).  
 3D game creator is probably more accurate, as it offers no UI to interact with objects, lights etc.  
 and add them directly to a specific place on a map, but rather all changes have to made in code,
 but this process is very simple.
@@ -16,7 +15,17 @@ These features can be easily played around with:
 - Playing .wav sounds (supports playing only one sound at a time)
 - Detecting collisions of ingame objects on 1 to N scheme (e.g. player and trees) using simple hitboxes
 - Specifying the world's surface based on a heatmap
-- Adding lights (:grey_exclamation: right now this might lead to FPS drops)
+- Adding multiple light sources with diferent light casting types (:grey_exclamation: right now this might lead to FPS drops)
+
+Forest 
+--------------
+This is a sample game to show the features of the program.  
+All objects have increased shininess level to make the normal mapping
+more visible. These 2 pictures show the difference between normal mapping technique which determines normals based on normal texture as opposed to
+determining normals from the surface of the given 3D model.  
+
+![Without normal mapping](https://github.com/DarthXerox/SimpleGameEngine/blob/Pictures/no_normal_mapping.png =100x100)
+![With normal mapping](https://github.com/DarthXerox/SimpleGameEngine/blob/Pictures/normal_mapping.png =100x100)
 
 
 Requirements  
