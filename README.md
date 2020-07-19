@@ -29,6 +29,8 @@ determining normals from the surface of the given 3D model.
 
 ![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png =250x25)  
 
+<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="100" height="100">
+
 
 Requirements  
 --------------
