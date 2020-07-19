@@ -32,10 +32,10 @@ With normal mapping
 <img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">  
   
 The game also uses a simple fog effect  
-<img src="../Pictures/fog_effect.png?raw=true" alt="without" width="300" height="300">  
+<img src="../Pictures/fog_effect.png?raw=true" alt="without" width="500" height="300">  
   
 Here we can see a simple highlight effect applied to a textbox  
-<img src="../Pictures/mouse_hover.png?raw=true" alt="without" width="300" height="300">  
+<img src="../Pictures/mouse_hover.png?raw=true" alt="without" width="500" height="400">  
 
 
 Requirements  
