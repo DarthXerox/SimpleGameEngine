@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>OpenGL_in_CSharp</RootNamespace>
     <AssemblyName>OpenGL in CSharp</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
