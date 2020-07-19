@@ -29,14 +29,16 @@ determining normals from the surface of the given 3D model.
 
 <div class="row">
   <div class="column">
+<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="300" height="300">
 	<figure>
-		<img src="../Pictures/no_normal_mapping.png?raw=true" alt="without" width="300" height="300">
+		
 		<figcaption>No normal mapping</figcaption>
 	</figure>
   </div>
   <div class="column">
+<img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">
 	<figure>
-		<img src="../Pictures/normal_mapping.png?raw=true" alt="without" width="300" height="300">
+		
 		<figcaption>With normal mapping</figcaption>
 	</figure>
   </div>
