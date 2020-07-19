@@ -24,8 +24,10 @@ All objects have increased shininess level to make the normal mapping
 more visible. These 2 pictures show the difference between normal mapping technique which determines normals based on normal texture as opposed to
 determining normals from the surface of the given 3D model.  
 
-![Without normal mapping](../Pictures/no_normal_mapping.png?raw=true =100x100)
-![With normal mapping](../Pictures/normal_mapping.png?raw=true =100x100)
+![Without normal mapping](../Pictures/no_normal_mapping.png?raw=true =100x100)  
+![With normal mapping](../Pictures/normal_mapping.png?raw=true =100x100)  
+
+![](https://gyazo.com/eb5c5741b6a9a16c692170a41a49c858.png =250x25)  
 
 
 Requirements  
